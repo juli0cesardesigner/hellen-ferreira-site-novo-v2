@@ -297,15 +297,55 @@ export async function createBooking(data: {
     paid_amount: amountToPay
   }).select().single();
 
-  if (error) return { error: "Erro ao registrar agendamento." };
+  if (error) {
+    console.error("Erro Supabase:", error);
+    return { error: "Erro ao registrar agendamento." };
+  }
 
-  // 4. Integrar com Mercado Pago (O fluxo real geraria o preference_id aqui)
-  // Simulando retorno para o front
-  return { 
-    success: true, 
-    bookingId: booking.id, 
-    paymentUrl: "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=..." 
-  };
+  // 4. Integrar com Mercado Pago REAL
+  try {
+    const { mpPreference } = await import('@/lib/utils/mercadopago');
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app';
+
+    const preferenceResponse = await mpPreference.create({
+      body: {
+        items: [
+          {
+            id: booking.id,
+            title: `${session.name} - ${selectedPackage.name}`,
+            quantity: 1,
+            unit_price: amountToPay,
+            currency_id: 'BRL',
+            description: `Agendamento para ${data.clientName} em ${data.bookingDate} às ${data.startTime}`
+          }
+        ],
+        external_reference: booking.id,
+        // Configurações de Retorno
+        back_urls: {
+          success: `${baseUrl}/`,
+          failure: `${baseUrl}/`,
+          pending: `${baseUrl}/`
+        },
+        auto_return: 'approved',
+        // Webhook: O link que a Vercel vai receber do Mercado Pago quando o Pix for pago
+        notification_url: `${baseUrl}/api/webhooks/mercadopago`
+      }
+    });
+
+    return { 
+      success: true, 
+      bookingId: booking.id, 
+      paymentUrl: preferenceResponse.init_point // Link REAL do Mercado Pago
+    };
+  } catch (mpError) {
+    console.error("Erro Mercado Pago:", mpError);
+    // Se o MP falhar, avisamos mas salvamos o booking pendente pra você cobrar manual se quiser
+    return { 
+      success: true, 
+      bookingId: booking.id, 
+      error: "O link de pagamento falhou, mas seu agendamento foi salvo. O profissional entrará em contato." 
+    };
+  }
 }
 
 /**
