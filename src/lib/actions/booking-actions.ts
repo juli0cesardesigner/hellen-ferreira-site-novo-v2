@@ -299,12 +299,21 @@ export async function createBooking(data: {
  * Busca os detalhes completos da sessão pelo ID (Modelo Estático)
  */
 export async function fetchSessionDetails(id: string) {
+  console.log("Fetching session details for ID:", id);
   const session = SESSIONS_DATA[id];
     
-  if (!session || !session.is_active) {
+  if (!session) {
+    console.error("Session not found in SESSIONS_DATA for ID:", id);
+    console.log("Available IDs:", Object.keys(SESSIONS_DATA));
     return { session: null };
   }
 
+  if (!session.is_active) {
+    console.error("Session found but is NOT active for ID:", id);
+    return { session: null };
+  }
+
+  console.log("Session found and active:", session.name);
   return { session };
 }
 
