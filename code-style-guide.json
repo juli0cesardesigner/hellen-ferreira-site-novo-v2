@@ -1,0 +1,241 @@
+---
+trigger: always_on
+---
+
+{
+    "designPrinciples": {
+        "overall": "Light-first, minimalista, atemporal e afetuoso. O design deve atuar como o 'silêncio' (espaço em branco) que abraça e destaca a verdadeira protagonista: a fotografia e a emoção da família.",
+        "keywords": [
+            "Afeto",
+            "Pureza",
+            "Legado",
+            "Minimalismo",
+            "Leveza"
+        ],
+        "avoid": [
+            "Dark mode ou fundos pesados",
+            "Cores saturadas, neon ou vibrantes",
+            "Tipografia corporativa fria/tech",
+            "Elementos gráficos que compitam com as fotos",
+            "Sombras duras (drop shadows artificiais)"
+        ]
+    },
+    "colorPalette": {
+        "primary": {
+            "pearl": "#FCFBF9",
+            "linen": "#F5F2EC",
+            "sand": "#E6DFD3"
+        },
+        "neutral": {
+            "white": "#FFFFFF",
+            "textDark": "#2C2A29",
+            "textMedium": "#595552",
+            "textLight": "#8C8681"
+        },
+        "accent": {
+            "blush": "#D4A39B",
+            "warmGold": "#C2A878",
+            "sage": "#A3B19B"
+        },
+        "usage": {
+            "backgrounds": [
+                "Light-first: Fundos utilizam primariamente o branco/pearl (#FCFBF9) para criar um aspecto de galeria de arte limpa.",
+                "Apoio emocional: Seções de transição ou rodapés podem usar o linen (#F5F2EC).",
+                "As cores de destaque (Blush/Warm Gold) são usadas com extrema delicadeza, apenas em pequenos botões ou sublinhados sutis."
+            ],
+            "text": {
+                "headings": "#2C2A29",
+                "body": "#595552",
+                "accent": "#D4A39B"
+            },
+            "buttons": {
+                "primary": "Botão principal: fundo blush (#D4A39B), texto #FFFFFF. Hover: leve escurecimento da cor base, sem efeitos dramáticos.",
+                "secondary": "Botão secundário: fundo transparente com borda fina sand (#E6DFD3) e texto #595552."
+            }
+        }
+    },
+    "typography": {
+        "fontFamilies": {
+            "headings": {
+                "family": "Cormorant Garamond (ou Playfair Display)",
+                "style": "serif",
+                "weight": "400, 600"
+            },
+            "body": {
+                "family": "Lato (ou Montserrat)",
+                "weight": "300, 400"
+            }
+        },
+        "scale": {
+            "hero-h1": {
+                "size": "48px",
+                "lineHeight": "1.1",
+                "letterSpacing": "0.02em"
+            },
+            "h2": {
+                "size": "36px",
+                "lineHeight": "1.2",
+                "letterSpacing": "0.01em"
+            },
+            "h3": {
+                "size": "24px",
+                "lineHeight": "1.3",
+                "weight": "400"
+            },
+            "body": {
+                "size": "16px",
+                "lineHeight": "1.7"
+            },
+            "small": {
+                "size": "13px",
+                "lineHeight": "1.5"
+            }
+        },
+        "emphasis": {
+            "technique": "Ênfase por estilo (uso de itálico na fonte serifada) para destacar palavras poéticas ou de afeto. Evitar uso excessivo de negrito (Bold) para manter a leveza.",
+            "example": "Registrando os capítulos mais *preciosos* da sua história."
+        }
+    },
+    "spacing": {
+        "philosophy": "Respiro é afeto. Uso abundante de white-space (espaço negativo). Elementos não devem competir por atenção; o espaçamento generoso traz paz e elegância à leitura.",
+        "sectionPadding": {
+            "horizontal": "24px",
+            "vertical": "80px"
+        },
+        "containerMaxWidth": "1140px",
+        "componentSpacing": {
+            "betweenSections": "120px",
+            "betweenCards": "32px",
+            "betweenHeadingAndContent": "24px",
+            "insideCards": "0px (foco total na imagem)"
+        },
+        "grid": {
+            "columns": "12",
+            "gutter": "24px"
+        }
+    },
+    "components": {
+        "buttons": {
+            "primary": {
+                "background": "#D4A39B",
+                "text": "#FFFFFF",
+                "borderRadius": "4px",
+                "padding": "14px 32px",
+                "fontSize": "14px",
+                "fontWeight": "400",
+                "letterSpacing": "0.05em",
+                "transition": "all 0.3s ease",
+                "hover": {
+                    "background": "#C29088",
+                    "shadow": "none",
+                    "transform": "translateY(-1px)"
+                }
+            },
+            "secondary": {
+                "background": "transparent",
+                "border": "1px solid #E6DFD3",
+                "borderRadius": "4px",
+                "text": "#595552"
+            }
+        },
+        "cards": {
+            "default": {
+                "background": "transparent",
+                "border": "none",
+                "borderRadius": "0px",
+                "padding": "0px",
+                "shadow": "none"
+            },
+            "elevated": {
+                "background": "#F5F2EC",
+                "borderRadius": "4px",
+                "shadow": "0 4px 20px rgba(44, 42, 41, 0.03)"
+            },
+            "hover": {
+                "shadow": "none",
+                "transform": "none",
+                "transition": "opacity 0.3s ease"
+            }
+        },
+        "icons": {
+            "style": "Stroke ultrafino, minimalista e elegante. Evitar ícones pesados ou com preenchimento sólido.",
+            "size": {
+                "default": "24px",
+                "small": "16px"
+            }
+        },
+        "inputs": {
+            "borderRadius": "0px",
+            "border": "none",
+            "borderBottom": "1px solid #E6DFD3",
+            "padding": "12px 0",
+            "focusBorder": "1px solid #D4A39B",
+            "focusShadow": "none",
+            "background": "transparent"
+        }
+    },
+    "imagery": {
+        "style": "Luminosa (light & airy), natural e focada na conexão verdadeira. Tons neutros, texturas suaves e muita luz natural.",
+        "treatment": {
+            "photos": "Sem bordas, sem efeitos glossy. As fotos ocupam a maior parte do espaço visual. Formatos verticais e horizontais intercalados de forma orgânica.",
+            "illustrations": "Não utilizar. O foco é 100% na fotografia real da família.",
+            "backgrounds": "Fundos fotográficos nunca devem ser sobrepostos por blocos de texto difíceis de ler; usar espaços em branco para textos."
+        },
+        "heroImage": {
+            "composition": "Imagem forte e emotiva (Gestante ou Newborn) em destaque total, com texto delicado sobreposto sutilmente ou alinhado ao lado.",
+            "elements": "Foco na conexão (olhares, abraços, mãos). Sem composições caóticas."
+        }
+    },
+    "backgrounds": {
+        "patterns": {
+            "texturedGradient": "Não aplicável. Preferir fundos sólidos e limpos.",
+            "meshGradient": "Não usar."
+        },
+        "sections": {
+            "alternating": "Transições suaves entre branco (#FCFBF9) e o tom areia muito claro (#F5F2EC).",
+            "special": "Evitar excesso de blocos de cor. A cor vem da própria fotografia."
+        }
+    },
+    "animations": {
+        "philosophy": "Movimento orgânico, lento e poético. A animação deve parecer um 'respirar' suave da página.",
+        "types": {
+            "fadeInUp": {
+                "initial": "opacity:0; translateY:10px",
+                "animate": "opacity:1; translateY:0",
+                "duration": "800ms",
+                "easing": "ease"
+            }
+        },
+        "microInteractions": {
+            "buttons": "Escurecimento muito sutil ou botão levemente transparente no hover.",
+            "images": "Zoom-in incrivelmente lento e sutil (escala 1.02) ao passar o mouse em fotos de portfólio."
+        }
+    },
+    "layout": {
+        "philosophy": "Alinhamento centrado para poemas e citações, alinhamento à esquerda para textos descritivos. Estrutura de grid assimétrica para galerias de fotos, simulando álbuns de família reais.",
+        "hero": {
+            "layout": "Imagem grande com título serifado elegante e um subtítulo menor. Transmite calma imediatamente.",
+            "textAlignment": "center ou left (dependendo da foto hero)"
+        },
+        "featureCards": {
+            "grid": "Galerias em masonry (estilo Pinterest) ou blocos organizados com grandes espaços entre as fotos."
+        },
+        "ctaSections": {
+            "layout": "Minimalista. Texto de convite gentil ('Vamos contar a sua história?') e um botão de contato claro."
+        }
+    },
+    "trustElements": {
+        "logoBar": {
+            "style": "Não é o foco principal. Se houver selos (ex: associações de fotografia newborn), devem ser monocromáticos e muito discretos."
+        },
+        "stats": {
+            "style": "Não usar números agressivos (ex: '1000 bebês fotografados'). O foco é no valor único de cada família."
+        }
+    },
+    "footer": {
+        "background": "#F5F2EC",
+        "layout": "Logo em tipografia elegante (Hellen Ferreira), links para políticas e reservas, ícones sociais em linhas finas. Rodapé limpo e arejado.",
+        "divider": "#E6DFD3",
+        "bottomBar": "© Hellen Ferreira Fotografia. Todos os direitos reservados."
+    }
+}
