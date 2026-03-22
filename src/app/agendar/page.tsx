@@ -115,11 +115,13 @@ function BookingWizard() {
       selectedTier
     });
     
-    if (res.success) {
-      setTimeout(() => {
-        setStep('success');
-        setIsLoading(false);
-      }, 1500);
+    if (res.success && res.paymentUrl) {
+      // Redireciona imediatamente para o Mercado Pago
+      window.location.href = res.paymentUrl;
+    } else if (res.success) {
+      // Fallback para agendamentos gratuitos ou sem link
+      setStep('success');
+      setIsLoading(false);
     } else {
       setIsLoading(false);
       alert("Erro ao criar agendamento.");
