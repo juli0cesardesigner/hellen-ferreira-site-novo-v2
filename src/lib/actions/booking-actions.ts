@@ -4,10 +4,23 @@ import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
-// Configuração do Supabase (Atenção: Use variáveis de ambiente reais no seu .env)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Lazy initialization of Supabase client to prevent crashes if env vars are missing during build/init
+let supabaseClient: any = null;
+
+function getSupabase() {
+  if (supabaseClient) return supabaseClient;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Supabase environment variables are missing!");
+    throw new Error("Supabase internal configuration error");
+  }
+  
+  supabaseClient = createClient(supabaseUrl, supabaseKey);
+  return supabaseClient;
+}
 
 /**
  * Retorna os slots disponíveis para uma data e sessão específica
@@ -25,7 +38,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
     }
 
     // 1. Verificar se a data está bloqueada (Bloqueio em Massa)
-    const { data: blockedDays } = await supabase
+    const { data: blockedDays } = await getSupabase()
       .from('blocked_dates')
       .select('*')
       .lte('start_date', dateStr)
@@ -37,8 +50,8 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
 
     // 2. Buscar Slots Globais e Específicos para o dia
     const [globalRes, specificRes] = await Promise.all([
-      supabase.from('schema_slots').select('*').eq('day_of_week', dayOfWeek).is('session_id', null).order('start_time'),
-      supabase.from('schema_slots').select('*').eq('day_of_week', dayOfWeek).eq('session_id', sessionId).order('start_time')
+      getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).is('session_id', null).order('start_time'),
+      getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).eq('session_id', sessionId).order('start_time')
     ]);
 
     const globalSlots = globalRes.data || [];
@@ -48,11 +61,11 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
     // Slots específicos (Overrides) prevalecem sobre os Globais
     const finalSlotsMap: Record<string, any> = {};
 
-    globalSlots.forEach(gs => {
+    globalSlots.forEach((gs: any) => {
       finalSlotsMap[gs.start_time] = gs;
     });
 
-    specificSlots.forEach(ss => {
+    specificSlots.forEach((ss: any) => {
       finalSlotsMap[ss.start_time] = ss;
     });
 
@@ -64,18 +77,18 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
     }
 
     // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes)
-    const { data: existingBookings } = await supabase
+    const { data: existingBookings } = await getSupabase()
       .from('bookings')
       .select('start_time, end_time')
       .eq('booking_date', dateStr)
       .in('status', ['confirmed', 'pending']);
 
     // 4. Pegar detalhes da sessão (duração)
-    const { data: dbSession } = await supabase.from('sessions').select('duration_slots').eq('id', sessionId).single();
+    const { data: dbSession } = await getSupabase().from('sessions').select('duration_slots').eq('id', sessionId).single();
     const duration = dbSession?.duration_slots || session.duration_slots;
 
     // 4.1 Master Grid: a grade absoluta de tempo da profissional no dia
-    const { data: allDaySlots } = await supabase.from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
+    const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
     const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
 
     // 5. Lógica de Disponibilidade Real
@@ -92,9 +105,9 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
 
       // Varre todos os blocos na grade mestra que este ensaio vai consumir
       for (let i = 0; i < duration; i++) {
-        const gridTime = masterGrid[masterIndex + i];
+        const gridTime = masterGrid[masterIndex + i] as string;
         
-        const isBooked = existingBookings?.some(b => 
+        const isBooked = existingBookings?.some((b: any) => 
           gridTime >= b.start_time && gridTime < b.end_time
         );
         
@@ -130,7 +143,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     }
 
     // 1. Bloqueios
-    const { data: blockedDays } = await supabase
+    const { data: blockedDays } = await getSupabase()
       .from('blocked_dates')
       .select('start_date, end_date')
       .lte('start_date', endDate)
@@ -138,8 +151,8 @@ export async function getMonthAvailability(year: number, month: number, sessionI
 
     // 2. Horários base (Schema) do serviço e Global
     const [globalRes, specificRes] = await Promise.all([
-      supabase.from('schema_slots').select('*').is('session_id', null).order('start_time'),
-      supabase.from('schema_slots').select('*').eq('session_id', sessionId).order('start_time')
+      getSupabase().from('schema_slots').select('*').is('session_id', null).order('start_time'),
+      getSupabase().from('schema_slots').select('*').eq('session_id', sessionId).order('start_time')
     ]);
 
     const globalSlots = globalRes.data || [];
@@ -149,12 +162,12 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     const activeSlotsCount: Record<number, number> = {};
     const finalSlotsMap: Record<string, any> = {};
 
-    globalSlots.forEach(gs => {
+    globalSlots.forEach((gs: any) => {
       const key = `${gs.day_of_week}-${gs.start_time}`;
       finalSlotsMap[key] = gs;
     });
 
-    specificSlots.forEach(ss => {
+    specificSlots.forEach((ss: any) => {
       const key = `${ss.day_of_week}-${ss.start_time}`;
       finalSlotsMap[key] = ss;
     });
@@ -166,7 +179,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     });
 
     // 3. Bookings no período
-    const { data: bookings } = await supabase
+    const { data: bookings } = await getSupabase()
       .from('bookings')
       .select('booking_date, start_time, end_time')
       .gte('booking_date', startDate)
@@ -183,7 +196,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       const dayOfWeek = date.getUTCDay(); // Usar getUTCDay para consistência com o resto do sistema
 
       // Check if day is blocked
-      const isBlocked = blockedDays?.some(b => dateStr >= b.start_date && dateStr <= b.end_date);
+      const isBlocked = blockedDays?.some((b: any) => dateStr >= b.start_date && dateStr <= b.end_date);
       const totalSlotsInDay = activeSlotsCount[dayOfWeek] || 0;
       
       if (isBlocked || totalSlotsInDay === 0) {
@@ -191,7 +204,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
         continue;
       }
 
-      const dayBookingsCount = bookings?.filter(b => b.booking_date === dateStr).length || 0;
+      const dayBookingsCount = bookings?.filter((b: any) => b.booking_date === dateStr).length || 0;
       
       // Se bookings >= slots totais, o dia está lotado
       availabilityMap[dateStr] = dayBookingsCount < totalSlotsInDay; 
@@ -227,12 +240,12 @@ export async function createBooking(data: {
   if (!session.is_active) return { error: "Este serviço está temporariamente pausado." };
 
   // 2. Pegar duração do banco
-  const { data: dbSession } = await supabase.from('sessions').select('duration_slots').eq('id', data.sessionId).single();
+  const { data: dbSession } = await getSupabase().from('sessions').select('duration_slots').eq('id', data.sessionId).single();
   const durationSlots = dbSession?.duration_slots || session.duration_slots;
 
   // 3. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
   const dayOfWeek = new Date(data.bookingDate).getUTCDay();
-  const { data: allDaySlots } = await supabase.from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
+  const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
   const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
   
   // start_time do front geralmente vem como '15:30' ou '15:30:00'
@@ -244,7 +257,7 @@ export async function createBooking(data: {
   if (masterIndex !== -1 && masterGrid.length > 0) {
     // Pega o último slot consumido baseado na grade mestra absoluta
     const lastSlotIndex = Math.min(masterIndex + durationSlots - 1, masterGrid.length - 1);
-    const lastSlotStartTime = masterGrid[lastSlotIndex];
+    const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
     const parts = lastSlotStartTime.split(':');
     endTimeDate.setHours(parseInt(parts[0]), parseInt(parts[1]) + 30, 0); // Adiciona 30 min no último horário
   } else {
@@ -270,7 +283,7 @@ export async function createBooking(data: {
   const amountToPay = data.paymentType === 'deposit' ? session.deposit_price : packagePrice;
 
   // 4. Salvar no Banco como Pending
-  const { data: booking, error } = await supabase.from('bookings').insert({
+  const { data: booking, error } = await getSupabase().from('bookings').insert({
     session_id: data.sessionId,
     customer_name: data.clientName,
     customer_email: data.clientEmail,
