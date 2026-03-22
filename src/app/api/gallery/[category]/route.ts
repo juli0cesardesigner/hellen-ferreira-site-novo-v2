@@ -9,36 +9,21 @@ export async function GET(
   const { category } = await params;
 
   try {
-    const baseGalleryPath = path.join(process.cwd(), "public", "content", "gallery");
+    const indexPath = path.join(process.cwd(), "src", "lib", "data", "gallery-index.json");
+    if (!fs.existsSync(indexPath)) {
+      console.error("Gallery index not found at " + indexPath);
+      return NextResponse.json({ error: "Index not found" }, { status: 500 });
+    }
+
+    const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
     let images: string[] = [];
 
     if (category === "all") {
-      // Retorna imagens de todas as categorias
-      if (fs.existsSync(baseGalleryPath)) {
-        const categories = fs.readdirSync(baseGalleryPath).filter(file => 
-          fs.statSync(path.join(baseGalleryPath, file)).isDirectory()
-        );
-        
-        for (const cat of categories) {
-          const portfolioPath = path.join(baseGalleryPath, cat, "portfolio");
-          if (fs.existsSync(portfolioPath)) {
-            const files = fs.readdirSync(portfolioPath);
-            const catImages = files
-              .filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file))
-              .map(file => `/content/gallery/${cat}/portfolio/${file}`);
-            images = images.concat(catImages);
-          }
-        }
-      }
+      Object.values(index).forEach((catImages: any) => {
+        images = images.concat(catImages);
+      });
     } else {
-      // Retorna apenas da categoria específica
-      const galleryPath = path.join(baseGalleryPath, category, "portfolio");
-      if (fs.existsSync(galleryPath)) {
-        const files = fs.readdirSync(galleryPath);
-        images = files
-          .filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file))
-          .map(file => `/content/gallery/${category}/portfolio/${file}`);
-      }
+      images = index[category] || [];
     }
 
     if (images.length === 0) {
