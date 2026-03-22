@@ -4,9 +4,23 @@ import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Lazy initialization of Supabase client to prevent crashes if env vars are missing during build/init
+let supabaseClient: any = null;
+
+function getSupabase() {
+  if (supabaseClient) return supabaseClient;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Supabase environment variables are missing in Admin Actions!");
+    throw new Error("Supabase internal configuration error");
+  }
+  
+  supabaseClient = createClient(supabaseUrl, supabaseKey);
+  return supabaseClient;
+}
 
 export async function getAdminStats() {
   const today = new Date().toISOString().split('T')[0];
@@ -15,14 +29,14 @@ export async function getAdminStats() {
   const nextWeekStr = nextWeek.toISOString().split('T')[0];
 
   // Sessões de Hoje
-  const { count: todayCount } = await supabase
+  const { count: todayCount } = await getSupabase()
     .from('bookings')
     .select('*', { count: 'exact', head: true })
     .eq('booking_date', today)
     .neq('status', 'cancelled');
 
   // Sessões da Semana
-  const { count: weekCount } = await supabase
+  const { count: weekCount } = await getSupabase()
     .from('bookings')
     .select('*', { count: 'exact', head: true })
     .gte('booking_date', today)
@@ -30,7 +44,7 @@ export async function getAdminStats() {
     .neq('status', 'cancelled');
 
   // Faturamento Confirmado (Valor Pago)
-  const { data: payments } = await supabase
+  const { data: payments } = await getSupabase()
     .from('payments')
     .select('amount')
     .eq('status', 'approved');
@@ -45,7 +59,7 @@ export async function getAdminStats() {
 }
 
 export async function getBookingsList() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('bookings')
     .select(`
       *,
@@ -65,7 +79,7 @@ export async function getBookingsList() {
 }
 
 export async function getBlockedDates() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('blocked_dates')
     .select('*')
     .order('start_date', { ascending: true });
@@ -79,7 +93,7 @@ export async function getBlockedDates() {
 }
 
 export async function addBlockedDate(startDate: string, endDate: string, reason: string) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('blocked_dates')
     .insert([{ start_date: startDate, end_date: endDate, reason }]);
 
@@ -93,7 +107,7 @@ export async function addBlockedDate(startDate: string, endDate: string, reason:
 }
 
 export async function removeBlockedDate(id: string) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('blocked_dates')
     .delete()
     .eq('id', id);
@@ -113,7 +127,7 @@ export async function removeBlockedDate(id: string) {
  */
 export async function listSchemaSlots(sessionId: string | null) {
   // 1. Buscar Globais
-  const { data: globalSlots } = await supabase
+  const { data: globalSlots } = await getSupabase()
     .from('schema_slots')
     .select('*')
     .is('session_id', null)
@@ -124,7 +138,7 @@ export async function listSchemaSlots(sessionId: string | null) {
   }
 
   // 2. Buscar Específicos
-  const { data: specificSlots } = await supabase
+  const { data: specificSlots } = await getSupabase()
     .from('schema_slots')
     .select('*')
     .eq('session_id', sessionId)
@@ -133,12 +147,12 @@ export async function listSchemaSlots(sessionId: string | null) {
   // 3. Mesclar
   const finalMap: Record<string, any> = {};
   
-  globalSlots?.forEach(gs => {
+  globalSlots?.forEach((gs: any) => {
     const key = `${gs.day_of_week}-${gs.start_time}`;
     finalMap[key] = { ...gs, source: 'global' };
   });
 
-  specificSlots?.forEach(ss => {
+  specificSlots?.forEach((ss: any) => {
     const key = `${ss.day_of_week}-${ss.start_time}`;
     finalMap[key] = { ...ss, source: 'specific' };
   });
@@ -155,7 +169,7 @@ export async function listSchemaSlots(sessionId: string | null) {
  * Adiciona um slot padrão para uma sessão e dia da semana
  */
 export async function addSchemaSlot(dayOfWeek: number, startTime: string, sessionId: string | null = null, isActive: boolean = true) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('schema_slots')
     .insert([{ 
       session_id: (sessionId === "" ? null : sessionId), 
@@ -177,7 +191,7 @@ export async function addSchemaSlot(dayOfWeek: number, startTime: string, sessio
  * Remove um slot padrão
  */
 export async function deleteSchemaSlot(id: string) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from('schema_slots')
     .delete()
     .eq('id', id);
@@ -208,13 +222,13 @@ export async function createManualBooking(data: {
 }) {
   // 1. Pegar a sessão para calcular o tempo final (90 min por slot)
   const session = SESSIONS_DATA[data.sessionId];
-  const { data: dbSession } = await supabase.from('sessions').select('duration_slots').eq('id', data.sessionId).single();
+  const { data: dbSession } = await getSupabase().from('sessions').select('duration_slots').eq('id', data.sessionId).single();
 
   const duration = dbSession?.duration_slots || session?.duration_slots || 1;
 
   // 2. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
   const dayOfWeek = new Date(data.booking_date).getUTCDay();
-  const { data: allDaySlots } = await supabase.from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
+  const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
   const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
   
   const timeCompare = data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time;
@@ -224,7 +238,7 @@ export async function createManualBooking(data: {
   
   if (masterIndex !== -1 && masterGrid.length > 0) {
     const lastSlotIndex = Math.min(masterIndex + duration - 1, masterGrid.length - 1);
-    const lastSlotStartTime = masterGrid[lastSlotIndex];
+    const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
     const parts = lastSlotStartTime.split(':');
     endTimeDate.setHours(parseInt(parts[0]), parseInt(parts[1]) + 30, 0); 
   } else {
@@ -236,7 +250,7 @@ export async function createManualBooking(data: {
   
   const end_time = endTimeDate.toTimeString().split(' ')[0];
 
-  const { error } = await supabase.from('bookings').insert([{
+  const { error } = await getSupabase().from('bookings').insert([{
     session_id: data.sessionId,
     customer_name: data.customer_name,
     customer_email: data.customer_email,
@@ -273,7 +287,7 @@ export async function createManualBooking(data: {
  * Atualiza os dados de uma sessão existente
  */
 export async function updateBooking(id: string, updates: any) {
-  const { error } = await supabase.from('bookings').update(updates).eq('id', id);
+  const { error } = await getSupabase().from('bookings').update(updates).eq('id', id);
   if (error) {
     console.error("Erro ao atualizar reserva:", error);
     return { success: false, error: error.message };
@@ -283,7 +297,7 @@ export async function updateBooking(id: string, updates: any) {
 }
 
 export async function deleteBooking(id: string) {
-  const { error } = await supabase.from('bookings').delete().eq('id', id);
+  const { error } = await getSupabase().from('bookings').delete().eq('id', id);
   if (error) {
     console.error("Erro ao remover reserva:", error);
     return { success: false, error: error.message };
@@ -293,7 +307,7 @@ export async function deleteBooking(id: string) {
 }
 
 export async function updateSessionDuration(id: string, duration_slots: number) {
-  const { error } = await supabase.from('sessions').update({ duration_slots }).eq('id', id);
+  const { error } = await getSupabase().from('sessions').update({ duration_slots }).eq('id', id);
   if (error) {
     console.error("Erro ao atualizar duração:", error);
     return { success: false, error: error.message };
@@ -304,14 +318,14 @@ export async function updateSessionDuration(id: string, duration_slots: number) 
 }
 
 export async function getAllSessionDurations() {
-  const { data } = await supabase.from('sessions').select('id, duration_slots');
+  const { data } = await getSupabase().from('sessions').select('id, duration_slots');
   const durationMap: Record<string, number> = {};
-  data?.forEach(d => { durationMap[d.id] = d.duration_slots; });
+  data?.forEach((d: any) => { durationMap[d.id] = d.duration_slots; });
   return durationMap;
 }
 
 export async function runMigration(sql: string) {
-  const { error } = await supabase.rpc('exec_sql', { sql_string: sql });
+  const { error } = await getSupabase().rpc('exec_sql', { sql_string: sql });
   if (error) {
      // fallback if exec_sql rpc doesn't exist
      console.error("Migration error:", error);
