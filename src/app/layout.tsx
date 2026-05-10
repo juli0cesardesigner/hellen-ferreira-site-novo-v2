@@ -1,4 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: "#09090b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 import { Cormorant_Garamond, Lato } from "next/font/google";
 import { GeneralLayout } from "@/components/layout/GeneralLayout";
 import "./globals.css";
@@ -22,14 +30,17 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "HF Admin",
+    title: "AGENDA",
   },
   formatDetection: {
     telephone: false,
   },
   icons: {
-    icon: '/icons/192x192.png',
-    apple: '/icons/apple-icon.png',
+    icon: [
+      { url: '/icons/192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/brand/black.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/icons/192x192.png',
   },
 };
 

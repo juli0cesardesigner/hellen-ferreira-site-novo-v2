@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hf-admin-v1';
+const CACHE_NAME = 'hf-admin-v2';
 const ASSETS_TO_CACHE = [
   '/admin',
   '/manifest.json',

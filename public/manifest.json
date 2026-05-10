@@ -1,7 +1,7 @@
 {
-  "name": "Hellen Ferreira Admin",
-  "short_name": "HF Admin",
-  "description": "Painel de Gestão - Hellen Ferreira Fotografia",
+  "name": "AGENDA",
+  "short_name": "AGENDA",
+  "description": "Gestão de Fotografia - Hellen Ferreira",
   "start_url": "/admin",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -24,6 +24,11 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ]
 }
