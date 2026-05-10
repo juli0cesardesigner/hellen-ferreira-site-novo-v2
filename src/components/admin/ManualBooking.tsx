@@ -355,7 +355,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                 <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Sincronização Ativa</span>
               </div>
               <div className="flex items-center gap-4 w-full lg:w-auto">
-                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" disabled={isSubmitting}>Abortar</button>
+                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-colors" disabled={isSubmitting}>Cancelar</button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !formData.session_id || !formData.start_time || !formData.client_name || !formData.date}
