@@ -32,6 +32,9 @@ function BookingWizard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
 
+  // Determinar o pacote ativo baseado no Tier selecionado
+  const activePackage = session?.session_packages?.find((p: any) => p.tier_order === selectedTier) || session?.session_packages?.[0];
+
   // Sincronizar sessionId com a URL
   useEffect(() => {
     if (initialSessionId) setSessionId(initialSessionId);
@@ -118,13 +121,14 @@ function BookingWizard() {
     if (res.success && res.paymentUrl) {
       // Redireciona imediatamente para o Mercado Pago
       window.location.href = res.paymentUrl;
-    } else if (res.success) {
-      // Fallback para agendamentos gratuitos ou sem link
+    } else if (res.success && !res.error) {
+      // Agendamento concluído sem necessidade de pagamento imediato
       setStep('success');
       setIsLoading(false);
     } else {
       setIsLoading(false);
-      alert("Erro ao criar agendamento.");
+      // Se houver erro (incluindo falha no link de pagamento), mostramos o alerta real
+      alert(res.error || "Erro ao criar agendamento. Tente novamente.");
     }
   };
 
@@ -158,9 +162,9 @@ function BookingWizard() {
                   </button>
                   <h3 className="text-2xl font-serif italic text-[#2C2A29]">
                     {session?.name || "Carregando..."} 
-                    {session?.has_tier_2 && (
+                    {session?.session_packages?.length > 1 && (
                       <span className="text-blush text-lg ml-2">
-                        — {selectedTier === 1 ? 'Coleção Celebração' : session?.tier2_name}
+                        — {activePackage?.name}
                       </span>
                     )}
                     <span className="text-blush opacity-30 mx-3">—</span> {monthNames[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
@@ -342,14 +346,14 @@ function BookingWizard() {
                           className={`p-6 border rounded-sm text-left transition-all ${packageType === 'digital' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
                         >
                           <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Apenas Digital</p>
-                          <p className="text-2xl font-serif italic text-text-dark">R$ {selectedTier === 1 ? session?.price_digital : session?.tier2_price_digital}</p>
+                          <p className="text-2xl font-serif italic text-text-dark">R$ {activePackage?.price_digital}</p>
                         </button>
                         <button 
                           onClick={() => setPackageType('print')}
                           className={`p-6 border rounded-sm text-left transition-all ${packageType === 'print' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
                         >
-                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1">{selectedTier === 1 ? session?.upgrade_label : session?.tier2_upgrade_label}</p>
-                          <p className="text-2xl font-serif italic text-text-dark">R$ {selectedTier === 1 ? session?.price_print : session?.tier2_price_print}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1">{activePackage?.upgrade_label || "Digital + Impressões"}</p>
+                          <p className="text-2xl font-serif italic text-text-dark">R$ {activePackage?.price_print}</p>
                         </button>
                      </div>
                   </div>
@@ -364,7 +368,7 @@ function BookingWizard() {
                     >
                       <div>
                         <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Apenas a Reserva</h4>
-                        <p className="text-xs text-text-light mt-2 italic font-serif">Pague o sinal de R$ {session?.deposit_price?.toFixed(2).replace('.', ',')} para garantir a data.</p>
+                        <p className="text-xs text-text-light mt-2 italic font-serif">Pague o sinal de R$ {(session?.deposit_price || 0).toFixed(2).replace('.', ',')} para garantir a data.</p>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentType === 'deposit' ? 'border-blush bg-blush' : 'border-sand'}`}>
                           {paymentType === 'deposit' && <div className="w-2 h-2 bg-white rounded-full" />}
@@ -379,9 +383,7 @@ function BookingWizard() {
                         <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Valor Total</h4>
                         <p className="text-xs text-text-light mt-2 italic font-serif">Pague o valor integral e aproveite a tranquilidade.</p>
                         <p className="text-[10px] font-bold text-blush uppercase mt-1">
-                          Total: R$ {packageType === 'digital' 
-                            ? (selectedTier === 1 ? session?.price_digital : session?.tier2_price_digital) 
-                            : (selectedTier === 1 ? session?.price_print : session?.tier2_price_print)}
+                          Total: R$ {packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print}
                         </p>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentType === 'full' ? 'border-blush bg-blush' : 'border-sand'}`}>

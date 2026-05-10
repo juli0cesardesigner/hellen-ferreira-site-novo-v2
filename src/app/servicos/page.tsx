@@ -46,17 +46,17 @@ export default function ServicesPage() {
     <div className="flex flex-col w-full overflow-hidden">
       {/* 1. Main Services - Light Background */}
       <section 
-        style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-h)' }}
+        style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }}
         className="bg-pearl"
       >
         <div className="container-custom max-w-[1000px]">
           <div className="flex flex-col gap-24">
-            <div className="flex flex-col gap-16">
+            <div className="flex flex-col gap-24">
               
               {/* Gestante */}
               {isActive("gestante") && (
                 <Link href="/servicos/gestante" className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="gestante"
                       alt="Gestante" 
@@ -73,10 +73,10 @@ export default function ServicesPage() {
 
               {/* Newborn Split */}
               {(isActive("newborn-menino") || isActive("newborn-menina")) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
                   {isActive("newborn-menino") && (
                     <Link href="/servicos/newborn-menino" className="flex flex-col items-center group cursor-pointer">
-                      <div className="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="newborn-menino"
                           alt="Newborn Menino" 
@@ -92,7 +92,7 @@ export default function ServicesPage() {
                   )}
                   {isActive("newborn-menina") && (
                     <Link href="/servicos/newborn-menina" className="flex flex-col items-center group cursor-pointer">
-                      <div className="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="newborn-menina"
                           alt="Newborn Menina" 
@@ -111,10 +111,10 @@ export default function ServicesPage() {
 
               {/* Mensal Split */}
               {(isActive("mensal-menino") || isActive("mensal-menina")) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
                   {isActive("mensal-menino") && (
                     <Link href="/servicos/mensal-menino" className="flex flex-col items-center group cursor-pointer">
-                      <div className="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="mensal-menino"
                           alt="Mensal Menino" 
@@ -130,7 +130,7 @@ export default function ServicesPage() {
                   )}
                   {isActive("mensal-menina") && (
                     <Link href="/servicos/mensal-menina" className="flex flex-col items-center group cursor-pointer">
-                      <div className="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="mensal-menina"
                           alt="Mensal Menina" 
@@ -150,7 +150,7 @@ export default function ServicesPage() {
               {/* Smash the cake */}
               {isActive("smash") && (
                 <Link href="/servicos/smash" className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="smash"
                       alt="Smash the Cake" 
@@ -168,7 +168,7 @@ export default function ServicesPage() {
               {/* Revelação */}
               {isActive("revelacao") && (
                 <Link href="/servicos/revelacao" className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="revelacao"
                       alt="Revelação" 
@@ -186,7 +186,7 @@ export default function ServicesPage() {
               {/* Família */}
               {isActive("familia") && (
                 <Link href="/servicos/familia" className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-xl bg-sand/20">
+                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="familia"
                       alt="Família" 
@@ -218,7 +218,7 @@ export default function ServicesPage() {
                 href={`/servicos/${cat.id}`}
                 className="flex flex-col items-center group cursor-pointer"
               >
-                <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] bg-black/10">
+                <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-black/10">
                   <DynamicImage 
                     category={cat.id} 
                     alt={cat.title} 

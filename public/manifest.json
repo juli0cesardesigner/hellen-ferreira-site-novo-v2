@@ -1,0 +1,17 @@
+{
+  "name": "Hellen Ferreira Admin",
+  "short_name": "HF Admin",
+  "description": "Painel de Gestão - Hellen Ferreira Fotografia",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/brand/black.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

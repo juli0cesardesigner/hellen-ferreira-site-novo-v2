@@ -43,13 +43,13 @@ export async function getAdminStats() {
     .lte('booking_date', nextWeekStr)
     .neq('status', 'cancelled');
 
-  // Faturamento Confirmado (Valor Pago)
-  const { data: payments } = await getSupabase()
-    .from('payments')
-    .select('amount')
-    .eq('status', 'approved');
+  // Faturamento Confirmado (Soma do paid_amount das bookings)
+  const { data: bookingsRevenue } = await getSupabase()
+    .from('bookings')
+    .select('paid_amount')
+    .neq('status', 'cancelled');
 
-  const totalRevenue = payments?.reduce((acc: number, curr: { amount: number }) => acc + (curr.amount || 0), 0) || 0;
+  const totalRevenue = bookingsRevenue?.reduce((acc: number, curr: { paid_amount: number }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
 
   return {
     todaySessions: todayCount || 0,
@@ -59,19 +59,45 @@ export async function getAdminStats() {
 }
 
 export async function getBookingsList() {
+  const today = new Date().toISOString().split('T')[0];
   const { data, error } = await getSupabase()
     .from('bookings')
     .select(`
       *,
       sessions (
-        name
+        name,
+        theme_color
       )
     `)
-    .order('booking_date', { ascending: false })
-    .limit(20);
+    .gte('booking_date', today)
+    .order('booking_date', { ascending: true })
+    .limit(50);
 
   if (error) {
     console.error("Erro ao carregar reservas:", error);
+    return { bookings: [] };
+  }
+
+  return { bookings: data };
+}
+
+export async function getPastBookingsList() {
+  const today = new Date().toISOString().split('T')[0];
+  const { data, error } = await getSupabase()
+    .from('bookings')
+    .select(`
+      *,
+      sessions (
+        name,
+        theme_color
+      )
+    `)
+    .lt('booking_date', today)
+    .order('booking_date', { ascending: false })
+    .limit(100);
+
+  if (error) {
+    console.error("Erro ao carregar histórico:", error);
     return { bookings: [] };
   }
 
@@ -317,11 +343,26 @@ export async function updateSessionDuration(id: string, duration_slots: number) 
   return { success: true };
 }
 
-export async function getAllSessionDurations() {
-  const { data } = await getSupabase().from('sessions').select('id, duration_slots');
-  const durationMap: Record<string, number> = {};
-  data?.forEach((d: any) => { durationMap[d.id] = d.duration_slots; });
-  return durationMap;
+export async function getAllSessionSettings() {
+  const { data } = await getSupabase().from('sessions').select('id, duration_slots, theme_color');
+  const settingsMap: Record<string, { duration: number, color: string }> = {};
+  data?.forEach((d: any) => { 
+    settingsMap[d.id] = { 
+      duration: d.duration_slots, 
+      color: d.theme_color || 'zinc' 
+    }; 
+  });
+  return settingsMap;
+}
+
+export async function updateSessionColor(id: string, theme_color: string) {
+  const { error } = await getSupabase().from('sessions').update({ theme_color }).eq('id', id);
+  if (error) {
+    console.error("Erro ao atualizar cor:", error);
+    return { success: false, error: error.message };
+  }
+  revalidatePath('/admin');
+  return { success: true };
 }
 
 export async function runMigration(sql: string) {

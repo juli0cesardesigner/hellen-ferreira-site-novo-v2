@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { LayoutDashboard, Clock, Image as ImageIcon, CalendarX, LogOut, ChevronRight, User, Mail, Phone, ExternalLink, Calendar } from "lucide-react";
-import Link from "next/link";
+import { LayoutDashboard, Clock, Calendar, Plus, Settings, ShieldCheck, Activity, Database, ChevronRight, LogOut, Loader2 } from "lucide-react";
 import { MassBlockingSection } from "@/components/admin/MassBlocking";
 import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 
-import { getAdminStats, getBookingsList } from "@/lib/actions/admin-actions";
+import { getBookingsList, getAdminStats, getPastBookingsList } from "@/lib/actions/admin-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { getSessionColor } from "@/lib/utils/colors";
+
+type TabType = 'overview' | 'slots' | 'sessions' | 'blocks' | 'history';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'slots' | 'sessions' | 'blocks'>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [stats, setStats] = useState({ todaySessions: 0, weekSessions: 0, totalRevenue: 0 });
   const [bookings, setBookings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,176 +24,207 @@ export default function AdminDashboard() {
 
   async function loadData() {
     setIsLoading(true);
-    const [statsData, bookingsData] = await Promise.all([
-      getAdminStats(),
-      getBookingsList()
-    ]);
-    setStats(statsData);
-    setBookings(bookingsData.bookings || []);
-    setIsLoading(false);
+    try {
+      const [statsData, bookingsData] = await Promise.all([
+        getAdminStats(),
+        activeTab === 'history' ? getPastBookingsList() : getBookingsList()
+      ]);
+      setStats(statsData);
+      setBookings(bookingsData.bookings || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   React.useEffect(() => {
     loadData();
-  }, []);
+  }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-pearl flex font-sans">
+    <div className="min-h-screen bg-zinc-50 flex flex-col lg:flex-row font-sans text-zinc-900 antialiased pb-20 lg:pb-0">
       
-      {/* Sidebar Fixo - Refinado */}
-      <aside className="w-72 bg-linen/50 border-r border-sand/30 p-8 flex flex-col justify-between hidden md:flex">
-        <div className="space-y-12">
-          <div className="flex flex-col gap-6 px-2">
-            <div className="w-16 h-16 bg-blush/10 rounded-full flex items-center justify-center text-blush font-serif italic text-3xl border border-blush/20">H</div>
-            <div>
-              <p className="text-xl font-serif text-text-dark italic">Hellen Ferreira</p>
-              <p className="text-[10px] text-text-light uppercase tracking-widest mt-1">Painel Curadoria</p>
+      {/* Sidebar Industrial & Objetiva (Desktop) */}
+      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col hidden lg:flex shrink-0">
+        <div className="p-6 border-b border-zinc-100 flex items-center gap-3">
+          <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm ring-4 ring-zinc-50">
+            HF
+          </div>
+          <div>
+            <h2 className="font-bold text-sm tracking-tight text-zinc-900">Portal de Gestão</h2>
+            <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider mt-0.5">Sistema Online</p>
+          </div>
+        </div>
+        
+        <nav className="flex-1 p-4 space-y-1">
+          <div className="px-3 py-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Painel Principal</div>
+          <SidebarNavItem 
+            active={activeTab === 'overview'} 
+            onClick={() => setActiveTab('overview')} 
+            icon={<LayoutDashboard size={18} />} 
+            label="Visão Geral" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'slots'} 
+            onClick={() => setActiveTab('slots')} 
+            icon={<Calendar size={18} />} 
+            label="Agenda" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'history'} 
+            onClick={() => setActiveTab('history')} 
+            icon={<Clock size={18} />} 
+            label="Histórico" 
+          />
+          
+          <div className="px-3 py-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-6 mb-2">Configurações</div>
+          <SidebarNavItem 
+            active={activeTab === 'sessions'} 
+            onClick={() => setActiveTab('sessions')} 
+            icon={<Settings size={18} />} 
+            label="Serviços" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'blocks'} 
+            onClick={() => setActiveTab('blocks')} 
+            icon={<ShieldCheck size={18} />} 
+            label="Bloqueios" 
+          />
+        </nav>
+
+        <div className="p-4 border-t border-zinc-100">
+          <button className="flex items-center gap-3 w-full px-3 py-2.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 transition-all rounded-lg text-[11px] font-bold uppercase tracking-wider">
+            <LogOut size={16} /> <span>Sair do Sistema</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Bottom Nav - Mobile Only */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-6 py-3 flex items-center justify-between z-50">
+        <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={22} />} />
+        <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={22} />} />
+        <button 
+          onClick={() => setIsManualBookingOpen(true)} 
+          className="w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center -mt-10 shadow-2xl border-4 border-zinc-50 active:scale-90 transition-all"
+        >
+          <Plus size={28} />
+        </button>
+        <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock size={22} />} />
+        <BottomNavItem active={activeTab === 'sessions'} onClick={() => setActiveTab('sessions')} icon={<Settings size={22} />} />
+      </div>
+
+      {/* Área de Conteúdo Principal */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        
+        {/* Header - Industrial Clean */}
+        <header className="h-16 lg:h-20 bg-white border-b border-zinc-200 flex items-center justify-between px-6 lg:px-8 shrink-0 relative z-10">
+          <div className="flex items-center gap-3 lg:gap-4">
+            <div className="lg:hidden w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center text-white font-bold text-xs">HF</div>
+            <h1 className="text-[11px] lg:text-sm font-bold text-zinc-900 uppercase tracking-tight truncate max-w-[140px] lg:max-w-none">
+              {activeTab === 'overview' && "Visão Geral"}
+              {activeTab === 'slots' && "Agenda"}
+              {activeTab === 'history' && "Histórico de Reservas"}
+              {activeTab === 'sessions' && "Serviços"}
+              {activeTab === 'blocks' && "Bloqueios"}
+            </h1>
+            <div className="h-4 w-[1px] bg-zinc-200 mx-1 hidden lg:block"></div>
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="px-2 py-0.5 bg-green-50 text-green-700 text-[9px] font-bold rounded uppercase tracking-wider border border-green-100 flex items-center gap-1.5 shadow-sm">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                Online
+              </span>
             </div>
           </div>
           
-          <nav className="space-y-4 font-medium">
-            <SidebarButton 
-              active={activeTab === 'overview'} 
-              onClick={() => setActiveTab('overview')} 
-              icon={<LayoutDashboard size={18} />} 
-              label="Visão Geral" 
-            />
-            <SidebarButton 
-              active={activeTab === 'slots'} 
-              onClick={() => setActiveTab('slots')} 
-              icon={<Calendar size={18} />} 
-              label="Grade Semanal" 
-            />
-            <SidebarButton 
-              active={activeTab === 'sessions'} 
-              onClick={() => setActiveTab('sessions')} 
-              icon={<ImageIcon size={18} />} 
-              label="Serviços & Preços" 
-            />
-            <SidebarButton 
-              active={activeTab === 'blocks'} 
-              onClick={() => setActiveTab('blocks')} 
-              icon={<CalendarX size={18} />} 
-              label="Bloqueios e Férias" 
-            />
-          </nav>
-        </div>
-
-        <button className="flex items-center gap-4 px-4 py-3 text-text-light hover:text-text-dark transition-colors text-[10px] uppercase font-bold tracking-widest">
-          <LogOut size={16} /> <span>Sair do Sistema</span>
-        </button>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-10 md:p-16 overflow-y-auto">
-        
-        {/* Header Superior */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
-          <div className="animate-in fade-in slide-in-from-left duration-700">
-            <h1 className="text-4xl font-serif text-text-dark italic leading-tight">Bom dia, Hellen Ferreira</h1>
-            <p className="text-sm text-text-light mt-2 italic font-serif opacity-80">Sua agenda de hoje está pronta para ser capturada.</p>
-          </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 lg:gap-6">
+            <button 
+              onClick={loadData}
+              className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
+              title="Atualizar Dados"
+            >
+              <Activity size={18} />
+            </button>
             <button 
               onClick={() => setIsManualBookingOpen(true)}
-              className="px-8 py-4 bg-blush text-white text-[10px] uppercase font-bold tracking-[0.2em] hover:bg-[#C29088] transition-all rounded-none shadow-sm flex items-center gap-2"
+              className="hidden lg:flex bg-zinc-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl items-center gap-2 transition-all shadow-md active:translate-y-0.5"
             >
-              Criar Agendamento Manual
+              <Plus size={14} /> Nova Reserva
             </button>
-            <Link href="/" className="px-8 py-4 bg-transparent text-[10px] uppercase tracking-[0.2em] text-text-dark border-b border-sand hover:border-blush transition-all rounded-none flex items-center gap-3">
-              Ver Site <ExternalLink size={12} />
-            </Link>
           </div>
         </header>
 
-        <AnimatePresence>
-          {isManualBookingOpen && (
-            <ManualBookingModal 
-              onClose={() => setIsManualBookingOpen(false)} 
-              onCreated={loadData}
-            />
-          )}
-          {selectedBooking && (
-            <EditBookingModal 
-              booking={selectedBooking}
-              onClose={() => setSelectedBooking(null)}
-              onUpdated={loadData}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Estatísticas Rápidas - Mais Minimalistas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20 animate-in fade-in slide-in-from-bottom duration-1000">
-          <StatCard label="Sessões Hoje" value={isLoading ? "..." : String(stats.todaySessions).padStart(2, '0')} />
-          <StatCard label="Próximos 7 dias" value={isLoading ? "..." : String(stats.weekSessions).padStart(2, '0')} />
-          <StatCard label="Faturamento Confirmado" value={isLoading ? "..." : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} isSuccess />
-        </div>
-
-        {/* Conteúdo Principal */}
-        <div className="space-y-12 animate-in fade-in duration-1000 delay-300">
-          <div className="flex items-center justify-between border-b border-sand/30 pb-6">
-            <h3 className="font-serif italic text-3xl text-text-dark">
-              {activeTab === 'overview' && "Próximos Agendamentos"}
-              {activeTab === 'slots' && "Gestão de Grade Semanal"}
-              {activeTab === 'sessions' && "Configuração de Serviços"}
-              {activeTab === 'blocks' && "Bloqueio de Períodos Especiais"}
-            </h3>
-          </div>
-
-          <div className="min-h-[500px]">
-            {activeTab === 'overview' && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-[0.2em] text-text-light border-b border-sand/30">
-                      <th className="py-6 font-bold">Data/Hora</th>
-                      <th className="py-6 font-bold">Cliente</th>
-                      <th className="py-6 font-bold">Serviço</th>
-                      <th className="py-6 font-bold">Status</th>
-                      <th className="py-6 font-bold text-right">Valor</th>
-                      <th className="py-6 font-bold text-right">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {bookings.length > 0 ? bookings.map((booking) => (
-                      <tr key={booking.id} className="border-b border-sand/10 hover:bg-linen/20 transition-colors group">
-                        <td className="py-6">
-                          <p className="font-serif italic text-lg text-text-dark">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</p>
-                          <p className="text-[10px] text-text-light uppercase tracking-widest mt-1">{booking.start_time.slice(0, 5)}</p>
-                        </td>
-                        <td className="py-6">
-                          <p className="font-medium text-text-dark">{booking.client_name}</p>
-                          <p className="text-[10px] text-text-light mt-1">{booking.client_phone}</p>
-                        </td>
-                        <td className="py-6">
-                          <span className="text-[10px] uppercase tracking-widest text-blush border-b border-blush/20 pb-0.5">{booking.sessions?.name}</span>
-                        </td>
-                        <td className="py-6">
-                          <span className={`text-[10px] uppercase tracking-widest font-bold ${
-                            booking.status === 'confirmed' ? 'text-sage' : 'text-warm-gold'
-                          }`}>
-                             {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
-                          </span>
-                        </td>
-                        <td className="py-6 text-right font-serif text-lg text-text-medium">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
-                        </td>
-                        <td className="py-6 text-right">
-                          <button onClick={() => setSelectedBooking(booking)} className="p-2 transition-all text-text-light hover:text-blush hover:bg-blush/5 rounded-full">
-                            <ChevronRight size={18} />
-                          </button>
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={6} className="py-32 text-center text-text-light italic font-serif text-lg opacity-40">Nenhum registro de afeto encontrado ainda.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+        {/* Explorador de Conteúdo */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-zinc-50/50">
+          
+          <AnimatePresence>
+            {isManualBookingOpen && (
+              <ManualBookingModal 
+                onClose={() => setIsManualBookingOpen(false)} 
+                onCreated={loadData}
+              />
             )}
+            {selectedBooking && (
+              <EditBookingModal 
+                booking={selectedBooking}
+                onClose={() => setSelectedBooking(null)}
+                onUpdated={loadData}
+              />
+            )}
+          </AnimatePresence>
 
+          {activeTab === 'overview' && (
+            <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              
+              {/* Grid de Métricas */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                <StatMetric label="Agendamentos (Hoje)" value={isLoading ? "..." : stats.todaySessions} icon={<Activity size={20} />} />
+                <StatMetric label="Próximos 7 Dias" value={isLoading ? "..." : stats.weekSessions} icon={<Calendar size={20} />} />
+                <StatMetric 
+                  label="Total Confirmado" 
+                  value={isLoading ? "..." : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
+                  isPositive 
+                  icon={<Database size={20} />}
+                />
+              </div>
+
+              {/* Tabela / Mobile Feed */}
+              <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+                <div className="px-5 lg:px-6 py-4 lg:py-5 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/30">
+                  <h3 className="text-[10px] lg:text-xs font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2">
+                     <Database size={14} className="text-zinc-400" /> Fluxo de Agendamentos
+                  </h3>
+                  <button onClick={loadData} className="text-[9px] lg:text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all">
+                    <Clock size={12} /> <span className="hidden sm:inline">Atualizar</span>
+                  </button>
+                </div>
+                <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'history' && (
+            <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+               <div className="flex items-center gap-4 bg-white p-6 rounded-2xl border border-zinc-200">
+                  <div className="w-12 h-12 bg-zinc-900 text-white rounded-xl flex items-center justify-center shadow-lg">
+                    <Clock size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 uppercase">Histórico de Sessões</h3>
+                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Listagem de todos os atendimentos passados</p>
+                  </div>
+                  <button onClick={loadData} className="ml-auto text-[10px] font-bold text-zinc-400 hover:text-zinc-900 flex items-center gap-2">
+                    <Activity size={12} /> Atualizar
+                  </button>
+               </div>
+               
+               <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+                 <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+               </div>
+            </div>
+          )}
+
+          <div className="max-w-7xl mx-auto pb-10">
             {activeTab === 'slots' && <StandardSlotsSection />}
             {activeTab === 'sessions' && <SessionConfigSection />}
             {activeTab === 'blocks' && <MassBlockingSection />}
@@ -202,31 +235,194 @@ export default function AdminDashboard() {
   );
 }
 
-function SidebarButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
+function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit: (b: any) => void, isLoading: boolean }) {
+  if (isLoading) {
+    return (
+      <div className="py-24 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-zinc-200" size={32} />
+        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (bookings.length === 0) {
+    return (
+      <div className="py-24 text-center">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-300">Nenhum dado encontrado.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="hidden lg:block overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="bg-white text-[10px] uppercase font-bold text-zinc-400 border-b border-zinc-100">
+              <th className="px-6 py-4">Data/Hora</th>
+              <th className="px-6 py-4">Cliente</th>
+              <th className="px-6 py-4">Sessão</th>
+              <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4 text-right">Valor</th>
+              <th className="px-6 py-4 text-right">Ação</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-50">
+            {bookings.map((booking) => {
+              const colors = getSessionColor(booking.sessions?.name, booking.sessions?.theme_color);
+              return (
+                <tr 
+                  key={booking.id} 
+                  style={colors.isCustom ? { backgroundColor: colors.styles?.backgroundColor } : {}}
+                  className={`transition-colors group border-b border-zinc-100/50 ${!colors.isCustom ? colors.bg : ''}`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="text-xs font-bold text-zinc-900">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</div>
+                    <div className="text-[10px] font-bold text-zinc-400 mt-0.5 font-mono">{booking.start_time.slice(0, 5)} HRS</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-xs font-bold text-zinc-700">{booking.customer_name || booking.client_name}</div>
+                    <div className="text-[10px] text-zinc-400 font-mono tracking-tight mt-0.5">{booking.customer_phone || booking.client_phone}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span 
+                      style={colors.isCustom ? { color: colors.styles?.color, borderColor: colors.styles?.borderColor } : {}}
+                      className={`text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest border shadow-sm bg-white ${!colors.isCustom ? `${colors.text} ${colors.border}` : ''}`}
+                    >
+                      {booking.sessions?.name}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        booking.status === 'confirmed' ? 'bg-green-500' : 
+                        booking.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'
+                      }`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                        booking.status === 'confirmed' ? 'text-green-700' : 
+                        booking.status === 'pending' ? 'text-amber-700' : 'text-rose-700'
+                      }`}>
+                         {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-xs font-mono font-bold text-zinc-900">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => onEdit(booking)}
+                      className={`w-8 h-8 rounded-lg bg-white/50 text-zinc-400 hover:bg-zinc-900 hover:text-white flex items-center justify-center transition-all ml-auto shadow-sm border border-black/5`}
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="lg:hidden divide-y divide-zinc-100">
+        {bookings.map((booking) => {
+          const colors = getSessionColor(booking.sessions?.name, booking.sessions?.theme_color);
+          return (
+            <div 
+              key={booking.id} 
+              onClick={() => onEdit(booking)}
+              style={colors.isCustom ? { backgroundColor: colors.styles?.backgroundColor } : {}}
+              className={`p-5 active:opacity-80 transition-all flex flex-col gap-3 relative border-b border-zinc-100 ${!colors.isCustom ? colors.bg : ''}`}
+            >
+              <div 
+                style={colors.isCustom ? { backgroundColor: colors.styles?.accentColor } : {}}
+                className={`absolute left-0 top-0 bottom-0 w-1 ${!colors.isCustom ? colors.accent : ''}`} 
+              />
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
+                  <span className="text-xs font-bold text-zinc-900 uppercase">{booking.customer_name || booking.client_name}</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-100 rounded text-[9px] font-bold text-zinc-600 border border-zinc-200">
+                  <Clock size={10} /> {booking.start_time.slice(0, 5)}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span 
+                  style={colors.isCustom ? { color: colors.styles?.color, borderColor: colors.styles?.borderColor } : {}}
+                  className={`text-[8px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-widest bg-white ${!colors.isCustom ? `${colors.text} ${colors.border}` : ''}`}
+                >
+                  {booking.sessions?.name}
+                </span>
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    booking.status === 'confirmed' ? 'bg-green-500' : 
+                    booking.status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'
+                  }`} />
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-600">
+                    {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-1 pt-3 border-t border-zinc-50">
+                 <span className="text-[11px] font-mono font-bold text-zinc-900">
+                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
+                 </span>
+                 <ChevronRight size={14} className="text-zinc-300" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function SidebarNavItem({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) {
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-4 px-2 py-2 rounded-none transition-all group ${
+      className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-xs font-bold uppercase tracking-wider group ${
         active 
-          ? 'text-text-dark border-r-2 border-blush' 
-          : 'text-text-light hover:text-text-dark'
+          ? 'bg-zinc-900 text-white shadow-lg' 
+          : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-900'
       }`}
     >
-      <div className={`transition-colors ${active ? 'text-blush' : 'text-text-light group-hover:text-blush'}`}>
+      <div className={`${active ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-900'} transition-colors`}>
         {icon}
       </div>
-      <span className={`text-[11px] uppercase tracking-[0.2em] font-bold transition-all ${active ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>
-        {label}
-      </span>
+      <span>{label}</span>
     </button>
   );
 }
 
-function StatCard({ label, value, isSuccess }: { label: string, value: string, isSuccess?: boolean }) {
+function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: () => void, icon: React.ReactNode }) {
   return (
-    <div className="bg-white p-10 border border-sand/20 shadow-[0_4px_20px_rgba(44,42,41,0.03)] flex flex-col gap-4">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-text-light font-bold">{label}</p>
-      <h4 className={`text-4xl font-serif italic ${isSuccess ? 'text-sage' : 'text-text-dark'}`}>
+    <button 
+      onClick={onClick}
+      className={`p-3.5 rounded-2xl transition-all ${
+        active ? 'bg-zinc-900 text-white shadow-xl scale-110' : 'text-zinc-400'
+      }`}
+    >
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 24 })}
+    </button>
+  );
+}
+
+function StatMetric({ label, value, icon, isPositive }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean }) {
+  return (
+    <div className="bg-white p-5 lg:p-6 border border-zinc-200 rounded-2xl shadow-sm flex flex-col justify-between h-32 lg:h-36 hover:border-zinc-300 transition-all group">
+      <div className="flex justify-between items-start">
+        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] leading-none group-hover:text-zinc-600 transition-colors">{label}</p>
+        <div className={`p-2 lg:p-2.5 rounded-xl bg-zinc-50 text-zinc-400 border border-zinc-100 group-hover:bg-zinc-900 group-hover:text-white group-hover:border-zinc-900 transition-all ${isPositive ? 'text-blue-500' : ''}`}>
+          {React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}
+        </div>
+      </div>
+      <h4 className={`text-xl lg:text-2xl font-bold tracking-tighter text-zinc-900`}>
         {value}
       </h4>
     </div>

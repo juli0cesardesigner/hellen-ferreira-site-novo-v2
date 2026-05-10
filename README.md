@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hellen Ferreira Fotografia - V2
 
-## Getting Started
+Sistema de gestão e presença digital premium para estúdio de fotografia, focado em Newborn, Gestante e Família.
 
-First, run the development server:
+## 🚀 Tecnologias
+- **Framework:** Next.js 15+ (App Router)
+- **Estilização:** Tailwind CSS v4
+- **Banco de Dados/Auth:** Supabase
+- **Animações:** Framer Motion
+- **Ícones:** Lucide React
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📱 Painel Administrativo Mobile-First (PWA)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+O painel administrativo foi projetado para ser uma ferramenta de gestão ágil, permitindo o controle total do estúdio através de dispositivos móveis como se fosse um aplicativo nativo.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Funcionalidades PWA
+- **Instalável:** Através do `manifest.json`, o painel pode ser adicionado à tela de início do celular.
+- **Interface Adaptativa:** 
+  - **Desktop:** Barra lateral industrial completa com tabelas de dados profundas.
+  - **Mobile:** Barra de navegação inferior (Bottom Nav) e feed de agendamentos em Cards táteis.
+- **Gestão de Horários:** Bloqueio de datas e configuração de slots simplificada para telas pequenas.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Como instalar no celular:
+1. Acesse `/admin` no seu navegador mobile (Chrome ou Safari).
+2. Vá em "Compartilhar" (iOS) ou "Configurações" (Android).
+3. Selecione **"Adicionar à Tela de Início"**.
+4. O ícone da Hellen Ferreira aparecerá como um app fixo.
 
-## Learn More
+## 🛠️ Estrutura de Pastas
+- `src/app/admin`: Coração da lógica administrativa.
+- `src/components/admin`: Componentes modulares (Modais, Sessões, Bloqueios).
+- `src/lib/actions`: Server Actions para comunicação segura com o banco de dados.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📖 Roadmap & Decisões Técnicas
+Consulte `docs/admin-mobile-roadmap.md` para detalhes sobre a evolução da camada mobile e futuras implementações de sincronização.

@@ -233,6 +233,14 @@ export async function createBooking(data: {
 }) {
   const tier = data.selectedTier || 1;
 
+  // 0. Validar credenciais do Mercado Pago
+  if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
+    console.error("MERCADO_PAGO_ACCESS_TOKEN não configurado no servidor.");
+    return { 
+      error: "O sistema de pagamentos está em manutenção (Token ausente). Por favor, tente novamente mais tarde." 
+    };
+  }
+
   // 1. Pegamos a sessão para saber a duração e preços (incluindo pacotes)
   const session = SESSIONS_DATA[data.sessionId];
 
@@ -337,13 +345,13 @@ export async function createBooking(data: {
       bookingId: booking.id, 
       paymentUrl: preferenceResponse.init_point // Link REAL do Mercado Pago
     };
-  } catch (mpError) {
+  } catch (mpError: any) {
     console.error("Erro Mercado Pago:", mpError);
-    // Se o MP falhar, avisamos mas salvamos o booking pendente pra você cobrar manual se quiser
+    // Se o MP falhar, retornamos erro para que o usuário não ache que foi pré-confirmado sem pagar
     return { 
-      success: true, 
+      success: false, 
       bookingId: booking.id, 
-      error: "O link de pagamento falhou, mas seu agendamento foi salvo. O profissional entrará em contato." 
+      error: "Não conseguimos gerar seu link de pagamento (Mercado Pago). Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
     };
   }
 }
