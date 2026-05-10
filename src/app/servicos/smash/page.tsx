@@ -221,7 +221,7 @@ export default function SmashPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/smash/ui/album.avif`}
+              src={`/content/gallery/smash/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -283,7 +283,7 @@ export default function SmashPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/smash/ui/fotos%20extras.avif`}
+              src={`/content/gallery/smash/ui/fotos extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"

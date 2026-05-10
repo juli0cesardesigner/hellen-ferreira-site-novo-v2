@@ -290,7 +290,7 @@ export default function FemininoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/feminino/ui/album.avif`}
+              src={`/content/gallery/feminino/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -352,7 +352,7 @@ export default function FemininoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/feminino/ui/fotos%20extras.avif`}
+              src={`/content/gallery/feminino/ui/fotos extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"

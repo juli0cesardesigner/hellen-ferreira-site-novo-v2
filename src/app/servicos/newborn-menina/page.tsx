@@ -305,7 +305,7 @@ export default function NewbornMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menina/ui/album.avif`}
+              src={`/content/gallery/newborn-menina/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -367,7 +367,7 @@ export default function NewbornMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menina/ui/fotos%20extras.avif`}
+              src={`/content/gallery/newborn-menina/ui/fotos extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
