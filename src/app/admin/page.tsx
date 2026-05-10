@@ -7,6 +7,7 @@ import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 
 import { getBookingsList, getAdminStats, getPastBookingsList } from "@/lib/actions/admin-actions";
+import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
@@ -94,7 +95,10 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="p-4 border-t border-zinc-100">
-          <button className="flex items-center gap-3 w-full px-3 py-2.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 transition-all rounded-lg text-[11px] font-bold uppercase tracking-wider">
+          <button 
+            onClick={() => logout()}
+            className="flex items-center gap-3 w-full px-3 py-2.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 transition-all rounded-lg text-[11px] font-bold uppercase tracking-wider"
+          >
             <LogOut size={16} /> <span>Sair do Sistema</span>
           </button>
         </div>
