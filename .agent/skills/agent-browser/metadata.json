@@ -1,6 +1,0 @@
-{
-  "name": "agent-browser",
-  "description": "Advanced browser automation skill for AI agents.",
-  "version": "1.0.0",
-  "tags": ["automation", "browser", "scraping"]
-}

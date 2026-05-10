@@ -1,6 +1,0 @@
-{
-  "name": "vercel-best-practices",
-  "description": "Optimization and composition patterns by Vercel.",
-  "version": "1.0.0",
-  "tags": ["react", "performance", "vercel", "architecture"]
-}

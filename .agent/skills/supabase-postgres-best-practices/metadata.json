@@ -1,6 +1,0 @@
-{
-  "name": "supabase-postgres-best-practices",
-  "description": "Performance and security optimization for Postgres in Supabase.",
-  "version": "1.0.0",
-  "tags": ["supabase", "postgres", "sql", "security"]
-}
