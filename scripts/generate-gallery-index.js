@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const sizeOf = require('image-size');
 
 const baseGalleryPath = path.join(process.cwd(), 'public', 'content', 'gallery');
 const outputPath = path.join(process.cwd(), 'src', 'lib', 'data', 'gallery-index.json');
@@ -21,7 +22,27 @@ if (fs.existsSync(baseGalleryPath)) {
       const files = fs.readdirSync(portfolioPath);
       index[cat] = files
         .filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file))
-        .map(file => `/content/gallery/${cat}/portfolio/${file}`);
+        .map(file => {
+          const filePath = path.join(portfolioPath, file);
+          const urlPath = `/content/gallery/${cat}/portfolio/${file}`;
+          try {
+            const dimensions = sizeOf(filePath);
+            return {
+              src: urlPath,
+              width: dimensions.width,
+              height: dimensions.height,
+              orientation: dimensions.width >= dimensions.height ? 'horizontal' : 'vertical'
+            };
+          } catch (e) {
+            console.error(`Error reading dimensions for ${filePath}:`, e.message);
+            return {
+              src: urlPath,
+              width: 0,
+              height: 0,
+              orientation: 'horizontal'
+            };
+          }
+        });
     }
   }
 }

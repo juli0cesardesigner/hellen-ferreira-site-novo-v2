@@ -1,29 +1,19 @@
-"use client";
+import { getShuffledGalleryImages } from "@/lib/gallery/getGallery";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Camera, Heart, Check, Star, PauseCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
 export default function FemininoPage() {
-  const session = SESSIONS_DATA["7024263c-2f3e-4c7f-a66f-cf04e2bd069a"];
-  const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
+  const galleryImages = getShuffledGalleryImages("feminino").map(i => i.src);
 
-  React.useEffect(() => {
-    fetch("/api/gallery/feminino")
-      .then(res => res.json())
-      .then(data => {
-        if (data.images) {
-          setGalleryImages(data.images);
-        }
-      })
-      .catch(err => console.error("Erro ao carregar galeria Feminino:", err));
-  }, []);
+  const session = SESSIONS_DATA["7024263c-2f3e-4c7f-a66f-cf04e2bd069a"];
+
 
 
   if (!session) {
@@ -69,33 +59,22 @@ export default function FemininoPage() {
       {/* 2. Intro Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
         <div className="container-custom text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <span
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
             Sua força, sua história
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+          </span>
+          <h1
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
             Retrato Feminino
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             Uma experiência de reconexão e celebração. Capturamos a essência da mulher em 
             ensaios que revelam beleza, confiança e a singularidade de cada fase.
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -113,10 +92,7 @@ export default function FemininoPage() {
           <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
             {/* Pacote Essencial */}
             {pkg1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
               >
                 {/* Imagem Superior */}
@@ -171,16 +147,12 @@ export default function FemininoPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Pacote Celebração */}
             {pkg2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="bg-white rounded-sm border border-blush/30 shadow-2xl shadow-blush/5 flex flex-col h-full overflow-hidden"
               >
                 {/* Imagem Superior */}
@@ -236,7 +208,7 @@ export default function FemininoPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
