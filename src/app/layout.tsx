@@ -58,6 +58,7 @@ export default function RootLayout({
       <body className="antialiased bg-pearl flex flex-col min-h-screen">
         <PWARegistration />
         <GeneralLayout>{children}</GeneralLayout>
+        <GoogleAnalytics gaId="G-TS8PLV0TCX" />
       </body>
     </html>
   );
