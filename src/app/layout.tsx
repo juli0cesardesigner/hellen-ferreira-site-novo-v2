@@ -40,7 +40,9 @@ export const metadata: Metadata = {
       { url: '/icons/192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/brand/black.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: '/icons/192x192.png',
+    apple: [
+      { url: '/icons/192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
   },
 };
 

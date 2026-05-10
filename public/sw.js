@@ -1,51 +1,46 @@
-const CACHE_NAME = 'hf-admin-v4';
+const CACHE_NAME = 'hf-admin-v5';
 const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/icons/192x192.png',
-  '/brand/black.png',
-  '/brand/favicon.svg'
+  '/brand/black.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) => Promise.all(
+      keys.map((key) => {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      })
+    ))
   );
   self.clients.claim();
 });
 
+// Estratégia Ultra-Resiliente: 
+// 1. Navegação sempre vai direto para a rede (evita conflito com 307 de login)
+// 2. Assets estáticos do cache (ícones)
 self.addEventListener('fetch', (event) => {
-  // Não interferir com navegação ou chamadas de API do Supabase/Vercel
-  // Apenas servir ícones e manifest do cache para garantir instalabilidade
-  
   const url = new URL(event.request.url);
-  
-  // Se for um asset estático que está no nosso cache, servimos do cache
-  if (ASSETS_TO_CACHE.includes(url.pathname)) {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
-    );
-    return;
+
+  // Se for navegação (abrir a página admin), NÃO interceptamos.
+  // Isso permite que o browser lide nativamente com o redirecionamento para o login.
+  if (event.request.mode === 'navigate') {
+    return; 
   }
 
-  // Para todo o resto, rede pura. Isso evita erros de redirecionamento (307) do middleware do Next.js
-  return;
+  // Apenas interceptamos se for um asset estático conhecido
+  if (ASSETS_TO_CACHE.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        return cached || fetch(event.request);
+      })
+    );
+  }
 });

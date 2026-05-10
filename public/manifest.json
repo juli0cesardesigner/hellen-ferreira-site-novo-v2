@@ -2,12 +2,13 @@
   "name": "AGENDA",
   "short_name": "AGENDA",
   "description": "Gestão de Fotografia - Hellen Ferreira",
-  "start_url": "/admin",
+  "start_url": "/admin/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#09090b",
+  "categories": ["business", "productivity"],
   "icons": [
     {
       "src": "/icons/192x192.png",
