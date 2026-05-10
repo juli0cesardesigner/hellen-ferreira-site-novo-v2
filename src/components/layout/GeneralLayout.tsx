@@ -4,23 +4,24 @@ import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
+import { ToastProvider } from "@/components/ui/Toast";
 
 export function GeneralLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
 
   if (isAdmin) {
-    return <main className="flex-grow">{children}</main>;
+    return <ToastProvider><main className="flex-grow">{children}</main></ToastProvider>;
   }
 
   return (
-    <>
+    <ToastProvider>
       <Navbar />
       <main className="flex-grow pt-20">
         {children}
       </main>
       <Footer />
       <WhatsAppWidget />
-    </>
+    </ToastProvider>
   );
 }

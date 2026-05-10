@@ -12,7 +12,7 @@ const navLinks = [
   { name: "Início", href: "/" },
   { name: "Sessões", href: SITE_CONFIG.links.services },
   { name: "Sobre", href: SITE_CONFIG.links.about },
-  { name: "Blog", href: SITE_CONFIG.links.blog },
+  { name: "Agendar", href: SITE_CONFIG.links.booking },
 ];
 
 export function Navbar() {
@@ -67,6 +67,7 @@ export function Navbar() {
         <button
           className="md:hidden text-text-dark"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>

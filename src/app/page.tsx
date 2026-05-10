@@ -70,7 +70,7 @@ export default function Home() {
       setHeroIndex((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides.length]);
 
   return (
     <div className="flex flex-col bg-pearl selection:bg-blush/20">
@@ -120,6 +120,7 @@ export default function Home() {
               key={i}
               onClick={() => setHeroIndex(i)}
               className="group p-2 focus:outline-none"
+              aria-label={`Ir para slide ${i + 1}`}
             >
               <div className={cn(
                 "h-[2px] transition-all duration-700 ease-in-out bg-white",
@@ -297,14 +298,14 @@ export default function Home() {
             <div className="absolute inset-0 flex items-center justify-between px-6 z-20">
               <button 
                 onClick={() => setGalleryIndex((prev) => (prev - 1 + gallerySlides.length) % gallerySlides.length)}
-                className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 hover:bg-white/90 hover:text-text-dark transition-all duration-500 opacity-40 group-hover:opacity-100"
+                className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 hover:bg-white/90 hover:text-text-dark transition-all duration-500 opacity-70 md:opacity-40 md:group-hover:opacity-100"
                 aria-label="Anterior"
               >
                 <ChevronLeft size={28} />
               </button>
               <button 
                 onClick={() => setGalleryIndex((prev) => (prev + 1) % gallerySlides.length)}
-                className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 hover:bg-white/90 hover:text-text-dark transition-all duration-500 opacity-40 group-hover:opacity-100"
+                className="p-4 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 hover:bg-white/90 hover:text-text-dark transition-all duration-500 opacity-70 md:opacity-40 md:group-hover:opacity-100"
                 aria-label="Próximo"
               >
                 <ChevronRight size={28} />
@@ -321,6 +322,7 @@ export default function Home() {
                   <button
                     key={i}
                     onClick={() => setGalleryIndex(i)}
+                    aria-label={`Ir para foto ${i + 1}`}
                     className={cn(
                       "w-1 h-1 rounded-full transition-all duration-500",
                       galleryIndex === i ? "bg-white scale-[2.5]" : "bg-white/30"
@@ -332,7 +334,7 @@ export default function Home() {
           </div>
           
           {/* Subtle Decorative elements */}
-          <div className="absolute -z-10 -bottom-8 -right-8 w-64 h-64 bg- linen/5 blur-3xl rounded-full" />
+          <div className="absolute -z-10 -bottom-8 -right-8 w-64 h-64 bg-linen/5 blur-3xl rounded-full" />
         </div>
       </section>
     </div>

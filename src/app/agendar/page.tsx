@@ -6,11 +6,13 @@ import { Calendar as CalendarIcon, Clock, User, CreditCard, CheckCircle, ArrowRi
 import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability } from "@/lib/actions/booking-actions";
 import { useSearchParams } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 type Step = 'schedule' | 'details' | 'payment' | 'success';
 
 function BookingWizard() {
   const searchParams = useSearchParams();
+  const { showToast } = useToast();
   const initialTier = parseInt(searchParams.get('tier') || '1');
   const initialSessionId = searchParams.get('sessao') || "be68f0ac-d486-4cad-8ea4-3eed090ffada";
 
@@ -127,8 +129,8 @@ function BookingWizard() {
       setIsLoading(false);
     } else {
       setIsLoading(false);
-      // Se houver erro (incluindo falha no link de pagamento), mostramos o alerta real
-      alert(res.error || "Erro ao criar agendamento. Tente novamente.");
+      // Feedback visual premium em vez de alert() nativo
+      showToast(res.error || "Erro ao criar agendamento. Tente novamente.", "error");
     }
   };
 
@@ -157,7 +159,7 @@ function BookingWizard() {
                 className="space-y-12"
               >
                 <div className="flex items-center justify-between border-b border-[#E6DFD3]/30 pb-8">
-                  <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]">
+                  <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]" aria-label="Mês anterior">
                     <ChevronLeft size={24} />
                   </button>
                   <h3 className="text-2xl font-serif italic text-[#2C2A29]">
@@ -169,7 +171,7 @@ function BookingWizard() {
                     )}
                     <span className="text-blush opacity-30 mx-3">—</span> {monthNames[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
                   </h3>
-                  <button onClick={handleNextMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]">
+                  <button onClick={handleNextMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]" aria-label="Próximo mês">
                     <ChevronRight size={24} />
                   </button>
                 </div>
@@ -212,6 +214,14 @@ function BookingWizard() {
                       );
                     })}
                   </div>
+
+                {/* Empty State: Nenhuma data disponível no mês */}
+                {!isLoading && Object.keys(monthAvailability).length > 0 && !Object.values(monthAvailability).some(Boolean) && (
+                  <div className="text-center py-10 space-y-3">
+                    <p className="text-sm italic font-serif text-[#8C8681]">Sem datas disponíveis neste mês.</p>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-[#8C8681]/60">Navegue para o próximo mês →</p>
+                  </div>
+                )}
                 </div>
 
                 {selectedDate && (
