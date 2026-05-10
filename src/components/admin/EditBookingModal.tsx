@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { X, Save, Trash2, Loader2, CalendarClock, Database, User, ShieldAlert, CreditCard, Activity, Check } from "lucide-react";
 import { updateBooking, deleteBooking } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any, onClose: () => void, onUpdated: () => void }) {
   const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +47,6 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
   };
 
   const handleDelete = async () => {
-    if (!confirm("Tem certeza que deseja excluir esta reserva permanentemente? Esta ação não pode ser desfeita.")) return;
     setIsDeleting(true);
     try {
       const res = await deleteBooking(booking.id);
@@ -187,11 +188,21 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
           
           <div className="pt-8 border-t border-zinc-200 flex flex-col lg:flex-row items-center justify-between gap-6 pb-4">
               <button 
-               type="button" onClick={handleDelete} disabled={isDeleting} 
+               type="button" onClick={() => setShowConfirmDelete(true)} disabled={isDeleting} 
                className="w-full lg:w-auto px-6 py-3.5 text-[9px] lg:text-[10px] uppercase font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all flex items-center justify-center gap-2 border border-transparent hover:border-rose-100"
              >
                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />} EXCLUIR RESERVA
              </button>
+
+             <ConfirmModal
+               isOpen={showConfirmDelete}
+               title="Excluir Reserva"
+               message="Tem certeza que deseja excluir esta reserva permanentemente? Esta ação não pode ser desfeita e removerá todos os dados do cliente para esta data."
+               confirmLabel="Sim, Excluir"
+               cancelLabel="Não, Manter"
+               onConfirm={handleDelete}
+               onCancel={() => setShowConfirmDelete(false)}
+             />
              
              <div className="flex gap-4 w-full lg:w-auto">
                 <button type="button" onClick={onClose} className="hidden lg:flex px-10 py-4 bg-zinc-50 border border-zinc-200 text-zinc-500 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-zinc-100 transition-all flex-1 lg:flex-none">Cancelar</button>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Lock, Calendar, CalendarX, AlertCircle, ShieldOff, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getBlockedDates, addBlockedDate, removeBlockedDate } from "@/lib/actions/admin-actions";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export function MassBlockingSection() {
   const [startDate, setStartDate] = useState("");
@@ -12,6 +13,7 @@ export function MassBlockingSection() {
   const [blocks, setBlocks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   async function loadBlocks() {
     setIsLoading(true);
@@ -43,7 +45,6 @@ export function MassBlockingSection() {
   };
 
   const handleRemoveBlock = async (id: string) => {
-    if (!confirm("Deseja remover este bloqueio de agenda?")) return;
     setIsSaving(true);
     try {
       const result = await removeBlockedDate(id);
@@ -160,7 +161,7 @@ export function MassBlockingSection() {
                       </div>
                     </div>
                     <button 
-                      onClick={() => handleRemoveBlock(block.id)}
+                      onClick={() => setConfirmDeleteId(block.id)}
                       className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-50 text-zinc-300 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
                     >
                       <Trash2 size={16} />
@@ -179,6 +180,16 @@ export function MassBlockingSection() {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        title="Remover Bloqueio"
+        message="Deseja remover este bloqueio de agenda? Os horários correspondentes voltarão a ficar disponíveis para o público."
+        confirmLabel="Remover"
+        cancelLabel="Manter"
+        onConfirm={() => confirmDeleteId && handleRemoveBlock(confirmDeleteId)}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }
