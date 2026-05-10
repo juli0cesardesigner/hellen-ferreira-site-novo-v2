@@ -1,6 +1,5 @@
-const CACHE_NAME = 'hf-admin-v3';
+const CACHE_NAME = 'hf-admin-v4';
 const ASSETS_TO_CACHE = [
-  '/',
   '/manifest.json',
   '/icons/192x192.png',
   '/brand/black.png',
@@ -32,28 +31,21 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Ignorar requisições que não sejam GET ou para extensões/chrome-extension
-  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+  // Não interferir com navegação ou chamadas de API do Supabase/Vercel
+  // Apenas servir ícones e manifest do cache para garantir instalabilidade
+  
+  const url = new URL(event.request.url);
+  
+  // Se for um asset estático que está no nosso cache, servimos do cache
+  if (ASSETS_TO_CACHE.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Se a rede funcionar, retorna a resposta
-        return response;
-      })
-      .catch(() => {
-        // Se a rede falhar, tenta buscar no cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // Se não tiver no cache e for uma navegação, tenta o fallback para a raiz ou admin
-          if (event.request.mode === 'navigate') {
-            return caches.match('/admin') || caches.match('/');
-          }
-        });
-      })
-  );
+  // Para todo o resto, rede pura. Isso evita erros de redirecionamento (307) do middleware do Next.js
+  return;
 });
