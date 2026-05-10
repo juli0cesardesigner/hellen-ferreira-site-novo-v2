@@ -105,17 +105,17 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Bottom Nav - Mobile Only */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-6 py-3 flex items-center justify-between z-50">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-zinc-200 px-6 pt-3 pb-safe-bottom flex items-center justify-between z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={22} />} />
         <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={22} />} />
         <button 
           onClick={() => setIsManualBookingOpen(true)} 
-          className="w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center -mt-10 shadow-2xl border-4 border-zinc-50 active:scale-90 transition-all"
+          className="w-14 h-14 bg-zinc-900 text-white rounded-full flex items-center justify-center -mt-12 shadow-2xl border-4 border-zinc-50 active:scale-90 transition-all"
         >
           <Plus size={28} />
         </button>
+        <BottomNavItem active={activeTab === 'blocks'} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck size={22} />} />
         <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock size={22} />} />
-        <BottomNavItem active={activeTab === 'sessions'} onClick={() => setActiveTab('sessions')} icon={<Settings size={22} />} />
       </div>
 
       {/* Área de Conteúdo Principal */}

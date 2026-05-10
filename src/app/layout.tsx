@@ -27,7 +27,13 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  icons: {
+    icon: '/icons/192x192.png',
+    apple: '/icons/apple-icon.png',
+  },
 };
+
+import { PWARegistration } from "@/components/pwa/PWARegistration";
 
 export default function RootLayout({
   children,
@@ -37,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${lato.variable}`} suppressHydrationWarning>
       <body className="antialiased bg-pearl flex flex-col min-h-screen">
+        <PWARegistration />
         <GeneralLayout>{children}</GeneralLayout>
       </body>
     </html>

@@ -91,4 +91,8 @@
   .container-custom {
     @apply w-full max-w-[var(--container-max-width)] mx-auto px-6;
   }
+
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
 }
