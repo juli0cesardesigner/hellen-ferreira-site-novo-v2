@@ -25,7 +25,7 @@ function getAdminClient() {
 }
 
 /**
- * Helper para validar se o usuário atual é um administrador
+ * Helper para validar se o usuário atual é um administrador autorizado
  */
 async function validateAdmin() {
   const supabase = await createClient();
@@ -33,6 +33,14 @@ async function validateAdmin() {
 
   if (error || !user) {
     throw new Error("Não autorizado. Faça login como administrador.");
+  }
+
+  // Lista de e-mails autorizados (pode ser expandida se necessário)
+  const authorizedEmails = ["hellen@hellenferreira.com"];
+  
+  if (!user.email || !authorizedEmails.includes(user.email)) {
+    console.warn(`Tentativa de acesso não autorizado detectada: ${user.email}`);
+    throw new Error("Acesso negado. Você não tem permissões de administrador.");
   }
   
   return user;
