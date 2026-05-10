@@ -47,14 +47,20 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
   const handleDelete = async () => {
     if (!confirm("Tem certeza que deseja excluir esta reserva permanentemente? Esta ação não pode ser desfeita.")) return;
     setIsDeleting(true);
-    const res = await deleteBooking(booking.id);
-    if (res.success) {
-      onUpdated();
-      onClose();
-    } else {
-      alert("Erro ao excluir: " + res.error);
+    try {
+      const res = await deleteBooking(booking.id);
+      if (res.success) {
+        onUpdated();
+        onClose();
+      } else {
+        alert("Erro ao excluir: " + res.error);
+      }
+    } catch (error: any) {
+      console.error("Critical error deleting booking:", error);
+      alert("Erro crítico de conexão ou permissão: " + (error.message || "Erro desconhecido"));
+    } finally {
+      setIsDeleting(false);
     }
-    setIsDeleting(false);
   };
 
   return (

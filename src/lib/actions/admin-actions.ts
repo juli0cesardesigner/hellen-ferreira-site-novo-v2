@@ -133,17 +133,28 @@ export async function addBlockedDate(startDate: string, endDate: string, reason:
 }
 
 export async function removeBlockedDate(id: string) {
-  const { error } = await getSupabase()
+  console.log(`[ADMIN ACTION] Iniciando remoção de bloqueio: ${id}`);
+  
+  const { data, error } = await getSupabase()
     .from('blocked_dates')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .select();
 
   if (error) {
-    console.error("Erro ao remover bloqueio:", error);
+    console.error("[ADMIN ACTION] Erro ao remover bloqueio:", error);
     return { success: false, error: error.message };
   }
 
+  console.log(`[ADMIN ACTION] Bloqueio removido com sucesso:`, data);
+  
+  if (!data || data.length === 0) {
+    console.warn(`[ADMIN ACTION] Nenhum registro encontrado para o ID: ${id}`);
+    return { success: false, error: "Bloqueio não encontrado no banco de dados." };
+  }
+
   revalidatePath('/agendar');
+  revalidatePath('/admin');
   return { success: true };
 }
 
@@ -323,11 +334,26 @@ export async function updateBooking(id: string, updates: any) {
 }
 
 export async function deleteBooking(id: string) {
-  const { error } = await getSupabase().from('bookings').delete().eq('id', id);
+  console.log(`[ADMIN ACTION] Iniciando exclusão de reserva: ${id}`);
+  
+  const { data, error } = await getSupabase()
+    .from('bookings')
+    .delete()
+    .eq('id', id)
+    .select();
+
   if (error) {
-    console.error("Erro ao remover reserva:", error);
+    console.error("[ADMIN ACTION] Erro ao remover reserva:", error);
     return { success: false, error: error.message };
   }
+
+  console.log(`[ADMIN ACTION] Reserva excluída com sucesso:`, data);
+  
+  if (!data || data.length === 0) {
+    console.warn(`[ADMIN ACTION] Nenhuma reserva encontrada para o ID: ${id}`);
+    return { success: false, error: "Reserva não encontrada no banco de dados." };
+  }
+
   revalidatePath('/admin');
   return { success: true };
 }

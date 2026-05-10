@@ -45,13 +45,19 @@ export function MassBlockingSection() {
   const handleRemoveBlock = async (id: string) => {
     if (!confirm("Deseja remover este bloqueio de agenda?")) return;
     setIsSaving(true);
-    const result = await removeBlockedDate(id);
-    if (result.success) {
-      setBlocks(blocks.filter(b => b.id !== id));
-    } else {
-      alert("Erro de Sistema: " + result.error);
+    try {
+      const result = await removeBlockedDate(id);
+      if (result.success) {
+        setBlocks(blocks.filter(b => b.id !== id));
+      } else {
+        alert("Erro de Sistema: " + result.error);
+      }
+    } catch (error: any) {
+      console.error("Critical error removing block:", error);
+      alert("Erro crítico ao remover bloqueio: " + (error.message || "Erro desconhecido"));
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   return (
