@@ -1,50 +1,23 @@
-"use client";
+import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { getShuffledGalleryImages } from "@/lib/gallery/getGallery";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Camera, Heart, Check, PauseCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
 export default function FamiliaPage() {
-  const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
-  const [session, setSession] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const galleryImages = getShuffledGalleryImages("familia").map(i => i.src);
+  const session = SESSIONS_DATA["70b4d4e6-72b5-4262-890c-cf0730e0db8e"];
 
-  React.useEffect(() => {
-    async function loadSession() {
-      try {
-        const { session: sessionData } = await fetchSessionDetails("70b4d4e6-72b5-4262-890c-cf0730e0db8e");
-        setSession(sessionData);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadSession();
-  }, []);
 
-  React.useEffect(() => {
-    fetch("/api/gallery/familia")
-      .then(res => res.json())
-      .then(data => {
-        if (data.images) {
-          setGalleryImages(data.images);
-        }
-      })
-      .catch(err => console.error("Erro ao carregar galeria Família:", err));
-  }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-pearl">
-        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
-      </div>
-    );
-  }
+
+
 
   if (!session) {
     return (
@@ -84,33 +57,22 @@ export default function FamiliaPage() {
       {/* 2. Intro Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
         <div className="container-custom text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <span
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
             A nossa maior riqueza
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+          </span>
+          <h1
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
             Momentos em Família
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             Mais do que simples retratos, registramos a conexão, os sorrisos espontâneos 
             e o amor que une gerações em sessões leves e autênticas.
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -127,10 +89,7 @@ export default function FamiliaPage() {
 
           <div className="max-w-[900px] mx-auto">
             {pkg1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="bg-white rounded-sm border border-sand/30 flex flex-col md:flex-row transition-all duration-700 overflow-hidden"
               >
                 <div className="relative h-80 md:h-auto md:w-1/2 overflow-hidden">
@@ -181,7 +140,7 @@ export default function FamiliaPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>

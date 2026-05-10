@@ -1,29 +1,19 @@
-"use client";
+import { getShuffledGalleryImages } from "@/lib/gallery/getGallery";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Cake, Heart, Check, Bath, PauseCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
 export default function SmashPage() {
-  const session = SESSIONS_DATA["6d560dc9-e87d-45c1-8cbf-e26edc72a2f2"];
-  const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
+  const galleryImages = getShuffledGalleryImages("smash-the-cake").map(i => i.src);
 
-  React.useEffect(() => {
-    fetch("/api/gallery/smash-the-cake")
-      .then(res => res.json())
-      .then(data => {
-        if (data.images) {
-          setGalleryImages(data.images);
-        }
-      })
-      .catch(err => console.error("Erro ao carregar galeria Smash:", err));
-  }, []);
+  const session = SESSIONS_DATA["6d560dc9-e87d-45c1-8cbf-e26edc72a2f2"];
+
 
   const loading = false;
 
@@ -69,33 +59,22 @@ export default function SmashPage() {
       {/* 2. Intro Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
         <div className="container-custom text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <span
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
             A festa mais doce do ano
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+          </span>
+          <h1
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
             Smash the Cake
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             A celebração oficial do primeiro aniversário! Uma experiência sensorial única 
             com direito a bagunça, descoberta e muito amor em cada lambuzada.
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -112,10 +91,7 @@ export default function SmashPage() {
 
           <div className="max-w-[900px] mx-auto">
             {pkg1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="bg-white rounded-sm border border-sand/30 flex flex-col md:flex-row transition-all duration-700 overflow-hidden"
               >
                 <div className="relative h-80 md:h-auto md:w-1/2 overflow-hidden">
@@ -167,7 +143,7 @@ export default function SmashPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>

@@ -16,16 +16,17 @@ export function StandardSlotsSection() {
   const [newSlotTime, setNewSlotTime] = useState<string>("09:00");
   const [addingToDay, setAddingToDay] = useState<number | null>(null);
 
-  useEffect(() => {
-    loadSlots();
-  }, [selectedSession]);
-
   async function loadSlots() {
     setIsLoading(true);
     const res = await listSchemaSlots(selectedSession || null);
     setSlots(res.slots || []);
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    loadSlots();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSession]);
 
   const handleAddSlot = async (dayOfWeek: number) => {
     if (!newSlotTime) return;

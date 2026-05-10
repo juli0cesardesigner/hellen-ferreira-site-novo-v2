@@ -1,274 +1,1514 @@
 {
   "casal": [
-    "/content/gallery/casal/portfolio/IMG_7211-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7214-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7238-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7260-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7278-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7287-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7329-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7338-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7361-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_7395-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_8789-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_8878-Editar.webp",
-    "/content/gallery/casal/portfolio/IMG_8899-Editar.webp"
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7211-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7214-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7238-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7260-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7278-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7287-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7329-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7338-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7361-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_7395-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_8789-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_8878-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/casal/portfolio/IMG_8899-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "civil": [
-    "/content/gallery/civil/portfolio/IMG_0263-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0268-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0317-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0397-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0549-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0610-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0633-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_0643-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_6472-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_6606-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_6651-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_6668-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_6682-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_8194-CR2-Editar.webp",
-    "/content/gallery/civil/portfolio/IMG_8204-CR2.webp"
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0263-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0268-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0317-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0397-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0549-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0610-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0633-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_0643-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_6472-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_6606-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_6651-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_6668-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_6682-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_8194-CR2-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/civil/portfolio/IMG_8204-CR2.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "corporativo": [
-    "/content/gallery/corporativo/portfolio/IMG_0384-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_0430-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_0521-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_1120-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_1146-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_1332-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_2878-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3111-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3162.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3190-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3275-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3369-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_3451-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_6141-Editar.webp",
-    "/content/gallery/corporativo/portfolio/IMG_7305-Editar.webp"
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_0384-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_0430-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_0521-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_1120-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_1146-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_1332-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_2878-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3111-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3162.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3190-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3275-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3369-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_3451-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_6141-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/corporativo/portfolio/IMG_7305-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "familia": [
-    "/content/gallery/familia/portfolio/IMG_0068-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_0164-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_0181-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_0248-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_0286-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_2140-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_2226-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_3480-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_3534-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_3562-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_3717-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_4195-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_4211-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_4251-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_4284-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_8374-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_8415-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_8514-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_8943-Editar-2.webp",
-    "/content/gallery/familia/portfolio/IMG_8976-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_8999-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9228-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9345-Editar-WEB-2.webp",
-    "/content/gallery/familia/portfolio/IMG_9355-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9365-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9379-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9394-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9402-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9406-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9426-Editar.webp",
-    "/content/gallery/familia/portfolio/IMG_9489-Editar.webp"
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_0068-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_0164-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_0181-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_0248-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_0286-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_2140-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_2226-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_3480-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_3534-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_3562-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_3717-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_4195-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_4211-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_4251-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_4284-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8374-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8415-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8514-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8943-Editar-2.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8976-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_8999-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9228-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9345-Editar-WEB-2.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9355-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9365-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9379-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9394-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9402-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9406-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9426-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/familia/portfolio/IMG_9489-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "feminino": [
-    "/content/gallery/feminino/portfolio/IMG_0298-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_0335-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_0410-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_0484-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_0531-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_1632-CR2-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_1728-CR2-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_2062-CR2-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_4974-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_5124-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_5142-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_5244-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_6354-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_6360-Editar.webp",
-    "/content/gallery/feminino/portfolio/IMG_6545-Editar.webp"
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_0298-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_0335-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_0410-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_0484-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_0531-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_1632-CR2-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_1728-CR2-Editar.webp",
+      "width": 1288,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_2062-CR2-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_4974-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_5124-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_5142-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_5244-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_6354-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_6360-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/feminino/portfolio/IMG_6545-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "gestante": [
-    "/content/gallery/gestante/portfolio/IMG_0013-Editar-(2).webp",
-    "/content/gallery/gestante/portfolio/IMG_0052-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_0091-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_0796-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_0843-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_1189-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_1233-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_1318-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_1885.webp",
-    "/content/gallery/gestante/portfolio/IMG_2350-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_2579-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_3147-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_4225-Editar-2.webp",
-    "/content/gallery/gestante/portfolio/IMG_4566-Editar-2.webp",
-    "/content/gallery/gestante/portfolio/IMG_5334.webp",
-    "/content/gallery/gestante/portfolio/IMG_5360.webp",
-    "/content/gallery/gestante/portfolio/IMG_6319.webp",
-    "/content/gallery/gestante/portfolio/IMG_6434.webp",
-    "/content/gallery/gestante/portfolio/IMG_6793-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_7231-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_7777-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_8080-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_8156-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_9648-Editar.webp",
-    "/content/gallery/gestante/portfolio/IMG_9716-Editar.webp"
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_0013-Editar-(2).webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_0052-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_0091-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_0796-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_0843-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_1189-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_1233-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_1318-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_1885.webp",
+      "width": 1441,
+      "height": 2048,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_2350-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_2579-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_3147-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_4225-Editar-2.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_4566-Editar-2.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_5334.webp",
+      "width": 1443,
+      "height": 2048,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_5360.webp",
+      "width": 1920,
+      "height": 1353,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_6319.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_6434.webp",
+      "width": 1437,
+      "height": 2048,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_6793-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_7231-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_7777-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_8080-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_8156-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_9648-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/gestante/portfolio/IMG_9716-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "mensal-menina": [
-    "/content/gallery/mensal-menina/portfolio/IMG_0440-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_1247-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_1312-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_1516-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_1556-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_2027-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_2060-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_2072-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_2166-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_2312-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_3256-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_3271_(2).webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_3481.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_4103-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_4211-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_4231-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_4284-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_5024.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_5425-Editar.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_8741.webp",
-    "/content/gallery/mensal-menina/portfolio/IMG_9218.webp"
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_0440-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_1247-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_1312-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_1516-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_1556-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_2027-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_2060-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_2072-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_2166-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_2312-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_3256-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_3271_(2).webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_3481.webp",
+      "width": 1920,
+      "height": 1350,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_4103-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_4211-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_4231-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_4284-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_5024.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_5425-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_8741.webp",
+      "width": 1920,
+      "height": 1352,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menina/portfolio/IMG_9218.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    }
   ],
   "mensal-menino": [
-    "/content/gallery/mensal-menino/portfolio/IMG_0125-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_0371-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_0401-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_0527-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1041-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1483-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1669-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1730-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1772-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_1938-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_2264-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_2514-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_2783-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_3291-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_3541-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_4024-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_4242.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_4263.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_4308-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_4544-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_6125-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_6276-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_7083-Editar-2.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_7569-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_8236-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_8269-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_8794-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_9286-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_9507-Editar.webp",
-    "/content/gallery/mensal-menino/portfolio/IMG_9538-Editar.webp"
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_0125-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_0371-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_0401-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_0527-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1041-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1483-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1669-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1730-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1772-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_1938-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_2264-Editar.webp",
+      "width": 1920,
+      "height": 1280,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_2514-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_2783-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_3291-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_3541-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_4024-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_4242.webp",
+      "width": 1441,
+      "height": 2048,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_4263.webp",
+      "width": 1442,
+      "height": 2048,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_4308-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_4544-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_6125-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_6276-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_7083-Editar-2.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_7569-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_8236-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_8269-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_8794-Editar.webp",
+      "width": 1920,
+      "height": 1280,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_9286-Editar.webp",
+      "width": 1280,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_9507-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/mensal-menino/portfolio/IMG_9538-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "newborn-menina": [
-    "/content/gallery/newborn-menina/portfolio/IMG_0121.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4379-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4519-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4581-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4659-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4704-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4731-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4733-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_4923-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_6792-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_6863-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_6929-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7039-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7362-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7375-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7458-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7467-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7512-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_7827-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_8213-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_8252-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_8278-Editar.webp",
-    "/content/gallery/newborn-menina/portfolio/IMG_8354-Editar.webp"
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_0121.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4379-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4519-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4581-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4659-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4704-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4731-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4733-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_4923-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_6792-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_6863-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_6929-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7039-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7362-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7375-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7458-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7467-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7512-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_7827-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_8213-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_8252-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_8278-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menina/portfolio/IMG_8354-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    }
   ],
   "newborn-menino": [
-    "/content/gallery/newborn-menino/portfolio/IMG_0171.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_0950.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_0954.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_0978.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_1027.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_1729-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_1752-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_3290-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_3352-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_3416-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_3767-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_5104.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_5149.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_5195.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_7226-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_7598-Aprimorado-NR-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8489-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8565-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8601-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8613-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8903-Editar.webp",
-    "/content/gallery/newborn-menino/portfolio/IMG_8958-Aprimorado-NR-Editar.webp"
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_0171.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_0950.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_0954.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_0978.webp",
+      "width": 1920,
+      "height": 1353,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_1027.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_1729-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_1752-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_3290-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_3352-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_3416-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_3767-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_5104.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_5149.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_5195.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_7226-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_7598-Aprimorado-NR-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8489-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8565-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8601-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8613-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8903-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/newborn-menino/portfolio/IMG_8958-Aprimorado-NR-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    }
   ],
   "revelacao": [
-    "/content/gallery/revelacao/portfolio/IMG_3326-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3376-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3494-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3557-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3571-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3583-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3606-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3627-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3667-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3678-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3719-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_3730-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_4670-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_4796-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_5696-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_5742-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_5842-Editar.webp",
-    "/content/gallery/revelacao/portfolio/IMG_5882-Editar.webp"
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3326-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3376-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3494-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3557-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3571-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3583-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3606-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3627-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3667-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3678-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3719-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_3730-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_4670-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_4796-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_5696-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_5742-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_5842-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/revelacao/portfolio/IMG_5882-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    }
   ],
   "smash": [
-    "/content/gallery/smash/portfolio/IMG_0031-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_0043-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_0251-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_0964-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_1942-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_3679-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_3762-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_3954-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4316-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4390-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4440-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4606-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4622-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_4632-Editar-2.webp",
-    "/content/gallery/smash/portfolio/IMG_5550-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_7967-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_8007-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_8314-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_8380-Editar.webp",
-    "/content/gallery/smash/portfolio/IMG_9834-Editar-Editar.webp"
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_0031-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_0043-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_0251-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_0964-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_1942-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_3679-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_3762-Editar.webp",
+      "width": 1351,
+      "height": 1920,
+      "orientation": "vertical"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_3954-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4316-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4390-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4440-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4606-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4622-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_4632-Editar-2.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_5550-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_7967-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_8007-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_8314-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_8380-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    },
+    {
+      "src": "/content/gallery/smash/portfolio/IMG_9834-Editar-Editar.webp",
+      "width": 1920,
+      "height": 1351,
+      "orientation": "horizontal"
+    }
   ]
 }

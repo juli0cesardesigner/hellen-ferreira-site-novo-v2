@@ -1,50 +1,20 @@
-"use client";
+import { getShuffledGalleryImages } from "@/lib/gallery/getGallery";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, Camera, Check, Briefcase, UserCheck, PauseCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
+import { SESSIONS_DATA } from "@/lib/data/sessions";
+
 export default function CorporativoPage() {
-  const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
-  const [session, setSession] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const galleryImages = getShuffledGalleryImages("corporativo").map(i => i.src);
 
-  React.useEffect(() => {
-    async function loadSession() {
-      try {
-        const { session: sessionData } = await fetchSessionDetails("dfe6e10c-0fa5-446d-873d-25c7e78b8bba");
-        setSession(sessionData);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadSession();
-  }, []);
-
-  React.useEffect(() => {
-    fetch("/api/gallery/corporativo")
-      .then(res => res.json())
-      .then(data => {
-        if (data.images) {
-          setGalleryImages(data.images);
-        }
-      })
-      .catch(err => console.error("Erro ao carregar galeria Corporativo:", err));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-pearl">
-        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const session = SESSIONS_DATA["dfe6e10c-0fa5-446d-873d-25c7e78b8bba"];
 
   if (!session) {
     return (
@@ -89,33 +59,22 @@ export default function CorporativoPage() {
       {/* 2. Intro Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
         <div className="container-custom text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <span
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
             Sua imagem, sua autoridade
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+          </span>
+          <h1
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
             Posicionamento & Imagem
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             O mercado atual é visual. Criamos ferramentas visuais que elevam sua marca 
             pessoal, transmitindo profissionalismo e competência em cada detalhe.
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -133,10 +92,7 @@ export default function CorporativoPage() {
           <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
             {/* Pacote Impacto */}
             {pkg1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
               >
                 {/* Imagem Superior */}
@@ -191,16 +147,12 @@ export default function CorporativoPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Branding Pessoal */}
             {pkg2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="bg-white rounded-sm border border-text-dark shadow-2xl flex flex-col h-full overflow-hidden"
               >
                 {/* Imagem Superior */}
@@ -256,7 +208,7 @@ export default function CorporativoPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>

@@ -1,51 +1,23 @@
-"use client";
+import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { getShuffledGalleryImages } from "@/lib/gallery/getGallery";
 
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, ShieldCheck, Heart, Check, Image as ImageIcon, PauseCircle } from "lucide-react";
-import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
 export default function NewbornMeninaPage() {
-  const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
-  const [session, setSession] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
+  const galleryImages = getShuffledGalleryImages("newborn-menina").map(i => i.src);
+  const session = SESSIONS_DATA["a232eb5e-1583-4fb7-82da-84008e37f1b4"];
 
-  React.useEffect(() => {
-    async function loadSession() {
-      try {
-        // Newborn ID único conforme SERVICE_ID_MAP
-        const { session: sessionData } = await fetchSessionDetails("a232eb5e-1583-4fb7-82da-84008e37f1b4");
-        setSession(sessionData);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadSession();
-  }, []);
 
-  React.useEffect(() => {
-    fetch("/api/gallery/newborn-menina")
-      .then(res => res.json())
-      .then(data => {
-        if (data.images) {
-          setGalleryImages(data.images);
-        }
-      })
-      .catch(err => console.error("Erro ao carregar galeria Newborn:", err));
-  }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-pearl">
-        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
-      </div>
-    );
-  }
+
+
 
   if (!session) {
     return (
@@ -90,33 +62,22 @@ export default function NewbornMeninaPage() {
       {/* 2. Intro Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
         <div className="container-custom text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <span
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
             A Doçura do Início
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+          </span>
+          <h1
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
             Newborn Menina
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
+          </h1>
+          <p
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             Memórias dos primeiros dias em um ambiente 100% seguro e higienizado 
             para bebês de 5 a 15 dias. A delicadeza da sua pequena princesa em cada detalhe.
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -134,10 +95,7 @@ export default function NewbornMeninaPage() {
           <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-20 max-w-[1100px] mx-auto`}>
             {/* Pacote BABY */}
             {pkg1 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+              <div
                 className="bg-white rounded-sm border border-sand/30 flex flex-col transition-all duration-700 overflow-hidden"
               >
                 <div className="relative h-64 w-full overflow-hidden">
@@ -188,16 +146,12 @@ export default function NewbornMeninaPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Pacote FAMÍLIA */}
             {pkg2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="bg-white rounded-sm border border-sand/40 flex flex-col relative transition-all duration-700 overflow-hidden"
               >
                 <div className="absolute top-4 right-4 z-10 bg-sand/80 backdrop-blur-sm text-text-dark px-6 py-2 text-[9px] tracking-[0.4em] uppercase font-bold">
@@ -251,7 +205,7 @@ export default function NewbornMeninaPage() {
                     Ver Agenda Disponível
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </div>
