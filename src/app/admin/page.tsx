@@ -23,6 +23,12 @@ export default function AdminDashboard() {
   const [isManualBookingOpen, setIsManualBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [historyFilter, setHistoryFilter] = useState<'all' | 'past' | 'future'>('all');
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   async function loadData() {
     setIsLoading(true);
@@ -33,8 +39,10 @@ export default function AdminDashboard() {
       ]);
       setStats(statsData);
       setBookings(bookingsData.bookings || []);
+      if (activeTab !== 'overview') showNotification("Dados sincronizados");
     } catch (e) {
       console.error(e);
+      showNotification("Erro ao carregar dados", "error");
     } finally {
       setIsLoading(false);
     }
@@ -141,14 +149,14 @@ export default function AdminDashboard() {
                 {activeTab === 'sessions' && "Serviços e Preços"}
                 {activeTab === 'blocks' && "Bloqueios de Agenda"}
               </h1>
-              <p className="hidden sm:block text-[11px] font-medium text-[var(--color-admin-text-muted)] mt-1">Gerenciamento administrativo do estúdio</p>
+              <p className="hidden sm:block text-[11px] font-bold text-[var(--color-admin-text-muted)] mt-1">Gerenciamento administrativo do estúdio</p>
             </div>
           </div>
           
           <div className="flex items-center gap-6">
             <button 
               onClick={loadData}
-              className="w-12 h-12 flex items-center justify-center bg-[var(--color-admin-bg)] text-slate-400 rounded-2xl transition-all border border-[var(--color-admin-border)] active:scale-90 shadow-sm"
+              className="w-12 h-12 flex items-center justify-center bg-[var(--color-admin-bg)] text-slate-400 rounded-2xl transition-all border border-[var(--color-admin-border)] active:scale-90 shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--color-admin-accent)] outline-none"
               title="Sincronizar"
             >
               <RefreshCw size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
@@ -156,7 +164,7 @@ export default function AdminDashboard() {
 
             <button 
               onClick={() => setIsManualBookingOpen(true)}
-              className="hidden lg:flex bg-[var(--color-admin-accent)] text-white text-[11px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-md active:scale-95 group"
+              className="hidden lg:flex bg-[var(--color-admin-accent)] text-white text-[11px] font-bold uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-md active:scale-95 group focus-visible:ring-2 focus-visible:ring-[var(--color-admin-accent)] outline-none"
             >
               <Plus size={18} strokeWidth={3} /> 
               Novo Agendamento
@@ -178,8 +186,30 @@ export default function AdminDashboard() {
               <EditBookingModal 
                 booking={selectedBooking}
                 onClose={() => setSelectedBooking(null)}
-                onUpdated={loadData}
+                onUpdated={() => {
+                  loadData();
+                  showNotification("Reserva atualizada");
+                }}
               />
+            )}
+          </AnimatePresence>
+
+          {/* Toast Notification */}
+          <AnimatePresence>
+            {notification && (
+              <motion.div
+                initial={{ opacity: 0, y: -20, x: '-50%' }}
+                animate={{ opacity: 1, y: 0, x: '-50%' }}
+                exit={{ opacity: 0, y: -20, x: '-50%' }}
+                className={`fixed top-28 left-1/2 z-[200] px-6 py-3 rounded-2xl shadow-2xl border flex items-center gap-3 min-w-[200px] justify-center backdrop-blur-md ${
+                  notification.type === 'success' 
+                    ? 'bg-emerald-500/90 text-white border-emerald-400' 
+                    : 'bg-red-500/90 text-white border-red-400'
+                }`}
+              >
+                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <span className="text-[12px] font-bold uppercase tracking-wider">{notification.message}</span>
+              </motion.div>
             )}
           </AnimatePresence>
 
@@ -206,12 +236,12 @@ export default function AdminDashboard() {
                     <div className="w-1.5 h-8 bg-[var(--color-admin-accent)] rounded-full lg:block hidden" />
                     <div>
                       <h3 className="text-[20px] lg:text-[24px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Próximos Agendamentos</h3>
-                      <p className="text-[12px] lg:text-[13px] text-[var(--color-admin-text-muted)] font-medium mt-2">Gerenciando {bookings.length} registros ativos</p>
+                      <p className="text-[12px] lg:text-[13px] text-[var(--color-admin-text-muted)] font-bold mt-2 uppercase tracking-wide">Gerenciando {bookings.length} registros ativos</p>
                     </div>
                   </div>
-                  <button onClick={loadData} className="bg-[var(--color-admin-surface)] lg:bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3 lg:px-6 lg:py-3 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-3 transition-all active:scale-95 shadow-sm lg:shadow-none">
+                  <button onClick={loadData} className="bg-[var(--color-admin-surface)] lg:bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3 lg:px-6 lg:py-3 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-3 transition-all active:scale-95 shadow-sm lg:shadow-none focus-visible:ring-2 focus-visible:ring-[var(--color-admin-accent)] outline-none">
                     <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-                    <span className="hidden sm:inline">Atualizar</span>
+                    <span className="hidden sm:inline">Sincronizar</span>
                   </button>
                 </div>
                 
@@ -249,7 +279,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   </div>
-                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] px-8 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] transition-all shadow-sm active:scale-95 relative z-10">
+                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] px-8 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] transition-all shadow-sm active:scale-95 relative z-10 focus-visible:ring-2 focus-visible:ring-[var(--color-admin-accent)] outline-none">
                     Sincronizar
                   </button>
                </div>
