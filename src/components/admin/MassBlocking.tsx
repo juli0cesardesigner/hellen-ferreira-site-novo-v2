@@ -66,8 +66,8 @@ export function MassBlockingSection() {
     <div className="space-y-14 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
       {/* ─── Security Protocol Header ─── */}
-      <div className="bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0" />
         <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-red-500 opacity-[0.02] blur-[100px] rounded-full" />
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 relative z-10">
@@ -112,13 +112,13 @@ export function MassBlockingSection() {
             </div>
 
             <button 
-              onClick={handleCreateBlock}
-              disabled={isSaving || !startDate || !endDate}
-              className="bg-[var(--color-admin-accent)] hover:bg-red-500 text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center justify-center gap-3 transition-all active:scale-90 disabled:opacity-20 shadow-sm h-[60px]"
-            >
-              {isSaving ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} strokeWidth={2.5} />}
-              Confirmar bloqueio
-            </button>
+               onClick={handleCreateBlock}
+               disabled={isSaving || !startDate || !endDate}
+               className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center justify-center gap-3 transition-all active:scale-90 disabled:opacity-20 shadow-sm h-[60px]"
+             >
+               {isSaving ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} strokeWidth={2.5} />}
+               Confirmar bloqueio
+             </button>
           </div>
         </div>
       </div>
@@ -149,12 +149,12 @@ export function MassBlockingSection() {
                   <motion.div 
                     key={block.id} 
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-[var(--color-admin-surface)] p-8 border border-[var(--color-admin-border)] rounded-[2rem] flex justify-between items-center group hover:border-red-500/30 transition-all shadow-sm relative overflow-hidden"
+                    className="bg-[var(--color-admin-surface)] p-8 border border-[var(--color-admin-border)] rounded-[2rem] flex justify-between items-center transition-all shadow-sm relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
                     
                     <div className="flex items-center gap-8 relative z-10">
-                      <div className="w-16 h-16 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] flex items-center justify-center text-slate-300 rounded-2xl shadow-inner group-hover:border-red-500/20 transition-all group-hover:text-red-500">
+                      <div className="w-16 h-16 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] flex items-center justify-center text-slate-300 rounded-2xl shadow-inner transition-all">
                         <CalendarX size={28} />
                       </div>
                       <div>
@@ -171,10 +171,10 @@ export function MassBlockingSection() {
                     </div>
                     
                     <button 
-                      onClick={() => setConfirmDeleteId(block.id)}
-                      className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-slate-300 hover:text-red-500 hover:border-red-500 hover:bg-[var(--color-admin-surface)] transition-all lg:opacity-0 lg:group-hover:opacity-100 shadow-sm active:scale-90 relative z-10"
-                    >
-                      <Trash2 size={22} />
+                       onClick={() => setConfirmDeleteId(block.id)}
+                       className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-slate-300 transition-all shadow-sm active:scale-90 relative z-10"
+                     >
+                       <Trash2 size={22} />
                     </button>
                   </motion.div>
                 ))}

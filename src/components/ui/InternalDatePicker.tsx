@@ -65,21 +65,21 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
 
   const renderHeader = () => {
     return (
-      <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-900 bg-black/40">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/40">
         <button
           type="button"
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-          className="p-2 hover:bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-all"
+          className="p-2 rounded-xl text-slate-400 active:bg-[var(--color-admin-bg)] transition-all"
         >
           <ChevronLeft size={20} />
         </button>
-        <span className="text-[14px] font-bold text-white capitalize">
+        <span className="text-[14px] font-bold text-[var(--color-admin-text)] capitalize">
           {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
         </span>
         <button
           type="button"
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-          className="p-2 hover:bg-zinc-900 rounded-xl text-zinc-400 hover:text-white transition-all"
+          className="p-2 rounded-xl text-slate-400 active:bg-[var(--color-admin-bg)] transition-all"
         >
           <ChevronRight size={20} />
         </button>
@@ -90,7 +90,7 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
   const renderDays = () => {
     const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
     return (
-      <div className="grid grid-cols-7 mb-2 border-b border-zinc-900/50 pb-2">
+      <div className="grid grid-cols-7 mb-2 border-b border-[var(--color-admin-border)]/50 pb-2">
         {days.map((day) => (
           <div key={day} className="text-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             {day}
@@ -125,10 +125,10 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
           <button
             key={day.toString()}
             type="button"
-            className={`relative h-12 w-full flex items-center justify-center text-[13px] font-bold transition-all rounded-xl
-              ${!isCurrentMonth ? "text-zinc-800 pointer-events-none" : "text-slate-300 hover:bg-zinc-900 hover:text-white"}
-              ${isSelected ? "bg-white text-black hover:bg-white hover:text-black shadow-lg scale-95" : ""}
-              ${isTodayDate && !isSelected ? "text-[var(--color-admin-accent)]" : ""}
+            className={`relative h-12 w-full flex items-center justify-center text-[13px] font-bold transition-all rounded-xl active:scale-90
+              ${!isCurrentMonth ? "text-slate-200 pointer-events-none" : "text-[var(--color-admin-text-secondary)]"}
+              ${isSelected ? "bg-[var(--color-admin-accent)] text-white shadow-lg scale-95" : ""}
+              ${isTodayDate && !isSelected ? "text-[var(--color-admin-accent)] bg-[var(--color-admin-accent)]/5" : ""}
             `}
             onClick={() => {
               onChange(format(cloneDay, "yyyy-MM-dd"));
@@ -158,7 +158,7 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2 mb-3 block">
+        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2 mb-3 block">
           {label}
         </label>
       )}
@@ -168,15 +168,15 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
         onClick={() => setIsOpen(!isOpen)}
         className="relative group cursor-pointer"
       >
-        <CalendarIcon size={18} className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${isOpen ? 'text-white' : 'text-zinc-500'}`} />
-        <div className={`w-full bg-[var(--color-admin-bg)] border ${isOpen ? 'border-white' : 'border-[var(--color-admin-border)]'} px-14 py-5 rounded-2xl text-[13px] font-bold text-white transition-all shadow-inner min-h-[62px] flex items-center`}>
-          {displayValue || <span className="text-zinc-700">{placeholder}</span>}
+        <CalendarIcon size={18} className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${isOpen ? 'text-[var(--color-admin-accent)]' : 'text-slate-400'}`} />
+        <div className={`w-full bg-[var(--color-admin-bg)] border ${isOpen ? 'border-[var(--color-admin-accent)]' : 'border-[var(--color-admin-border)]'} px-14 py-5 rounded-2xl text-[13px] font-bold text-[var(--color-admin-text)] transition-all shadow-inner min-h-[62px] flex items-center`}>
+          {displayValue || <span className="text-slate-300">{placeholder}</span>}
         </div>
         
         {value && !isOpen && (
           <button 
             onClick={(e) => { e.stopPropagation(); onChange(""); }}
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1"
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 active:text-[var(--color-admin-accent)] p-1"
           >
             <X size={14} />
           </button>
@@ -198,7 +198,7 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
                 width: popoverPos.width,
                 zIndex: 9999
               }}
-              className="bg-zinc-950 border border-zinc-900 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+              className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden"
             >
               {renderHeader()}
               <div className="p-4 pb-2">

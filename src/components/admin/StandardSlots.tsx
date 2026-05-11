@@ -69,8 +69,8 @@ export function StandardSlotsSection() {
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
       {/* ─── Matrix Config Header ─── */}
-      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0" />
         
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
           <div className="space-y-4">
@@ -100,16 +100,16 @@ export function StandardSlotsSection() {
                   <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>
                 ))}
               </select>
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[var(--color-admin-text-muted)] pointer-events-none group-hover:text-[var(--color-admin-accent)] transition-colors">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[var(--color-admin-text-muted)] pointer-events-none transition-colors">
                  <Filter size={16} />
               </div>
             </div>
             
             <button 
-              onClick={loadSlots} 
-              className="w-16 h-16 bg-[var(--color-admin-bg)] hover:bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] hover:border-[var(--color-admin-accent)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] transition-all active:scale-90"
-            >
-              <Loader2 size={24} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
+               onClick={loadSlots} 
+               className="w-16 h-16 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] transition-all active:scale-90"
+             >
+               <RefreshCw size={24} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
             </button>
           </div>
         </div>
@@ -126,9 +126,9 @@ export function StandardSlotsSection() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
           {days.map(day => (
-            <div key={day.value} className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] flex flex-col overflow-hidden shadow-sm transition-all hover:border-[var(--color-admin-accent)] group/card">
+            <div key={day.value} className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] flex flex-col overflow-hidden shadow-sm transition-all">
               <div className="bg-[var(--color-admin-bg)] px-6 py-5 border-b border-[var(--color-admin-border)] flex items-center justify-center">
-                <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide group-hover/card:text-[var(--color-admin-accent)] transition-colors">{day.label}</span>
+                <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide transition-colors">{day.label}</span>
               </div>
               
               <div className="p-4 space-y-4 flex-1 min-h-[450px] custom-scrollbar">
@@ -141,14 +141,14 @@ export function StandardSlotsSection() {
                       <motion.div 
                         key={slot.id || `${slot.day_of_week}-${slot.start_time}`} 
                         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                        className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group ${
+                        className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${
                           isDeactivated 
                             ? 'bg-red-500/5 border-red-500/10 grayscale opacity-40' 
-                            : 'bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] hover:border-[var(--color-admin-accent)] hover:shadow-sm'
+                            : 'bg-[var(--color-admin-bg)] border-[var(--color-admin-border)]'
                         }`}
                       >
                         <div className="flex flex-col gap-2">
-                           <span className={`text-[18px] font-bold tracking-tight ${isDeactivated ? 'text-red-900/50 line-through' : 'text-[var(--color-admin-text)] group-hover:text-[var(--color-admin-accent)] transition-colors'}`}>
+                           <span className={`text-[18px] font-bold tracking-tight ${isDeactivated ? 'text-red-900/50 line-through' : 'text-[var(--color-admin-text)] transition-colors'}`}>
                             {slot.start_time.slice(0, 5)}
                           </span>
                           <div className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export function StandardSlotsSection() {
 
                         <button 
                           onClick={() => handleDeleteSlot(slot.id, day.value, slot.start_time)}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 active:scale-90"
+                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -182,13 +182,13 @@ export function StandardSlotsSection() {
                        <button 
                         onClick={() => handleAddSlot(day.value)}
                         disabled={isSaving}
-                        className="flex-1 bg-[var(--color-admin-accent)] text-white text-[11px] font-black py-4 rounded-xl hover:bg-blue-700 disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-sm"
+                        className="flex-1 bg-[var(--color-admin-accent)] text-white text-[11px] font-black py-4 rounded-xl disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-sm"
                       >
                         Adicionar
                       </button>
                       <button 
                         onClick={() => setAddingToDay(null)}
-                        className="p-4 bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] rounded-xl hover:text-[var(--color-admin-text)] hover:border-[var(--color-admin-text)] transition-all"
+                        className="p-4 bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] rounded-xl transition-all"
                       >
                         <X size={20} />
                       </button>
@@ -197,7 +197,7 @@ export function StandardSlotsSection() {
                 ) : (
                   <button 
                     onClick={() => setAddingToDay(day.value)}
-                    className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-[var(--color-admin-border)] bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
+                    className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-[var(--color-admin-border)] bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
                   >
                     <Plus size={20} strokeWidth={2.5} /> Novo Horário
                   </button>

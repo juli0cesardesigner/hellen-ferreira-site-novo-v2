@@ -51,8 +51,8 @@ export default function AdminDashboard() {
 
       {/* ─── Sidebar ─── */}
       <aside className="w-72 bg-[var(--color-admin-surface)] border-r border-[var(--color-admin-border)] flex flex-col hidden lg:flex shrink-0 relative z-20 shadow-sm">
-        <div className="p-8 border-b border-[var(--color-admin-border)] flex items-center gap-5 relative group">
-          <div className="w-12 h-12 bg-[var(--color-admin-text)] text-[var(--color-admin-bg)] rounded-2xl flex items-center justify-center font-black text-lg shadow-sm transition-transform group-hover:scale-110 duration-500">
+        <div className="p-8 border-b border-[var(--color-admin-border)] flex items-center gap-5 relative">
+          <div className="w-12 h-12 bg-[var(--color-admin-text)] text-[var(--color-admin-bg)] rounded-2xl flex items-center justify-center font-black text-lg shadow-sm">
             HF
           </div>
           <div>
@@ -101,9 +101,9 @@ export default function AdminDashboard() {
         <div className="p-6 border-t border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/50">
           <button 
             onClick={() => logout()}
-            className="flex items-center gap-4 w-full px-5 py-4 text-slate-400 hover:text-red-500 hover:bg-red-500/5 transition-all rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] group border border-transparent hover:border-red-500/20"
+            className="flex items-center gap-4 w-full px-5 py-4 text-slate-400 transition-all rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] group border border-[var(--color-admin-border)]/50"
           >
-            <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
+            <LogOut size={18} /> 
             <span>Sair</span>
           </button>
         </div>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-6">
             <button 
               onClick={loadData}
-              className="w-12 h-12 flex items-center justify-center bg-[var(--color-admin-bg)] hover:bg-[var(--color-admin-surface)] text-slate-400 hover:text-[var(--color-admin-accent)] rounded-2xl transition-all border border-[var(--color-admin-border)] active:scale-90 shadow-sm"
+              className="w-12 h-12 flex items-center justify-center bg-[var(--color-admin-bg)] text-slate-400 rounded-2xl transition-all border border-[var(--color-admin-border)] active:scale-90 shadow-sm"
               title="Sincronizar"
             >
               <RefreshCw size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
@@ -155,9 +155,9 @@ export default function AdminDashboard() {
 
             <button 
               onClick={() => setIsManualBookingOpen(true)}
-              className="hidden lg:flex bg-[var(--color-admin-accent)] hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-md active:scale-95 group"
+              className="hidden lg:flex bg-[var(--color-admin-accent)] text-white text-[11px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-md active:scale-95 group"
             >
-              <Plus size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-500" /> 
+              <Plus size={18} strokeWidth={3} /> 
               Novo Agendamento
             </button>
           </div>
@@ -199,8 +199,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Bookings Data Grid */}
-              <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] overflow-hidden shadow-sm relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] overflow-hidden shadow-sm relative">
                 <div className="px-10 py-8 border-b border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/30 flex items-center justify-between relative z-10">
                   <div>
                      <h3 className="text-[15px] font-bold text-[var(--color-admin-text)] tracking-tight flex items-center gap-3">
@@ -209,7 +208,7 @@ export default function AdminDashboard() {
                     </h3>
                     <p className="text-[12px] font-medium text-[var(--color-admin-text-muted)] mt-1 ml-4">Gerenciando {bookings.length} registros ativos</p>
                   </div>
-                   <button onClick={loadData} className="px-5 py-2.5 bg-[var(--color-admin-surface)] hover:bg-[var(--color-admin-bg)] rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-2 transition-all border border-[var(--color-admin-border)] shadow-sm">
+                   <button onClick={loadData} className="px-5 py-2.5 bg-[var(--color-admin-surface)] rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-2 transition-all border border-[var(--color-admin-border)] shadow-sm">
                     <Clock size={16} /> Atualizar
                   </button>
                 </div>
@@ -222,8 +221,8 @@ export default function AdminDashboard() {
 
           {activeTab === 'history' && (
             <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
-               <div className="flex items-center gap-8 bg-[var(--color-admin-surface)] p-12 rounded-[2.5rem] border border-[var(--color-admin-border)] shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
+               <div className="flex items-center gap-8 bg-[var(--color-admin-surface)] p-12 rounded-[2.5rem] border border-[var(--color-admin-border)] shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-10 opacity-5">
                     <Clock size={120} />
                   </div>
                   <div className="w-20 h-20 bg-[var(--color-admin-bg)] text-[var(--color-admin-accent)] rounded-[1.5rem] flex items-center justify-center border border-[var(--color-admin-border)] shadow-inner">
@@ -233,7 +232,7 @@ export default function AdminDashboard() {
                     <h3 className="text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Histórico de Dados</h3>
                     <p className="text-[13px] text-[var(--color-admin-text-muted)] font-medium mt-3">Visualização completa de todos os registros passados</p>
                   </div>
-                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-accent)] hover:bg-blue-700 px-8 py-4 rounded-2xl text-[12px] font-bold text-white transition-all shadow-md active:scale-95 relative z-10">
+                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-accent)] px-8 py-4 rounded-2xl text-[12px] font-bold text-white transition-all shadow-md active:scale-95 relative z-10">
                     Atualizar Dados
                   </button>
                </div>
@@ -302,9 +301,9 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
               return (
                 <tr 
                   key={booking.id} 
-                  className="group transition-all"
+                  className="transition-all"
                 >
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] rounded-l-[1.5rem] border-y border-l border-[var(--color-admin-border)] transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 rounded-l-[1.5rem] border-y border-l border-[var(--color-admin-border)] transition-all duration-300">
                     <div className="text-[15px] font-bold text-[var(--color-admin-text)]">
                        {new Date(booking.booking_date).toLocaleDateString('pt-BR')}
                     </div>
@@ -312,11 +311,11 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                        {booking.start_time.slice(0, 5)}h
                     </div>
                   </td>
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] border-y border-[var(--color-admin-border)] transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 border-y border-[var(--color-admin-border)] transition-all duration-300">
                     <div className="text-[14px] font-bold text-[var(--color-admin-text)] tracking-tight">{booking.customer_name || booking.client_name}</div>
                     <div className="text-[11px] text-[var(--color-admin-text-muted)] mt-1 font-medium italic">ref: {booking.id.split('-')[0]}</div>
                   </td>
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] border-y border-[var(--color-admin-border)] transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 border-y border-[var(--color-admin-border)] transition-all duration-300">
                     <span 
                       className="text-[11px] font-bold px-4 py-2 rounded-lg border bg-[var(--color-admin-surface)] inline-block"
                       style={{ 
@@ -327,7 +326,7 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                       {booking.sessions?.name}
                     </span>
                   </td>
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] border-y border-[var(--color-admin-border)] transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 border-y border-[var(--color-admin-border)] transition-all duration-300">
                     <div className="flex items-center gap-4">
                       <div className={`w-3 h-3 rounded-full shadow-[0_0_15px_currentColor] ${
                         booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
@@ -341,17 +340,17 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                       </span>
                     </div>
                   </td>
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] border-y border-[var(--color-admin-border)] text-right transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 border-y border-[var(--color-admin-border)] text-right transition-all duration-300">
                     <span className="text-[16px] font-bold text-[var(--color-admin-text)]">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
                     </span>
                   </td>
-                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 group-hover:bg-[var(--color-admin-bg)] rounded-r-[1.5rem] border-y border-r border-[var(--color-admin-border)] text-right transition-all duration-300">
+                  <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 rounded-r-[1.5rem] border-y border-r border-[var(--color-admin-border)] text-right transition-all duration-300">
                     <button 
                       onClick={() => onEdit(booking)}
-                      className="w-12 h-12 rounded-2xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-slate-400 hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] flex items-center justify-center transition-all ml-auto shadow-sm active:scale-90 group"
+                      className="w-12 h-12 rounded-2xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all ml-auto shadow-sm active:scale-90"
                     >
-                      <Settings size={20} className="group-hover:rotate-45 transition-transform duration-300" />
+                      <Settings size={20} />
                     </button>
                   </td>
                 </tr>
@@ -368,9 +367,9 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
             <div 
               key={booking.id} 
               onClick={() => onEdit(booking)}
-              className="p-8 bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] relative cursor-pointer active:scale-[0.98] transition-all shadow-sm overflow-hidden group"
+              className="p-8 bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] relative cursor-pointer active:scale-[0.98] transition-all shadow-sm overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-admin-accent)]/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-active:opacity-100 transition-opacity" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-admin-accent)]/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 active:opacity-100 transition-opacity" />
               <div className="flex justify-between items-start mb-6">
                 <div className="flex flex-col gap-2">
                   <span className="text-[12px] font-bold text-[var(--color-admin-text-muted)]">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
@@ -413,13 +412,13 @@ function SidebarNavItem({ active, onClick, icon, label }: { active: boolean, onC
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all text-[14px] font-bold group relative overflow-hidden border-2 ${
+      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all text-[14px] font-bold relative overflow-hidden border-2 ${
         active 
           ? 'bg-[var(--color-admin-accent)] border-[var(--color-admin-accent)] text-white shadow-md scale-[1.02]' 
-          : 'text-slate-500 hover:text-[var(--color-admin-accent)] hover:bg-blue-50 border-transparent'
+          : 'text-slate-500 bg-transparent border-transparent'
       }`}
     >
-      <div className={`${active ? 'text-white' : 'text-slate-400 group-hover:text-[var(--color-admin-accent)]'} transition-colors`}>
+      <div className={`${active ? 'text-white' : 'text-slate-400'} transition-colors`}>
         {React.cloneElement(icon as React.ReactElement<any>, { strokeWidth: active ? 2.5 : 2 })}
       </div>
       <span className="relative z-10">{label}</span>
@@ -444,8 +443,8 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
 
 function StatMetric({ label, value, icon, isPositive, trend }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean, trend: string }) {
   return (
-    <div className="bg-[var(--color-admin-surface)] p-8 border border-[var(--color-admin-border)] rounded-[2.5rem] flex flex-col justify-between h-48 hover:border-[var(--color-admin-accent)]/30 transition-all group shadow-sm relative overflow-hidden">
-      <div className="absolute -right-8 -top-8 p-12 opacity-5 group-hover:opacity-10 transition-opacity rotate-12 group-hover:rotate-0 duration-1000">
+    <div className="bg-[var(--color-admin-surface)] p-8 border border-[var(--color-admin-border)] rounded-[2.5rem] flex flex-col justify-between h-48 transition-all shadow-sm relative overflow-hidden">
+      <div className="absolute -right-8 -top-8 p-12 opacity-5 rotate-12 duration-1000">
          {React.cloneElement(icon as React.ReactElement<any>, { size: 100, strokeWidth: 1 })}
       </div>
 

@@ -92,8 +92,8 @@ export function SessionConfigSection() {
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
       {/* ─── Engine Header ─── */}
-      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden group">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-[var(--color-admin-accent)] opacity-[0.02] blur-[100px] rounded-full" />
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
@@ -111,9 +111,9 @@ export function SessionConfigSection() {
 
           <button 
             onClick={() => { setEditingSession(null); setIsModalOpen(true); }}
-            className="bg-[var(--color-admin-accent)] hover:bg-blue-700 text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
+            className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
           >
-            <Plus size={20} strokeWidth={2.5} className="group-hover:rotate-90 transition-transform duration-500" /> 
+            <Plus size={20} strokeWidth={2.5} /> 
             Novo Serviço
           </button>
         </div>
@@ -133,9 +133,9 @@ export function SessionConfigSection() {
             <motion.div 
               key={session.id} 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 flex flex-col justify-between hover:border-[var(--color-admin-accent)] transition-all shadow-sm group relative overflow-hidden"
+              className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 flex flex-col justify-between transition-all shadow-sm group relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-admin-accent)]/5 rounded-full -mr-20 -mt-20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-admin-accent)]/5 rounded-full -mr-20 -mt-20 blur-3xl opacity-0 transition-opacity" />
               
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-8">
@@ -148,27 +148,27 @@ export function SessionConfigSection() {
                   <div className="flex gap-3">
                     <button 
                       onClick={() => { setViewingMatrix(session); loadMatrix(session.id); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
                       title="Ver Matriz de Horários"
                     >
                       <Settings size={18} />
                     </button>
                     <button 
                       onClick={() => { setEditingSession(session); setIsModalOpen(true); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
                     >
                       <Edit2 size={18} />
                     </button>
                     <button 
                       onClick={() => handleDelete(session.id)}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-red-500 hover:border-red-500 transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
                     >
                       <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
 
-                <h5 className="text-[22px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none mb-3 group-hover:text-[var(--color-admin-accent)] transition-colors">
+                <h5 className="text-[22px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none mb-3 transition-colors">
                   {session.name}
                 </h5>
                 <p className="text-[11px] text-[var(--color-admin-text-muted)] font-bold uppercase tracking-wider mb-8">ID: {session.id.split('-')[0]}</p>
@@ -197,21 +197,21 @@ export function SessionConfigSection() {
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="w-full max-w-2xl bg-zinc-950 border border-zinc-900 rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,1)] relative z-10 overflow-hidden"
+              className="w-full max-w-2xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-hidden"
             >
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-white opacity-20" />
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-[var(--color-admin-accent)] opacity-20" />
               
               <div className="p-10 lg:p-14">
                 <div className="flex justify-between items-center mb-12">
                   <div>
-                    <h3 className="text-[28px] font-bold text-white tracking-tight leading-none">
+                    <h3 className="text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">
                       {editingSession ? 'Editar serviço' : 'Novo serviço'}
                     </h3>
-                    <p className="text-[11px] text-slate-500 font-medium mt-2">Configure os detalhes do serviço oferecido</p>
+                    <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">Configure os detalhes do serviço oferecido</p>
                   </div>
                   <button 
                     onClick={() => setIsModalOpen(false)}
-                    className="w-14 h-14 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 hover:text-white hover:border-white transition-all active:scale-90"
+                    className="w-14 h-14 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
                   >
                     <X size={28} />
                   </button>
@@ -219,40 +219,40 @@ export function SessionConfigSection() {
 
                 <form action={handleSave} className="space-y-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Nome do Serviço</label>
+                    <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Nome do Serviço</label>
                     <input 
                       name="name" 
                       required 
                       defaultValue={editingSession?.name}
                       placeholder="Ex: Ensaio Gestante"
-                      className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all placeholder:text-zinc-800" 
+                      className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300" 
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Slots (30min cada)</label>
+                      <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Slots (30min cada)</label>
                       <input 
                         name="duration" 
                         type="number" 
                         required 
                         defaultValue={editingSession?.duration_slots || 2}
-                        className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all" 
+                        className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all" 
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Cor do Calendário</label>
+                      <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Cor do Calendário</label>
                       <div className="flex gap-4">
                         <input 
                           name="color" 
                           type="color" 
                           defaultValue={editingSession?.theme_color || "#3b82f6"}
-                          className="w-16 h-[60px] bg-black border-2 border-zinc-900 rounded-2xl p-2 cursor-pointer focus:border-white transition-all" 
+                          className="w-16 h-[60px] bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl p-2 cursor-pointer focus:border-[var(--color-admin-accent)] transition-all" 
                         />
                         <input 
                           type="text" 
                           placeholder="#000000"
                           defaultValue={editingSession?.theme_color || "#3b82f6"}
-                          className="flex-1 bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-bold text-white outline-none focus:border-white transition-all" 
+                          className="flex-1 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all" 
                         />
                       </div>
                     </div>
@@ -264,7 +264,7 @@ export function SessionConfigSection() {
                     <button 
                       type="submit" 
                       disabled={isSaving}
-                      className="w-full bg-white hover:bg-zinc-200 text-black py-6 rounded-[1.5rem] font-bold text-[14px] tracking-tight flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl disabled:opacity-50 group"
+                      className="w-full bg-[var(--color-admin-accent)] text-white py-6 rounded-[1.5rem] font-bold text-[14px] tracking-tight flex items-center justify-center gap-4 transition-all active:scale-95 shadow-lg disabled:opacity-50 group"
                     >
                       {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} strokeWidth={2.5} />}
                       {editingSession ? 'Salvar Alterações' : 'Criar Serviço'}
@@ -288,12 +288,12 @@ export function SessionConfigSection() {
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="w-full max-w-5xl bg-zinc-950 border border-zinc-900 rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,1)] relative z-10 overflow-hidden max-h-[90vh] flex flex-col"
+              className="w-full max-w-5xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-hidden max-h-[90vh] flex flex-col"
             >
-              <div className="p-10 lg:p-14 border-b border-zinc-900">
+              <div className="p-10 lg:p-14 border-b border-[var(--color-admin-border)]">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-[28px] font-black text-white uppercase tracking-tighter leading-none">
+                    <h3 className="text-[28px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none">
                       Horários Específicos
                     </h3>
                     <p className="text-[11px] text-[var(--color-admin-accent)] font-bold uppercase tracking-wider mt-3">
@@ -302,7 +302,7 @@ export function SessionConfigSection() {
                   </div>
                   <button 
                     onClick={() => setViewingMatrix(null)}
-                    className="w-14 h-14 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600 hover:text-white hover:border-white transition-all active:scale-90"
+                    className="w-14 h-14 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
                   >
                     <X size={28} />
                   </button>
@@ -321,10 +321,10 @@ export function SessionConfigSection() {
                       const daySlots = matrixSlots.filter(s => s.day_of_week === dayIndex);
                       
                       return (
-                        <div key={dayIndex} className="bg-zinc-900/50 border border-zinc-900 rounded-[2rem] p-8 space-y-6">
-                          <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
-                            <span className="text-[11px] font-black text-white uppercase tracking-widest">{dayName}</span>
-                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{daySlots.length} HORÁRIOS</span>
+                        <div key={dayIndex} className="bg-[var(--color-admin-bg)]/50 border border-[var(--color-admin-border)] rounded-[2rem] p-8 space-y-6">
+                          <div className="flex justify-between items-center border-b border-[var(--color-admin-border)] pb-4">
+                            <span className="text-[11px] font-black text-[var(--color-admin-text)] uppercase tracking-widest">{dayName}</span>
+                            <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">{daySlots.length} HORÁRIOS</span>
                           </div>
                           
                           <div className="space-y-3">
@@ -332,17 +332,17 @@ export function SessionConfigSection() {
                               <button
                                 key={`${slot.day_of_week}-${slot.start_time}`}
                                 onClick={() => handleToggleSlot(slot)}
-                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all active:scale-95 ${
                                   slot.is_active 
-                                    ? "bg-white text-black border-white shadow-lg" 
-                                    : "bg-black text-zinc-600 border-zinc-900 hover:border-zinc-700"
+                                    ? "bg-[var(--color-admin-accent)] text-white border-[var(--color-admin-accent)] shadow-lg" 
+                                    : "bg-[var(--color-admin-bg)] text-slate-400 border-[var(--color-admin-border)]"
                                 }`}
                               >
                                 <span className="text-[14px] font-bold">{slot.start_time.substring(0, 5)}</span>
                                 {slot.is_active ? (
-                                  <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
+                                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                                 ) : (
-                                  <div className="w-2 h-2 bg-zinc-900 rounded-full" />
+                                  <div className="w-2 h-2 bg-slate-300 rounded-full" />
                                 )}
                               </button>
                             ))}

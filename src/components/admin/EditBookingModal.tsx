@@ -88,7 +88,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] hover:bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all border border-[var(--color-admin-border)] active:scale-90">
+          <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90">
             <X size={28} />
           </button>
         </div>
@@ -202,7 +202,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
           
           <div className="pt-12 border-t border-[var(--color-admin-border)] flex flex-col lg:flex-row items-center justify-between gap-10 pb-6">
               <button 
-               type="button" onClick={() => setShowConfirmDelete(true)} disabled={isDeleting} className="flex items-center gap-2 text-[12px] font-bold text-red-500 hover:text-red-400 transition-all"
+               type="button" onClick={() => setShowConfirmDelete(true)} disabled={isDeleting} className="flex items-center gap-2 text-[12px] font-bold text-red-500 transition-all active:scale-95"
               >
                 {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />} Excluir registro
               </button>
@@ -218,11 +218,11 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
              />
              
              <div className="flex gap-6 w-full lg:w-auto">
-                 <button type="button" onClick={onClose} className="hidden lg:flex px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all active:scale-95">Cancelar</button>
+                  <button type="button" onClick={onClose} className="hidden lg:flex px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] transition-all active:scale-95">Cancelar</button>
                <button 
-                 type="submit" disabled={isSubmitting} className="flex-1 lg:flex-none px-16 py-6 bg-[var(--color-admin-accent)] text-white text-[12px] font-bold tracking-wider rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-sm active:scale-95 group"
+                 type="submit" disabled={isSubmitting} className="flex-1 lg:flex-none px-16 py-6 bg-[var(--color-admin-accent)] text-white text-[12px] font-bold tracking-wider rounded-2xl transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-sm active:scale-95 group"
                 >
-                  {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="group-hover:scale-125 transition-transform" />} Salvar alterações
+                  {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="transition-transform" />} Salvar alterações
                </button>
              </div>
           </div>

@@ -132,7 +132,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                   <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)] mt-2">Preencha os dados do cliente e da sessão abaixo</p>
                </div>
             </div>
-            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] hover:bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all border border-[var(--color-admin-border)] active:scale-90">
+            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90">
               <X size={28} />
             </button>
           </div>
@@ -166,7 +166,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                 </div>
                 <div className="flex flex-col sm:row gap-3">
                    <input readOnly value={createdResult.paymentUrl} className="flex-1 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] p-4 rounded-xl text-[11px] text-blue-400 outline-none shadow-inner" />
-                  <button type="button" onClick={() => copyToClipboard(createdResult.paymentUrl)} className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-500 flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-95 group">
+                  <button type="button" onClick={() => copyToClipboard(createdResult.paymentUrl)} className="px-8 py-4 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-95 group">
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                      <span className="text-[11px] font-bold tracking-tight">Copiar link</span>
                   </button>
@@ -228,7 +228,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                                   className="w-6 h-6 rounded-lg bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-blue-600 focus:ring-blue-500/20 transition-all cursor-pointer"
                                />
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase group-hover:border-[var(--color-admin-accent)] transition-all">
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase transition-all">
                                <Gift size={12} className={formData.isGift ? "text-emerald-500" : ""} /> 
                                <span>Cortesia</span>
                             </div>
@@ -343,7 +343,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                   </div>
                   
                   <div className="p-8 bg-[var(--color-admin-surface)] rounded-3xl border border-[var(--color-admin-border)] mt-6 relative overflow-hidden group">
-                     <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-admin-accent)]/20 group-hover:bg-[var(--color-admin-accent)] transition-colors" />
+                     <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-admin-accent)]/20 transition-colors" />
                      <div className="flex items-center gap-3 mb-3">
                         <Info size={14} className="text-[var(--color-admin-text-muted)]" />
                         <h5 className="text-[11px] font-bold text-[var(--color-admin-text-secondary)] tracking-wide">Observação</h5>
@@ -359,13 +359,13 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
             <div className="pt-12 lg:pt-14 border-t border-[var(--color-admin-border)] flex flex-col lg:flex-row items-center justify-between gap-10">
 
               <div className="flex items-center gap-6 w-full lg:w-auto">
-                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all active:scale-95" disabled={isSubmitting}>Cancelar</button>
+                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] transition-all active:scale-95" disabled={isSubmitting}>Cancelar</button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !formData.session_id || !formData.start_time || !formData.client_name || !formData.date}
-                  className="flex-1 lg:flex-none px-16 py-6 bg-[var(--color-admin-accent)] text-white text-[12px] font-bold tracking-tight rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-sm active:scale-95 group"
+                  className="flex-1 lg:flex-none px-16 py-6 bg-[var(--color-admin-accent)] text-white text-[12px] font-bold tracking-tight rounded-2xl transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-sm active:scale-95 group"
                 >
-                   {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="group-hover:scale-125 transition-transform" />}
+                   {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="transition-transform" />}
                   Salvar Agendamento
                 </button>
               </div>
