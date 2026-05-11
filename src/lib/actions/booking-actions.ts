@@ -1,5 +1,7 @@
 "use server";
 
+// Stripe Payment Integration - Fully Active
+
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
