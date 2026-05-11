@@ -318,7 +318,6 @@ export async function createBooking(data: {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app';
 
     const session_mp = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'], // Adicione 'pix' se a conta Stripe for BR e estiver habilitada
       line_items: [
         {
           price_data: {
