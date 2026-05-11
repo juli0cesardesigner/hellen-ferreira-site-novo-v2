@@ -7,7 +7,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
 };
-import { Cormorant_Garamond, Lato } from "next/font/google";
+import { Cormorant_Garamond, Lato, Inter } from "next/font/google";
 import { GeneralLayout } from "@/components/layout/GeneralLayout";
 import "./globals.css";
 
@@ -21,6 +21,12 @@ const lato = Lato({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-admin",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -56,7 +62,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${cormorant.variable} ${lato.variable}`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${cormorant.variable} ${lato.variable} ${inter.variable}`} suppressHydrationWarning>
       <body className="antialiased bg-pearl flex flex-col min-h-screen">
         <PWARegistration />
         <FacebookPixel />

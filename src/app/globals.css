@@ -34,6 +34,25 @@
   /* Animations */
   --animate-fade-in-up: fade-in-up 800ms ease forwards;
 
+  /* ──────────────────────────────────────────────
+     ADMIN DESIGN SYSTEM (Corporate / SaaS)
+     Font: Inter | Palette: Slate | Shape: Sharp
+     ────────────────────────────────────────────── */
+  --font-admin: "Inter", system-ui, sans-serif;
+  --color-admin-bg: #F8FAFC;
+  --color-admin-surface: #FFFFFF;
+  --color-admin-border: #E2E8F0;
+  --color-admin-border-hover: #CBD5E1;
+  --color-admin-text: #0F172A;
+  --color-admin-text-secondary: #475569;
+  --color-admin-text-muted: #94A3B8;
+  --color-admin-accent: #1E293B;
+  --color-admin-accent-hover: #0F172A;
+  --color-admin-info: #3B82F6;
+  --color-admin-success: #10B981;
+  --color-admin-warning: #F59E0B;
+  --color-admin-danger: #EF4444;
+
   @keyframes fade-in-up {
     from {
       opacity: 0;
