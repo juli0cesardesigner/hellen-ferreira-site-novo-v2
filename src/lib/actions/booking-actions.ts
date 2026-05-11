@@ -233,11 +233,11 @@ export async function createBooking(data: {
 }) {
   const tier = data.selectedTier || 1;
 
-  // 0. Validar credenciais do Mercado Pago
-  if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
-    console.error("MERCADO_PAGO_ACCESS_TOKEN não configurado no servidor.");
+  // 0. Validar credenciais do Stripe
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error("STRIPE_SECRET_KEY não configurado no servidor.");
     return { 
-      error: "O sistema de pagamentos está em manutenção (Token ausente). Por favor, tente novamente mais tarde." 
+      error: "O sistema de pagamentos está em manutenção (Configuração ausente). Por favor, tente novamente mais tarde." 
     };
   }
 
@@ -310,48 +310,47 @@ export async function createBooking(data: {
     return { error: "Erro ao registrar agendamento." };
   }
 
-  // 4. Integrar com Mercado Pago REAL
+  // 4. Integrar com Stripe REAL
   try {
-    const { mpPreference } = await import('@/lib/utils/mercadopago');
+    const { stripe } = await import('@/lib/utils/stripe');
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app';
 
-    const preferenceResponse = await mpPreference.create({
-      body: {
-        items: [
-          {
-            id: booking.id,
-            title: `${session.name} - ${selectedPackage.name}`,
-            quantity: 1,
-            unit_price: amountToPay,
-            currency_id: 'BRL',
-            description: `Agendamento para ${data.clientName} em ${data.bookingDate} às ${data.startTime}`
-          }
-        ],
-        external_reference: booking.id,
-        // Configurações de Retorno
-        back_urls: {
-          success: `${baseUrl}/`,
-          failure: `${baseUrl}/`,
-          pending: `${baseUrl}/`
+    const session_mp = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'], // Adicione 'pix' se a conta Stripe for BR e estiver habilitada
+      line_items: [
+        {
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: `${session.name} - ${selectedPackage.name}`,
+              description: `Agendamento para ${data.clientName} em ${data.bookingDate} às ${data.startTime}`,
+            },
+            unit_amount: Math.round(amountToPay * 100), // Stripe usa centavos
+          },
+          quantity: 1,
         },
-        auto_return: 'approved',
-        // Webhook: O link que a Vercel vai receber do Mercado Pago quando o Pix for pago
-        notification_url: `${baseUrl}/api/webhooks/mercadopago`
-      }
+      ],
+      mode: 'payment',
+      success_url: `${baseUrl}/?success=true&bookingId=${booking.id}`,
+      cancel_url: `${baseUrl}/agendar?cancelled=true`,
+      customer_email: data.clientEmail,
+      client_reference_id: booking.id,
+      metadata: {
+        bookingId: booking.id,
+      },
     });
 
     return { 
       success: true, 
       bookingId: booking.id, 
-      paymentUrl: preferenceResponse.init_point // Link REAL do Mercado Pago
+      paymentUrl: session_mp.url // Link REAL do Stripe Checkout
     };
-  } catch (mpError: any) {
-    console.error("Erro Mercado Pago:", mpError);
-    // Se o MP falhar, retornamos erro para que o usuário não ache que foi pré-confirmado sem pagar
+  } catch (stripeError: any) {
+    console.error("Erro Stripe:", stripeError);
     return { 
       success: false, 
       bookingId: booking.id, 
-      error: "Não conseguimos gerar seu link de pagamento (Mercado Pago). Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
+      error: "Não conseguimos gerar seu link de pagamento (Stripe). Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
     };
   }
 }
