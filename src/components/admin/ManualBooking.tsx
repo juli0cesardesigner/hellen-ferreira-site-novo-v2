@@ -122,17 +122,17 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 lg:p-14 space-y-10 lg:space-y-12">
           
           {/* Engine Header Terminal */}
-          <div className="flex justify-between items-center bg-[var(--color-admin-bg)] -mx-8 lg:-mx-14 -mt-8 lg:-mt-14 px-8 lg:px-14 py-8 lg:py-10 border-b border-[var(--color-admin-border)] sticky top-0 z-20 shadow-2xl">
+          <div className="flex justify-between items-center bg-[var(--color-admin-bg)] -mx-8 lg:-mx-14 -mt-8 lg:-mt-14 px-8 lg:px-14 py-8 lg:py-10 border-b border-[var(--color-admin-border)] sticky top-0 z-20 shadow-sm">
             <div className="flex items-center gap-4 lg:gap-6">
                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-[var(--color-admin-accent)]/10 text-[var(--color-admin-accent)] rounded-2xl flex items-center justify-center shadow-inner border border-[var(--color-admin-accent)]/20">
                   <Plus size={28} className="lg:size-[32px]" strokeWidth={3} />
                </div>
                <div>
-                   <h2 className="text-[14px] lg:text-[20px] font-bold text-white tracking-tight leading-none">Novo agendamento</h2>
-                  <p className="text-[11px] font-medium text-slate-400 mt-2">Preencha os dados do cliente e da sessão abaixo</p>
+                   <h2 className="text-[14px] lg:text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Novo agendamento</h2>
+                  <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)] mt-2">Preencha os dados do cliente e da sessão abaixo</p>
                </div>
             </div>
-            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all border border-[var(--color-admin-border)] active:scale-90">
+            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] hover:bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all border border-[var(--color-admin-border)] active:scale-90">
               <X size={28} />
             </button>
           </div>
@@ -179,46 +179,46 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
               {/* Profile & Finance Context Terminal */}
               <div className="md:col-span-7 space-y-10">
                 <div className="flex items-center gap-3 border-b border-[var(--color-admin-border)] pb-5">
-                     <h3 className="text-[14px] font-bold text-white tracking-tight">Dados do Cliente</h3>
+                     <h3 className="text-[14px] font-bold text-[var(--color-admin-text)] tracking-tight">Dados do Cliente</h3>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
                   <div className="space-y-3">
-                     <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Nome Completo</label>
+                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Nome Completo</label>
                     <div className="relative group">
                        <input
-                        type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-white outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-zinc-800 shadow-inner"
+                        type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
                         placeholder="Nome do cliente..." required
                        />
-                       <User size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
+                       <User size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-3">
-                        <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">E-mail</label>
+                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">E-mail</label>
                          <input
-                        type="email" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-slate-300 outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-700 shadow-inner"
+                        type="email" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
                         placeholder="cliente@email.com"
                         />
                     </div>
                     <div className="space-y-3">
-                        <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Telefone / WhatsApp</label>
+                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Telefone / WhatsApp</label>
                         <input
-                        type="tel" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-slate-300 outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-700 shadow-inner"
+                        type="tel" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })}
                         placeholder="+55 00 00000 0000"
                         />
                     </div>
                   </div>
 
-                  <div className="bg-slate-900/40 rounded-[2rem] p-8 border border-[var(--color-admin-border)] shadow-inner space-y-8 mt-4">
+                  <div className="bg-[var(--color-admin-surface)] rounded-[2rem] p-8 border border-[var(--color-admin-border)] shadow-inner space-y-8 mt-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-zinc-400">
+                        <div className="flex items-center gap-3 text-[var(--color-admin-text-muted)]">
                            <CreditCard size={18} />
-                            <h4 className="text-[13px] font-bold text-slate-200 tracking-tight">Informações Financeiras</h4>
+                            <h4 className="text-[13px] font-bold text-[var(--color-admin-text-secondary)] tracking-tight">Informações Financeiras</h4>
                         </div>
                         <label className="flex items-center gap-3 cursor-pointer group">
                             <div className="relative">
@@ -228,7 +228,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                                   className="w-6 h-6 rounded-lg bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-blue-600 focus:ring-blue-500/20 transition-all cursor-pointer"
                                />
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-slate-400 uppercase group-hover:border-slate-700 transition-all">
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase group-hover:border-[var(--color-admin-accent)] transition-all">
                                <Gift size={12} className={formData.isGift ? "text-emerald-500" : ""} /> 
                                <span>Cortesia</span>
                             </div>
@@ -238,21 +238,21 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                     {!formData.isGift && (
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Valor Total</label>
+                                <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Total</label>
                                 <div className="relative group">
-                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-500 group-focus-within:text-white transition-colors">R$</span>
+                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-[var(--color-admin-text)] transition-colors">R$</span>
                                   <input 
-                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-white outline-none focus:border-slate-700 shadow-inner"
+                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
                                       value={formData.total_amount} onChange={(e) => setFormData({...formData, total_amount: parseFloat(e.target.value)})}
                                   />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Valor Pago</label>
+                                <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Pago</label>
                                 <div className="relative group">
-                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-500 group-focus-within:text-emerald-500 transition-colors">R$</span>
+                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-emerald-600 transition-colors">R$</span>
                                   <input 
-                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-emerald-500 outline-none focus:border-slate-700 shadow-inner"
+                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
                                       value={formData.paid_amount} onChange={(e) => setFormData({...formData, paid_amount: parseFloat(e.target.value)})}
                                   />
                                 </div>
@@ -261,16 +261,16 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                     )}
                     
                     <div className="space-y-3 pt-6 border-t border-[var(--color-admin-border)]">
-                        <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Status do Agendamento</label>
+                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Status do Agendamento</label>
                         <div className="relative">
                            <select 
-                               className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-4 rounded-2xl text-[12px] font-bold text-white tracking-tight outline-none focus:border-slate-700 appearance-none shadow-inner cursor-pointer"
+                               className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                                value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value as any})}
                            >
                                <option value="confirmed">Confirmado</option>
                                <option value="pending">Pendente</option>
                            </select>
-                           <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-700 pointer-events-none" />
+                           <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                         </div>
                     </div>
                   </div>
@@ -279,16 +279,16 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
 
               <div className="md:col-span-5 space-y-10">
                 <div className="flex items-center gap-3 border-b border-[var(--color-admin-border)] pb-5">
-                   <Clock size={18} className="text-zinc-500" />
-                    <h3 className="text-[14px] font-bold text-white tracking-tight">Detalhes do Agendamento</h3>
+                   <Clock size={18} className="text-slate-300" />
+                    <h3 className="text-[14px] font-bold text-[var(--color-admin-text)] tracking-tight">Detalhes do Agendamento</h3>
                 </div>
 
                 <div className="space-y-8">
                   <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Serviço</label>
+                    <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Serviço</label>
                     <div className="relative">
                       <select
-                        className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-bold text-white tracking-tight outline-none focus:border-slate-700 appearance-none shadow-inner cursor-pointer"
+                        className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                         value={formData.session_id}
                         onChange={(e) => {
                           const id = e.target.value;
@@ -309,7 +309,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                           <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                       </select>
-                      <Database size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-700 pointer-events-none" />
+                      <Database size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                     </div>
                   </div>
 
@@ -320,10 +320,10 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                   />
 
                   <div className="space-y-3">
-                      <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-1">Horário</label>
+                      <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Horário</label>
                       <div className="relative">
                         <select
-                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-white outline-none focus:border-slate-700 appearance-none disabled:opacity-20 shadow-inner cursor-pointer"
+                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] appearance-none disabled:opacity-20 shadow-inner cursor-pointer"
                           value={formData.start_time}
                           disabled={!formData.date || !formData.session_id || isSlotsLoading}
                           onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
@@ -337,18 +337,18 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                              <Loader2 size={18} className="animate-spin text-[var(--color-admin-accent)]" />
                           </div>
                         ) : (
-                           <Clock size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-700" />
+                           <Clock size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300" />
                         )}
                       </div>
                   </div>
                   
-                  <div className="p-8 bg-zinc-900/30 rounded-3xl border border-[var(--color-admin-border)] mt-6 relative overflow-hidden group">
-                     <div className="absolute top-0 left-0 w-1 h-full bg-zinc-800 group-hover:bg-blue-500/50 transition-colors" />
+                  <div className="p-8 bg-[var(--color-admin-surface)] rounded-3xl border border-[var(--color-admin-border)] mt-6 relative overflow-hidden group">
+                     <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-admin-accent)]/20 group-hover:bg-[var(--color-admin-accent)] transition-colors" />
                      <div className="flex items-center gap-3 mb-3">
-                        <Info size={14} className="text-zinc-500" />
-                        <h5 className="text-[11px] font-bold text-slate-300 tracking-wide">Observação</h5>
+                        <Info size={14} className="text-[var(--color-admin-text-muted)]" />
+                        <h5 className="text-[11px] font-bold text-[var(--color-admin-text-secondary)] tracking-wide">Observação</h5>
                      </div>
-                     <p className="text-[12px] text-slate-400 font-medium leading-relaxed">
+                     <p className="text-[12px] text-[var(--color-admin-text-muted)] font-medium leading-relaxed">
                        Agendamentos manuais não exigem pagamento imediato. A reserva será confirmada instantaneamente no sistema.
                      </p>
                   </div>
@@ -359,11 +359,11 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
             <div className="pt-12 lg:pt-14 border-t border-[var(--color-admin-border)] flex flex-col lg:flex-row items-center justify-between gap-10">
 
               <div className="flex items-center gap-6 w-full lg:w-auto">
-                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-10 py-5 text-[12px] font-bold text-slate-400 hover:text-white transition-all active:scale-95" disabled={isSubmitting}>Cancelar</button>
+                <button type="button" onClick={onClose} className="flex-1 lg:flex-none px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] transition-all active:scale-95" disabled={isSubmitting}>Cancelar</button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !formData.session_id || !formData.start_time || !formData.client_name || !formData.date}
-                  className="flex-1 lg:flex-none px-16 py-6 bg-white text-slate-950 text-[12px] font-bold tracking-tight rounded-2xl hover:bg-slate-200 transition-all disabled:opacity-10 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-xl active:scale-95 group"
+                  className="flex-1 lg:flex-none px-16 py-6 bg-[var(--color-admin-accent)] text-white text-[12px] font-bold tracking-tight rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 shadow-sm active:scale-95 group"
                 >
                    {isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} className="group-hover:scale-125 transition-transform" />}
                   Salvar Agendamento

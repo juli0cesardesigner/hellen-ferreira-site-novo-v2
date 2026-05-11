@@ -39,16 +39,16 @@
      Font: Inter | Palette: Slate/Gray | Shape: Soft
      ────────────────────────────────────────────── */
   --font-admin: "Inter", system-ui, sans-serif;
-  --color-admin-bg: #020617; /* Deep Slate 950 */
-  --color-admin-surface: #0f172a; /* Slate 900 */
-  --color-admin-card: #1e293b; /* Slate 800 */
-  --color-admin-border: #334155; /* Slate 700 */
-  --color-admin-border-hover: #475569; /* Slate 600 */
-  --color-admin-text: #f8fafc; /* Slate 50 */
-  --color-admin-text-secondary: #cbd5e1; /* Slate 300 */
-  --color-admin-text-muted: #94a3b8; /* Slate 400 */
-  --color-admin-accent: #3b82f6; /* Corporate Blue */
-  --color-admin-accent-hover: #60a5fa;
+  --color-admin-bg: #f8fafc; /* Slate 50 */
+  --color-admin-surface: #ffffff; /* White */
+  --color-admin-card: #ffffff; /* White */
+  --color-admin-border: #e2e8f0; /* Slate 200 */
+  --color-admin-border-hover: #cbd5e1; /* Slate 300 */
+  --color-admin-text: #0f172a; /* Slate 900 */
+  --color-admin-text-secondary: #475569; /* Slate 600 */
+  --color-admin-text-muted: #64748b; /* Slate 500 */
+  --color-admin-accent: #2563eb; /* Corporate Blue 600 */
+  --color-admin-accent-hover: #1d4ed8;
   --color-admin-info: #0ea5e9;
   --color-admin-success: #10b981;
   --color-admin-warning: #f59e0b;

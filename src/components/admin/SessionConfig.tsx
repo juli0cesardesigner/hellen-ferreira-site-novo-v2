@@ -92,26 +92,26 @@ export function SessionConfigSection() {
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
       {/* ─── Engine Header ─── */}
-      <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl relative overflow-hidden group">
+      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden group">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-[var(--color-admin-accent)] opacity-[0.02] blur-[100px] rounded-full" />
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
+              <div className="w-14 h-14 bg-[var(--color-admin-bg)] text-[var(--color-admin-text)] rounded-2xl flex items-center justify-center border border-[var(--color-admin-border)] shadow-inner">
                 <Briefcase size={28} />
               </div>
               <div>
-                <h2 className="text-[14px] lg:text-[20px] font-bold text-white tracking-tight leading-none">Serviços e Pacotes</h2>
-                <p className="text-[11px] text-slate-500 font-medium mt-2">Gerenciamento de ofertas do estúdio</p>
+                <h2 className="text-[14px] lg:text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Serviços e Pacotes</h2>
+                <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">Gerenciamento de ofertas do estúdio</p>
               </div>
             </div>
           </div>
 
           <button 
             onClick={() => { setEditingSession(null); setIsModalOpen(true); }}
-            className="bg-white hover:bg-zinc-200 text-black px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-2xl active:scale-95 group"
+            className="bg-[var(--color-admin-accent)] hover:bg-blue-700 text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
           >
             <Plus size={20} strokeWidth={2.5} className="group-hover:rotate-90 transition-transform duration-500" /> 
             Novo Serviço
@@ -133,50 +133,50 @@ export function SessionConfigSection() {
             <motion.div 
               key={session.id} 
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 flex flex-col justify-between hover:border-white transition-all shadow-2xl group relative overflow-hidden"
+              className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 flex flex-col justify-between hover:border-[var(--color-admin-accent)] transition-all shadow-sm group relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-admin-accent)]/5 rounded-full -mr-20 -mt-20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
               
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-8">
                   <div 
-                    className="w-14 h-14 rounded-2xl border-2 shadow-inner flex items-center justify-center bg-black"
+                    className="w-14 h-14 rounded-2xl border-2 shadow-inner flex items-center justify-center bg-[var(--color-admin-bg)]"
                     style={{ borderColor: session.theme_color || '#333' }}
                   >
-                    <Camera size={24} style={{ color: session.theme_color || '#fff' }} />
+                    <Camera size={24} style={{ color: session.theme_color || '#333' }} />
                   </div>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => { setViewingMatrix(session); loadMatrix(session.id); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-black border border-zinc-900 text-zinc-700 hover:text-white hover:border-white transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all active:scale-90"
                       title="Ver Matriz de Horários"
                     >
                       <Settings size={18} />
                     </button>
                     <button 
                       onClick={() => { setEditingSession(session); setIsModalOpen(true); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-black border border-zinc-900 text-zinc-700 hover:text-white hover:border-white transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all active:scale-90"
                     >
                       <Edit2 size={18} />
                     </button>
                     <button 
                       onClick={() => handleDelete(session.id)}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-black border border-zinc-900 text-zinc-700 hover:text-red-500 hover:border-red-500 transition-all active:scale-90"
+                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-red-500 hover:border-red-500 transition-all active:scale-90"
                     >
                       <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
 
-                <h5 className="text-[22px] font-black text-white uppercase tracking-tighter leading-none mb-3 group-hover:text-[var(--color-admin-accent)] transition-colors">
+                <h5 className="text-[22px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none mb-3 group-hover:text-[var(--color-admin-accent)] transition-colors">
                   {session.name}
                 </h5>
-                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-8">ID: {session.id.split('-')[0]}</p>
+                <p className="text-[11px] text-[var(--color-admin-text-muted)] font-bold uppercase tracking-wider mb-8">ID: {session.id.split('-')[0]}</p>
                 
-                <div className="space-y-4 pt-8 border-t border-zinc-900">
+                <div className="space-y-4 pt-8 border-t border-[var(--color-admin-border)]">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Duração</span>
-                    <span className="text-[14px] font-bold text-white">{(session.duration_slots || 0) * 30} MIN</span>
+                    <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">Duração</span>
+                    <span className="text-[14px] font-bold text-[var(--color-admin-text)]">{(session.duration_slots || 0) * 30} MIN</span>
                   </div>
 
                 </div>

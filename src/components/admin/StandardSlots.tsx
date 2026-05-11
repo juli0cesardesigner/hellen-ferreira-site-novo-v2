@@ -69,47 +69,47 @@ export function StandardSlotsSection() {
     <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
       {/* ─── Matrix Config Header ─── */}
-      <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl relative overflow-hidden group">
+      <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden group">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
+              <div className="w-14 h-14 bg-[var(--color-admin-bg)] text-[var(--color-admin-text)] rounded-2xl flex items-center justify-center border border-[var(--color-admin-border)] shadow-inner">
                 <Globe size={28} />
               </div>
               <div>
-                <h4 className="text-[20px] font-bold text-white tracking-tight leading-none">Horários de Atendimento</h4>
-                <p className="text-[11px] text-slate-500 font-medium mt-2">Gerencie a grade de horários padrão do estúdio</p>
+                <h4 className="text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Horários de Atendimento</h4>
+                <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">Gerencie a grade de horários padrão do estúdio</p>
               </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-6 w-full max-w-2xl">
             <div className="relative flex-1 w-full group">
-              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-white transition-colors duration-300">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--color-admin-text-muted)] group-focus-within:text-[var(--color-admin-accent)] transition-colors duration-300">
                 <Database size={18} />
               </div>
               <select 
                 value={selectedSession} 
                 onChange={(e) => setSelectedSession(e.target.value)}
-                className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-12 py-5 text-[12px] font-black uppercase tracking-[0.2em] text-white focus:border-white transition-all duration-500 appearance-none cursor-pointer shadow-inner"
+                className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl pl-14 pr-12 py-5 text-[12px] font-black uppercase tracking-[0.2em] text-[var(--color-admin-text)] focus:border-[var(--color-admin-accent)] transition-all duration-500 appearance-none cursor-pointer shadow-inner"
               >
                 <option value="">Configuração Geral</option>
                 {sessions.map(s => (
                   <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>
                 ))}
               </select>
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-hover:text-white transition-colors">
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[var(--color-admin-text-muted)] pointer-events-none group-hover:text-[var(--color-admin-accent)] transition-colors">
                  <Filter size={16} />
               </div>
             </div>
             
             <button 
               onClick={loadSlots} 
-              className="w-16 h-16 bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 hover:border-white rounded-2xl flex items-center justify-center text-zinc-600 hover:text-white transition-all active:scale-90"
+              className="w-16 h-16 bg-[var(--color-admin-bg)] hover:bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] hover:border-[var(--color-admin-accent)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] transition-all active:scale-90"
             >
-              <Loader2 size={24} className={isLoading ? "animate-spin text-white" : ""} />
+              <Loader2 size={24} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
             </button>
           </div>
         </div>
@@ -126,9 +126,9 @@ export function StandardSlotsSection() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
           {days.map(day => (
-            <div key={day.value} className="bg-zinc-950 border border-zinc-900 rounded-[2rem] flex flex-col overflow-hidden shadow-2xl transition-all hover:border-white group/card">
-              <div className="bg-black px-6 py-5 border-b border-zinc-900 flex items-center justify-center">
-                <span className="text-[11px] font-bold text-slate-500 tracking-wide group-hover/card:text-white transition-colors">{day.label}</span>
+            <div key={day.value} className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] flex flex-col overflow-hidden shadow-sm transition-all hover:border-[var(--color-admin-accent)] group/card">
+              <div className="bg-[var(--color-admin-bg)] px-6 py-5 border-b border-[var(--color-admin-border)] flex items-center justify-center">
+                <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide group-hover/card:text-[var(--color-admin-accent)] transition-colors">{day.label}</span>
               </div>
               
               <div className="p-4 space-y-4 flex-1 min-h-[450px] custom-scrollbar">
@@ -144,16 +144,16 @@ export function StandardSlotsSection() {
                         className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group ${
                           isDeactivated 
                             ? 'bg-red-500/5 border-red-500/10 grayscale opacity-40' 
-                            : 'bg-black border-zinc-900 hover:border-white hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'
+                            : 'bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] hover:border-[var(--color-admin-accent)] hover:shadow-sm'
                         }`}
                       >
                         <div className="flex flex-col gap-2">
-                           <span className={`text-[18px] font-bold tracking-tight ${isDeactivated ? 'text-red-900/50 line-through' : 'text-white group-hover:text-white transition-colors'}`}>
+                           <span className={`text-[18px] font-bold tracking-tight ${isDeactivated ? 'text-red-900/50 line-through' : 'text-[var(--color-admin-text)] group-hover:text-[var(--color-admin-accent)] transition-colors'}`}>
                             {slot.start_time.slice(0, 5)}
                           </span>
                           <div className="flex items-center gap-2">
-                             <div className={`w-1.5 h-1.5 rounded-full ${isGlobal ? 'bg-zinc-800' : 'bg-[var(--color-admin-accent)] shadow-[0_0_10px_var(--color-admin-accent)]'}`} />
-                             <span className={`text-[9px] font-black uppercase tracking-widest ${isGlobal ? 'text-zinc-700' : 'text-[var(--color-admin-accent)]'}`}>
+                             <div className={`w-1.5 h-1.5 rounded-full ${isGlobal ? 'bg-slate-300' : 'bg-[var(--color-admin-accent)] shadow-sm'}`} />
+                             <span className={`text-[9px] font-black uppercase tracking-widest ${isGlobal ? 'text-slate-400' : 'text-[var(--color-admin-accent)]'}`}>
                                {isGlobal ? 'PADRÃO' : 'ESPECÍFICO'}
                              </span>
                           </div>
@@ -161,7 +161,7 @@ export function StandardSlotsSection() {
 
                         <button 
                           onClick={() => handleDeleteSlot(slot.id, day.value, slot.start_time)}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-700 hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 active:scale-90"
+                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 active:scale-90"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -171,24 +171,24 @@ export function StandardSlotsSection() {
                 </AnimatePresence>
 
                 {addingToDay === day.value ? (
-                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-zinc-900 border-2 border-white rounded-[1.5rem] space-y-5 mt-6 shadow-2xl relative z-20">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-accent)] rounded-[1.5rem] space-y-5 mt-6 shadow-sm relative z-20">
                     <input 
                       type="time" 
                       value={newSlotTime} 
                       onChange={(e) => setNewSlotTime(e.target.value)}
-                      className="w-full bg-black border-2 border-zinc-800 rounded-xl px-4 py-4 text-[16px] font-bold text-white outline-none focus:border-white transition-all"
+                      className="w-full bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] rounded-xl px-4 py-4 text-[16px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all"
                     />
                     <div className="flex gap-2">
                        <button 
                         onClick={() => handleAddSlot(day.value)}
                         disabled={isSaving}
-                        className="flex-1 bg-white text-black text-[11px] font-black py-4 rounded-xl hover:bg-zinc-200 disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-xl"
+                        className="flex-1 bg-[var(--color-admin-accent)] text-white text-[11px] font-black py-4 rounded-xl hover:bg-blue-700 disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-sm"
                       >
                         Adicionar
                       </button>
                       <button 
                         onClick={() => setAddingToDay(null)}
-                        className="p-4 bg-black border-2 border-zinc-800 text-zinc-600 rounded-xl hover:text-white hover:border-white transition-all"
+                        className="p-4 bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] rounded-xl hover:text-[var(--color-admin-text)] hover:border-[var(--color-admin-text)] transition-all"
                       >
                         <X size={20} />
                       </button>
@@ -197,7 +197,7 @@ export function StandardSlotsSection() {
                 ) : (
                   <button 
                     onClick={() => setAddingToDay(day.value)}
-                    className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-zinc-900 bg-black text-zinc-800 hover:text-white hover:border-white transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
+                    className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-[var(--color-admin-border)] bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)] transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
                   >
                     <Plus size={20} strokeWidth={2.5} /> Novo Horário
                   </button>
