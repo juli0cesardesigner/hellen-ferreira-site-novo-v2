@@ -111,7 +111,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* ─── Bottom Nav Mobile ─── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-admin-surface)]/90 backdrop-blur-xl border-t border-[var(--color-admin-border)] px-6 pt-3 pb-safe-bottom flex items-center justify-between z-50 shadow-lg">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-admin-surface)]/90 backdrop-blur-xl border-t border-[var(--color-admin-border)] px-4 pt-2 pb-safe-bottom flex items-center justify-between z-50 shadow-lg">
         <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={22} />} />
         <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={22} />} />
         <button 
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
         
         {/* Header */}
-        <header className="h-24 bg-[var(--color-admin-surface)]/80 backdrop-blur-md border-b border-[var(--color-admin-border)] flex items-center justify-between px-8 lg:px-14 shrink-0 relative">
+        <header className="h-20 lg:h-24 bg-[var(--color-admin-surface)]/80 backdrop-blur-md border-b border-[var(--color-admin-border)] flex items-center justify-between px-5 lg:px-14 shrink-0 relative">
           <div className="flex items-center gap-6">
             <div className="lg:hidden w-10 h-10 bg-[var(--color-admin-text)] rounded-xl flex items-center justify-center text-[var(--color-admin-bg)] font-black">HF</div>
             <div>
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8 lg:p-14 custom-scrollbar bg-[var(--color-admin-bg)]">
+        <div className="flex-1 overflow-y-auto p-5 lg:p-14 custom-scrollbar bg-[var(--color-admin-bg)]">
           
           <AnimatePresence>
             {isManualBookingOpen && (
@@ -184,10 +184,10 @@ export default function AdminDashboard() {
           </AnimatePresence>
 
           {activeTab === 'overview' && (
-            <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+            <div className="max-w-[1600px] mx-auto space-y-6 lg:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
               
               {/* Metrics Grid - Technical High Density */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-8">
                 <StatMetric label="Sessões Hoje" value={isLoading ? "---" : stats.todaySessions} icon={<BarChart size={24} />} trend="Hoje" />
                 <StatMetric label="Sessões na Semana" value={isLoading ? "---" : stats.weekSessions} icon={<Calendar size={24} />} trend="7 dias" />
                 <StatMetric 
@@ -446,7 +446,7 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
   return (
     <button 
       onClick={onClick}
-      className={`p-5 rounded-2xl transition-all relative ${
+      className={`p-4 rounded-2xl transition-all relative ${
         active ? 'text-[var(--color-admin-accent)]' : 'text-slate-400'
       }`}
     >
@@ -458,7 +458,7 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
 
 function StatMetric({ label, value, icon, isPositive, trend }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean, trend: string }) {
   return (
-    <div className="bg-[var(--color-admin-surface)] p-8 border border-[var(--color-admin-border)] rounded-[2.5rem] flex flex-col justify-between h-48 transition-all shadow-sm relative overflow-hidden">
+    <div className="bg-[var(--color-admin-surface)] p-6 lg:p-8 border border-[var(--color-admin-border)] rounded-3xl lg:rounded-[2.5rem] flex flex-col justify-between h-40 lg:h-48 transition-all shadow-sm relative overflow-hidden">
       <div className="absolute -right-8 -top-8 p-12 opacity-5 rotate-12 duration-1000">
          {React.cloneElement(icon as React.ReactElement<any>, { size: 100, strokeWidth: 1 })}
       </div>
