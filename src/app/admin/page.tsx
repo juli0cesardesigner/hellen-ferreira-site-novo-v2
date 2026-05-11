@@ -44,123 +44,134 @@ export default function AdminDashboard() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-admin-bg)] flex flex-col lg:flex-row antialiased pb-20 lg:pb-0" style={{ fontFamily: 'var(--font-admin)' }}>
+    <div className="min-h-screen bg-black flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 font-sans selection:bg-[var(--color-admin-accent)]/30 text-white relative overflow-hidden">
       
-      {/* ─── Sidebar ─── */}
-      <aside className="w-60 bg-[var(--color-admin-accent)] flex flex-col hidden lg:flex shrink-0">
-        <div className="p-5 border-b border-white/10 flex items-center gap-3">
-          <div className="w-8 h-8 bg-white/10 rounded-md flex items-center justify-center text-white/90 text-[11px] font-semibold tracking-tight">
+      {/* ─── CRT/Scanline Overlay ─── */}
+      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
+      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+
+      {/* ─── Sidebar Industrial ─── */}
+      <aside className="w-72 bg-zinc-950 border-r border-zinc-900 flex flex-col hidden lg:flex shrink-0 relative z-20">
+        <div className="p-8 border-b border-zinc-900 flex items-center gap-5 relative group">
+          <div className="w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center font-black text-lg shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-transform group-hover:scale-110 duration-500">
             HF
           </div>
           <div>
-            <h2 className="font-semibold text-[13px] text-white/90 tracking-tight">Admin Panel</h2>
-            <p className="text-[10px] text-white/40 font-medium mt-0.5">Hellen Ferreira</p>
+            <h2 className="font-black text-[15px] text-white uppercase tracking-tighter leading-none">NÚCLEO_DO_SISTEMA</h2>
+            <p className="text-[9px] text-[var(--color-admin-accent)] font-mono font-black tracking-[0.3em] mt-2 animate-pulse">:: STATUS_ESTÁVEL ::</p>
           </div>
         </div>
         
-        <nav className="flex-1 p-3 space-y-0.5">
-          <div className="px-3 py-2 text-[10px] font-medium text-white/30 uppercase tracking-widest mb-1">Painel</div>
+        <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
+          <div className="px-4 py-2 text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-4 font-mono">MÓDULOS_PRINCIPAIS</div>
+          
           <SidebarNavItem 
             active={activeTab === 'overview'} 
             onClick={() => setActiveTab('overview')} 
-            icon={<LayoutDashboard size={16} />} 
-            label="Visão Geral" 
+            icon={<LayoutDashboard size={20} />} 
+            label="DASHBOARD" 
           />
           <SidebarNavItem 
             active={activeTab === 'slots'} 
             onClick={() => setActiveTab('slots')} 
-            icon={<Calendar size={16} />} 
-            label="Agenda" 
+            icon={<Calendar size={20} />} 
+            label="AGENDA_MESTRA" 
           />
           <SidebarNavItem 
             active={activeTab === 'history'} 
             onClick={() => setActiveTab('history')} 
-            icon={<Clock size={16} />} 
-            label="Histórico" 
+            icon={<Clock size={20} />} 
+            label="HISTÓRICO_LOGS" 
           />
           
-          <div className="px-3 py-2 text-[10px] font-medium text-white/30 uppercase tracking-widest mt-5 mb-1">Sistema</div>
+          <div className="px-4 py-2 text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mt-10 mb-4 font-mono">AJUSTES_DO_MOTOR</div>
+          
           <SidebarNavItem 
             active={activeTab === 'sessions'} 
             onClick={() => setActiveTab('sessions')} 
-            icon={<Settings size={16} />} 
-            label="Serviços" 
+            icon={<Settings size={20} />} 
+            label="SERVIÇOS" 
           />
           <SidebarNavItem 
             active={activeTab === 'blocks'} 
             onClick={() => setActiveTab('blocks')} 
-            icon={<ShieldCheck size={16} />} 
-            label="Bloqueios" 
+            icon={<ShieldCheck size={20} />} 
+            label="SEGURANÇA" 
           />
         </nav>
 
-        <div className="p-3 border-t border-white/10">
+        <div className="p-6 border-t border-zinc-900 bg-black/40">
           <button 
             onClick={() => logout()}
-            className="flex items-center gap-2.5 w-full px-3 py-2.5 text-white/40 hover:text-red-400 hover:bg-white/5 transition-all rounded-md text-[11px] font-medium"
+            className="flex items-center gap-4 w-full px-5 py-4 text-zinc-600 hover:text-white hover:bg-red-500/10 transition-all rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] group border border-transparent hover:border-red-500/20"
           >
-            <LogOut size={14} /> <span>Encerrar sessão</span>
+            <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
+            <span>ENCERRAR_SESSÃO</span>
           </button>
         </div>
       </aside>
 
-      {/* ─── Bottom Nav Mobile ─── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-admin-accent)] px-4 pt-2 pb-safe-bottom flex items-center justify-between z-50">
-        <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={20} />} />
-        <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={20} />} />
+      {/* ─── Bottom Nav Mobile Industrial ─── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-900 px-6 pt-3 pb-safe-bottom flex items-center justify-between z-50 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+        <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={22} />} />
+        <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={22} />} />
         <button 
           onClick={() => setIsManualBookingOpen(true)} 
-          className="w-12 h-12 bg-white text-[var(--color-admin-accent)] rounded-lg flex items-center justify-center -mt-8 shadow-lg active:scale-95 transition-all"
+          className="w-16 h-16 bg-white text-black rounded-[2rem] flex items-center justify-center -mt-12 shadow-[0_10px_40px_rgba(255,255,255,0.2)] active:scale-90 transition-all border-[6px] border-black"
           aria-label="Nova reserva"
         >
-          <Plus size={24} strokeWidth={2.5} />
+          <Plus size={32} strokeWidth={3} />
         </button>
-        <BottomNavItem active={activeTab === 'blocks'} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck size={20} />} />
-        <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock size={20} />} />
+        <BottomNavItem active={activeTab === 'blocks'} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck size={22} />} />
+        <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock size={22} />} />
       </div>
 
-      {/* ─── Main Content ─── */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      {/* ─── Main Content Industrial ─── */}
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
         
-        {/* Header */}
-        <header className="h-14 lg:h-16 bg-[var(--color-admin-surface)] border-b border-[var(--color-admin-border)] flex items-center justify-between px-4 lg:px-6 shrink-0 relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="lg:hidden w-7 h-7 bg-[var(--color-admin-accent)] rounded-md flex items-center justify-center text-white text-[10px] font-semibold">HF</div>
-            <h1 className="text-[13px] font-semibold text-[var(--color-admin-text)] tracking-tight">
-              {activeTab === 'overview' && "Visão Geral"}
-              {activeTab === 'slots' && "Agenda"}
-              {activeTab === 'history' && "Histórico"}
-              {activeTab === 'sessions' && "Serviços"}
-              {activeTab === 'blocks' && "Bloqueios"}
-            </h1>
-            <div className="hidden sm:flex items-center gap-1.5 ml-2">
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-medium rounded-md border border-emerald-100 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                Operacional
-              </span>
+        {/* Header - Control Center Style */}
+        <header className="h-24 bg-zinc-950/50 backdrop-blur-md border-b border-zinc-900 flex items-center justify-between px-8 lg:px-14 shrink-0 relative">
+          <div className="flex items-center gap-6">
+            <div className="lg:hidden w-10 h-10 bg-white rounded-xl flex items-center justify-center text-black font-black border border-white/20">HF</div>
+            <div>
+              <h1 className="text-[18px] lg:text-[24px] font-black text-white uppercase tracking-tighter flex items-center gap-4">
+                <span className="w-3 h-3 bg-[var(--color-admin-accent)] rounded-full animate-pulse shadow-[0_0_15px_var(--color-admin-accent)]" />
+                {activeTab === 'overview' && "PAINEL_OPERACIONAL"}
+                {activeTab === 'slots' && "MATRIZ_DE_AGENDA"}
+                {activeTab === 'history' && "ARQUIVO_DE_LOGS"}
+                {activeTab === 'sessions' && "LÓGICA_DE_SERVIÇOS"}
+                {activeTab === 'blocks' && "PROTOCOLOS_DE_SEGURANÇA"}
+              </h1>
+              <p className="hidden sm:block text-[9px] font-mono font-black text-zinc-600 uppercase tracking-[0.5em] mt-1">UNIDADE_OPERACIONAL_01 // REGIÃO: SA-EAST-1</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4 px-5 py-2.5 bg-black border border-zinc-900 rounded-2xl shadow-inner">
+               <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981] animate-pulse" />
+               <span className="text-[10px] font-mono font-black text-zinc-500 uppercase tracking-widest">Rede: ESTÁVEL</span>
+            </div>
+            
             <button 
               onClick={loadData}
-              className="p-2 text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] hover:bg-slate-100 rounded-md transition-colors"
-              title="Atualizar dados"
-              aria-label="Atualizar dados"
+              className="w-12 h-12 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-[var(--color-admin-accent)] rounded-2xl transition-all border border-zinc-800 active:scale-90"
+              title="Sincronizar"
             >
-              <Activity size={16} />
+              <Activity size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
             </button>
+
             <button 
               onClick={() => setIsManualBookingOpen(true)}
-              className="hidden lg:flex bg-[var(--color-admin-accent)] hover:bg-[var(--color-admin-accent-hover)] text-white text-[11px] font-medium px-4 py-2 rounded-md items-center gap-2 transition-colors"
+              className="hidden lg:flex bg-white hover:bg-zinc-200 text-black text-[11px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] active:scale-95 group"
             >
-              <Plus size={14} /> Nova Reserva
+              <Plus size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-500" /> 
+              INJEÇÃO_MANUAL
             </button>
           </div>
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <div className="flex-1 overflow-y-auto p-8 lg:p-14 custom-scrollbar bg-black/40">
           
           <AnimatePresence>
             {isManualBookingOpen && (
@@ -179,57 +190,70 @@ export default function AdminDashboard() {
           </AnimatePresence>
 
           {activeTab === 'overview' && (
-            <div className="max-w-7xl mx-auto space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
               
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatMetric label="Hoje" value={isLoading ? "..." : stats.todaySessions} icon={<Activity size={16} />} />
-                <StatMetric label="Próximos 7 dias" value={isLoading ? "..." : stats.weekSessions} icon={<Calendar size={16} />} />
+              {/* Metrics Grid - Technical High Density */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <StatMetric label="SESSÕES_HOJE" value={isLoading ? "---" : stats.todaySessions} icon={<Activity size={24} />} trend="TEMPO_REAL" />
+                <StatMetric label="DEMANDA_7D" value={isLoading ? "---" : stats.weekSessions} icon={<Calendar size={24} />} trend="PREDITIVO" />
                 <StatMetric 
-                  label="Receita confirmada" 
-                  value={isLoading ? "..." : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
+                  label="VOLUME_FINANCEIRO" 
+                  value={isLoading ? "---" : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
                   isPositive 
-                  icon={<Database size={16} />}
+                  icon={<Database size={24} />}
+                  trend="LIQUIDEZ"
                 />
               </div>
 
-              {/* Bookings Table */}
-              <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-lg overflow-hidden">
-                <div className="px-4 lg:px-5 py-3 border-b border-[var(--color-admin-border)] flex items-center justify-between">
-                  <h3 className="text-[12px] font-semibold text-[var(--color-admin-text)] flex items-center gap-2">
-                     <Database size={13} className="text-[var(--color-admin-text-muted)]" /> Agendamentos
-                  </h3>
-                  <button onClick={loadData} className="text-[11px] font-medium text-[var(--color-admin-info)] hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-                    <Clock size={12} /> Atualizar
+              {/* Bookings Data Grid - Terminal Style */}
+              <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.8)] relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="px-10 py-8 border-b border-zinc-900 bg-black/40 flex items-center justify-between relative z-10">
+                  <div>
+                    <h3 className="text-[14px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-4">
+                       <div className="w-1.5 h-6 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_15px_var(--color-admin-accent)]" /> 
+                       FLUXO_OPERACIONAL
+                    </h3>
+                    <p className="text-[9px] font-mono font-black text-zinc-700 uppercase tracking-[0.4em] mt-2 ml-6">Total_Registros: {bookings.length} Pontos_Entrada</p>
+                  </div>
+                  <button onClick={loadData} className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-xl text-[10px] font-black text-[var(--color-admin-accent)] hover:text-white flex items-center gap-3 transition-all border border-zinc-800 shadow-inner">
+                    <Clock size={16} className="animate-pulse" /> SINCRONIZAR
                   </button>
                 </div>
-                <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+                <div className="p-4 relative z-10">
+                   <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'history' && (
-            <div className="max-w-7xl mx-auto space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
-               <div className="flex items-center gap-3 bg-[var(--color-admin-surface)] p-4 rounded-lg border border-[var(--color-admin-border)]">
-                  <div className="w-10 h-10 bg-[var(--color-admin-accent)] text-white rounded-md flex items-center justify-center">
-                    <Clock size={20} />
+            <div className="max-w-[1600px] mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
+               <div className="flex items-center gap-8 bg-zinc-950 p-12 rounded-[2.5rem] border border-zinc-900 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
+                    <Clock size={120} />
                   </div>
-                  <div>
-                    <h3 className="text-[13px] font-semibold text-[var(--color-admin-text)]">Histórico de Sessões</h3>
-                    <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-0.5">Todos os atendimentos passados</p>
+                  <div className="w-20 h-20 bg-zinc-900 text-[var(--color-admin-accent)] rounded-[1.5rem] flex items-center justify-center border border-zinc-800 shadow-inner">
+                    <Clock size={40} strokeWidth={2.5} />
                   </div>
-                  <button onClick={loadData} className="ml-auto text-[11px] font-medium text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)] flex items-center gap-1.5 transition-colors">
-                    <Activity size={12} /> Atualizar
+                  <div className="relative z-10">
+                    <h3 className="text-[28px] font-black text-white uppercase tracking-tighter leading-none">ARQUIVO_MESTRE</h3>
+                    <p className="text-[11px] text-zinc-600 font-mono font-black uppercase tracking-[0.5em] mt-4">Snapshot Estático // Camada_Persistência_V2</p>
+                  </div>
+                  <button onClick={loadData} className="ml-auto bg-white hover:bg-zinc-200 px-10 py-5 rounded-2xl text-[11px] font-black text-black uppercase tracking-[0.2em] transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-95 relative z-10">
+                    PUXAR_DADOS_HISTÓRICOS
                   </button>
                </div>
                
-               <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-lg overflow-hidden">
-                 <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+               <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] overflow-hidden shadow-2xl">
+                 <div className="p-4">
+                    <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
+                 </div>
                </div>
             </div>
           )}
 
-          <div className="max-w-7xl mx-auto pb-10">
+          <div className="max-w-[1600px] mx-auto pb-20">
             {activeTab === 'slots' && <StandardSlotsSection />}
             {activeTab === 'sessions' && <SessionConfigSection />}
             {activeTab === 'blocks' && <MassBlockingSection />}
@@ -243,86 +267,98 @@ export default function AdminDashboard() {
 function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit: (b: any) => void, isLoading: boolean }) {
   if (isLoading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center gap-3">
-        <Loader2 className="animate-spin text-slate-300" size={28} />
-        <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)]">Carregando dados...</p>
+      <div className="py-48 flex flex-col items-center justify-center gap-8">
+        <div className="relative">
+          <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={60} strokeWidth={2.5} />
+          <div className="absolute inset-0 blur-2xl bg-[var(--color-admin-accent)] opacity-30 animate-pulse" />
+        </div>
+        <p className="text-[12px] font-mono font-black text-zinc-600 uppercase tracking-[0.6em] animate-pulse">Estabelecendo_Link_Seguro...</p>
       </div>
     );
   }
 
   if (bookings.length === 0) {
     return (
-      <div className="py-20 text-center">
-        <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)]">Nenhum registro encontrado.</p>
+      <div className="py-48 text-center">
+        <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] border border-dashed border-zinc-800 flex items-center justify-center mx-auto mb-8 shadow-inner">
+           <Database size={32} className="text-zinc-700" />
+        </div>
+        <p className="text-[14px] font-black text-zinc-600 uppercase tracking-[0.4em]">DB_REGISTRO_NULO</p>
+        <p className="text-[10px] font-mono font-black text-zinc-800 uppercase tracking-[0.2em] mt-3">Nenhum registro ativo encontrado no escopo atual</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="hidden lg:block overflow-x-auto">
-        <table className="w-full text-left">
+      <div className="hidden lg:block overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left border-separate border-spacing-y-4 px-6">
           <thead>
-            <tr className="text-[11px] font-medium text-[var(--color-admin-text-muted)] border-b border-[var(--color-admin-border)] bg-slate-50/50">
-              <th className="px-5 py-3 font-medium">Data / Hora</th>
-              <th className="px-5 py-3 font-medium">Cliente</th>
-              <th className="px-5 py-3 font-medium">Sessão</th>
-              <th className="px-5 py-3 font-medium">Status</th>
-              <th className="px-5 py-3 text-right font-medium">Valor</th>
-              <th className="px-5 py-3 text-right font-medium">Ação</th>
+            <tr className="text-[11px] font-black text-zinc-700 uppercase tracking-[0.4em] font-mono">
+              <th className="px-8 py-6">TIMESTAMP</th>
+              <th className="px-8 py-6">IDENTIDADE</th>
+              <th className="px-8 py-6">CATEGORIA</th>
+              <th className="px-8 py-6">STATUS</th>
+              <th className="px-8 py-6 text-right">VALOR</th>
+              <th className="px-8 py-6 text-right">AÇÕES</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {bookings.map((booking) => {
               const colors = getSessionColor(booking.sessions?.name, booking.sessions?.theme_color);
               return (
                 <tr 
                   key={booking.id} 
-                  style={colors.isCustom ? { backgroundColor: colors.styles?.backgroundColor } : {}}
-                  className={`transition-colors hover:bg-slate-50 group ${!colors.isCustom ? colors.bg : ''}`}
+                  className="group transition-all"
                 >
-                  <td className="px-5 py-3.5">
-                    <div className="text-[12px] font-semibold text-[var(--color-admin-text)]">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</div>
-                    <div className="text-[11px] text-[var(--color-admin-text-muted)] mt-0.5 font-mono">{booking.start_time.slice(0, 5)}</div>
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 rounded-l-[1.5rem] border-y border-l border-zinc-900 transition-all duration-300">
+                    <div className="text-[15px] font-black text-white font-mono tracking-tighter">
+                       {new Date(booking.booking_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </div>
+                    <div className="text-[12px] text-[var(--color-admin-accent)] mt-1.5 font-mono font-black tracking-[0.2em]">
+                       T_OFFSET: {booking.start_time.slice(0, 5)}Z
+                    </div>
                   </td>
-                  <td className="px-5 py-3.5">
-                    <div className="text-[12px] font-medium text-[var(--color-admin-text-secondary)]">{booking.customer_name || booking.client_name}</div>
-                    <div className="text-[11px] text-[var(--color-admin-text-muted)] font-mono mt-0.5">{booking.customer_phone || booking.client_phone}</div>
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 transition-all duration-300">
+                    <div className="text-[14px] font-black text-white uppercase tracking-tight">{booking.customer_name || booking.client_name}</div>
+                    <div className="text-[10px] text-zinc-600 font-mono mt-1.5 font-black uppercase tracking-widest">HASH: {booking.id.split('-')[0].toUpperCase()}</div>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 transition-all duration-300">
                     <span 
-                      style={colors.isCustom ? { color: colors.styles?.color, borderColor: colors.styles?.borderColor } : {}}
-                      className={`text-[10px] font-medium px-2 py-1 rounded-md border bg-white ${!colors.isCustom ? `${colors.text} ${colors.border}` : ''}`}
+                      className="text-[10px] font-black px-4 py-2 rounded-xl border-2 uppercase tracking-[0.2em] bg-black inline-block shadow-inner"
+                      style={{ 
+                        color: colors.isCustom ? colors.styles?.color : undefined, 
+                        borderColor: colors.isCustom ? colors.styles?.borderColor : undefined 
+                      }}
                     >
                       {booking.sessions?.name}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${
-                        booking.status === 'confirmed' ? 'bg-emerald-500' : 
-                        booking.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-3 h-3 rounded-full shadow-[0_0_15px_currentColor] ${
+                        booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
+                        booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
                       }`} />
-                      <span className={`text-[11px] font-medium ${
-                        booking.status === 'confirmed' ? 'text-emerald-700' : 
-                        booking.status === 'pending' ? 'text-amber-700' : 'text-red-700'
+                      <span className={`text-[11px] font-black uppercase tracking-[0.3em] font-mono ${
+                        booking.status === 'confirmed' ? 'text-emerald-500' : 
+                        booking.status === 'pending' ? 'text-amber-500' : 'text-red-500'
                       }`}>
-                         {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                         {booking.status === 'confirmed' ? 'VERIFICADO' : booking.status === 'pending' ? 'EM_FILA' : 'NULO'}
                       </span>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <span className="text-[12px] font-mono font-semibold text-[var(--color-admin-text)]">
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 text-right transition-all duration-300">
+                    <span className="text-[16px] font-mono font-black text-white tracking-tighter">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-right">
+                  <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 rounded-r-[1.5rem] border-y border-r border-zinc-900 text-right transition-all duration-300">
                     <button 
                       onClick={() => onEdit(booking)}
-                      className="w-7 h-7 rounded-md bg-transparent text-[var(--color-admin-text-muted)] hover:bg-[var(--color-admin-accent)] hover:text-white flex items-center justify-center transition-all ml-auto"
-                      aria-label={`Editar reserva de ${booking.customer_name || booking.client_name}`}
+                      className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 text-zinc-600 hover:text-white hover:border-white hover:bg-zinc-900 flex items-center justify-center transition-all ml-auto shadow-2xl active:scale-90 group"
                     >
-                      <ChevronRight size={14} />
+                      <Settings size={20} className="group-hover:rotate-180 transition-transform duration-700" />
                     </button>
                   </td>
                 </tr>
@@ -332,53 +368,45 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
         </table>
       </div>
 
-      <div className="lg:hidden divide-y divide-slate-100">
+      <div className="lg:hidden space-y-6 px-4 pb-20">
         {bookings.map((booking) => {
           const colors = getSessionColor(booking.sessions?.name, booking.sessions?.theme_color);
           return (
             <div 
               key={booking.id} 
               onClick={() => onEdit(booking)}
-              style={colors.isCustom ? { backgroundColor: colors.styles?.backgroundColor } : {}}
-              className={`p-4 active:bg-slate-50 transition-all flex flex-col gap-2.5 relative cursor-pointer ${!colors.isCustom ? colors.bg : ''}`}
+              className="p-8 bg-zinc-950 border border-zinc-900 rounded-[2rem] relative cursor-pointer active:scale-[0.98] transition-all shadow-xl overflow-hidden group"
             >
-              <div 
-                style={colors.isCustom ? { backgroundColor: colors.styles?.accentColor } : {}}
-                className={`absolute left-0 top-0 bottom-0 w-0.5 ${!colors.isCustom ? colors.accent : ''}`} 
-              />
-              <div className="flex justify-between items-start">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-medium text-[var(--color-admin-text-muted)]">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
-                  <span className="text-[12px] font-semibold text-[var(--color-admin-text)]">{booking.customer_name || booking.client_name}</span>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-admin-accent)]/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-active:opacity-100 transition-opacity" />
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-mono font-black text-[var(--color-admin-accent)] uppercase tracking-[0.3em]">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
+                  <span className="text-[20px] font-black text-white uppercase tracking-tighter leading-tight">{booking.customer_name || booking.client_name}</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded-md text-[10px] font-medium text-[var(--color-admin-text-secondary)] border border-slate-200">
-                  <Clock size={10} /> {booking.start_time.slice(0, 5)}
+                <div className="bg-black px-4 py-2.5 rounded-2xl border border-zinc-800 text-[12px] font-mono font-black text-white shadow-inner">
+                  {booking.start_time.slice(0, 5)}
                 </div>
               </div>
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-zinc-900">
                 <span 
-                  style={colors.isCustom ? { color: colors.styles?.color, borderColor: colors.styles?.borderColor } : {}}
-                  className={`text-[9px] font-medium px-2 py-0.5 rounded-md border bg-white ${!colors.isCustom ? `${colors.text} ${colors.border}` : ''}`}
+                  className="text-[10px] font-black px-4 py-2 rounded-xl border-2 uppercase tracking-[0.1em] bg-black shadow-inner"
+                  style={{ 
+                    color: colors.isCustom ? colors.styles?.color : undefined, 
+                    borderColor: colors.isCustom ? colors.styles?.borderColor : undefined 
+                  }}
                 >
                   {booking.sessions?.name}
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${
-                    booking.status === 'confirmed' ? 'bg-emerald-500' : 
-                    booking.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'
-                  }`} />
-                  <span className="text-[10px] font-medium text-[var(--color-admin-text-secondary)]">
-                    {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
-                  </span>
+                <div className="flex items-center gap-4">
+                   <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] ${
+                     booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
+                     booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
+                   }`} />
+                   <span className="text-[16px] font-mono font-black text-white tracking-tighter">
+                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
+                   </span>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                 <span className="text-[11px] font-mono font-semibold text-[var(--color-admin-text)]">
-                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
-                 </span>
-                 <ChevronRight size={14} className="text-slate-300" />
               </div>
             </div>
           );
@@ -392,16 +420,17 @@ function SidebarNavItem({ active, onClick, icon, label }: { active: boolean, onC
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md transition-all text-[12px] font-medium group ${
+      className={`w-full flex items-center gap-5 px-6 py-5 rounded-[1.25rem] transition-all text-[13px] font-black uppercase tracking-[0.3em] group relative overflow-hidden ${
         active 
-          ? 'bg-white/10 text-white' 
-          : 'text-white/50 hover:bg-white/5 hover:text-white/80'
+          ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.15)] scale-[1.02]' 
+          : 'text-zinc-600 hover:text-white hover:bg-zinc-900 border border-transparent hover:border-zinc-800'
       }`}
     >
-      <div className={`${active ? 'text-white' : 'text-white/40 group-hover:text-white/80'} transition-colors`}>
-        {icon}
+      <div className={`${active ? 'text-black' : 'text-zinc-800 group-hover:text-white'} transition-colors`}>
+        {React.cloneElement(icon as React.ReactElement<any>, { strokeWidth: active ? 3 : 2 })}
       </div>
-      <span>{label}</span>
+      <span className="relative z-10">{label}</span>
+      {active && <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-black/10" />}
     </button>
   );
 }
@@ -410,25 +439,34 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
   return (
     <button 
       onClick={onClick}
-      className={`p-3 rounded-md transition-all ${
-        active ? 'bg-white/15 text-white' : 'text-white/40'
+      className={`p-5 rounded-2xl transition-all relative ${
+        active ? 'text-white' : 'text-zinc-700'
       }`}
     >
-      {React.cloneElement(icon as React.ReactElement<any>, { size: 22 })}
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 24, strokeWidth: active ? 3 : 2 })}
+      {active && <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_10px_white]" />}
     </button>
   );
 }
 
-function StatMetric({ label, value, icon, isPositive }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean }) {
+function StatMetric({ label, value, icon, isPositive, trend }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean, trend: string }) {
   return (
-    <div className="bg-[var(--color-admin-surface)] p-4 lg:p-5 border border-[var(--color-admin-border)] rounded-lg flex flex-col justify-between h-28 lg:h-32 hover:border-[var(--color-admin-border-hover)] transition-all group">
-      <div className="flex justify-between items-start">
-        <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)] leading-none">{label}</p>
-        <div className={`p-1.5 rounded-md bg-slate-50 text-[var(--color-admin-text-muted)] border border-slate-100 group-hover:bg-[var(--color-admin-accent)] group-hover:text-white group-hover:border-[var(--color-admin-accent)] transition-all ${isPositive ? 'text-[var(--color-admin-info)]' : ''}`}>
-          {React.cloneElement(icon as React.ReactElement<any>, { size: 14 })}
+    <div className="bg-zinc-950 p-8 border border-zinc-900 rounded-[2.5rem] flex flex-col justify-between h-48 hover:border-white transition-all group shadow-2xl relative overflow-hidden">
+      <div className="absolute -right-8 -top-8 p-12 opacity-5 group-hover:opacity-10 transition-opacity rotate-12 group-hover:rotate-0 duration-1000">
+         {React.cloneElement(icon as React.ReactElement<any>, { size: 100, strokeWidth: 1 })}
+      </div>
+
+      <div className="flex justify-between items-start relative z-10">
+        <div className="space-y-3">
+           <p className="text-[11px] font-black text-zinc-700 uppercase tracking-[0.4em] font-mono">{label}</p>
+           <div className="flex items-center gap-3">
+              <span className={`text-[9px] font-mono font-black px-2.5 py-1 rounded-lg bg-black border-2 ${isPositive ? 'text-emerald-500 border-emerald-500/20' : 'text-zinc-700 border-zinc-900'}`}>
+                {trend}
+              </span>
+           </div>
         </div>
       </div>
-      <h4 className="text-xl lg:text-2xl font-semibold tracking-tight text-[var(--color-admin-text)]">
+      <h4 className="text-4xl font-black tracking-tighter text-white font-mono relative z-10">
         {value}
       </h4>
     </div>

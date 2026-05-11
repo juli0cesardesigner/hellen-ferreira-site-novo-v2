@@ -35,23 +35,24 @@
   --animate-fade-in-up: fade-in-up 800ms ease forwards;
 
   /* ──────────────────────────────────────────────
-     ADMIN DESIGN SYSTEM (Corporate / SaaS)
-     Font: Inter | Palette: Slate | Shape: Sharp
+     ADMIN DESIGN SYSTEM (High-End Industrial / Dark Terminal)
+     Font: Inter | Palette: Zinc/Slate | Shape: Precision
      ────────────────────────────────────────────── */
   --font-admin: "Inter", system-ui, sans-serif;
-  --color-admin-bg: #F8FAFC;
-  --color-admin-surface: #FFFFFF;
-  --color-admin-border: #E2E8F0;
-  --color-admin-border-hover: #CBD5E1;
-  --color-admin-text: #0F172A;
-  --color-admin-text-secondary: #475569;
-  --color-admin-text-muted: #94A3B8;
-  --color-admin-accent: #1E293B;
-  --color-admin-accent-hover: #0F172A;
-  --color-admin-info: #3B82F6;
-  --color-admin-success: #10B981;
-  --color-admin-warning: #F59E0B;
-  --color-admin-danger: #EF4444;
+  --font-mono: "JetBrains Mono", "Geist Mono", monospace;
+  --color-admin-bg: #09090b; /* Zinc 950 */
+  --color-admin-surface: #18181b; /* Zinc 900 */
+  --color-admin-border: #27272a; /* Zinc 800 */
+  --color-admin-border-hover: #3f3f46; /* Zinc 700 */
+  --color-admin-text: #fafafa; /* Zinc 50 */
+  --color-admin-text-secondary: #a1a1aa; /* Zinc 400 */
+  --color-admin-text-muted: #52525b; /* Zinc 600 */
+  --color-admin-accent: #3b82f6; /* Blue 500 - System Primary */
+  --color-admin-accent-hover: #60a5fa; /* Blue 400 */
+  --color-admin-info: #0ea5e9;
+  --color-admin-success: #10b981;
+  --color-admin-warning: #f59e0b;
+  --color-admin-danger: #ef4444;
 
   @keyframes fade-in-up {
     from {

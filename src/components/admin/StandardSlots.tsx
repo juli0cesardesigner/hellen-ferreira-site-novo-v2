@@ -44,10 +44,8 @@ export function StandardSlotsSection() {
     if (!confirm("Deseja remover este horário da agenda?")) return;
     setIsSaving(true);
     
-    // logic based on source
     const slot = slots.find(s => s.id === id || (s.day_of_week === dayOfWeek && s.start_time === startTime));
     if (selectedSession && slot?.source === 'global') {
-        // block global slot for this session
         await addSchemaSlot(dayOfWeek, startTime, selectedSession, false);
     } else if (id) {
         await deleteSchemaSlot(id);
@@ -58,61 +56,82 @@ export function StandardSlotsSection() {
   };
 
   const days = [
-    { label: "Domingo", value: 0 },
-    { label: "Segunda", value: 1 },
-    { label: "Terça", value: 2 },
-    { label: "Quarta", value: 3 },
-    { label: "Quinta", value: 4 },
-    { label: "Sexta", value: 5 },
-    { label: "Sábado", value: 6 }
+    { label: "DOM", value: 0 },
+    { label: "SEG", value: 1 },
+    { label: "TER", value: 2 },
+    { label: "QUA", value: 3 },
+    { label: "QUI", value: 4 },
+    { label: "SEX", value: 5 },
+    { label: "SAB", value: 6 }
   ];
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
       
-      {/* Configuration Header */}
-      <div className="bg-white border border-zinc-200 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
-        <div className="space-y-1">
-          <h4 className="text-base font-bold text-zinc-900 uppercase tracking-tight">Disponibilidade Global</h4>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Configure os horários de atendimento padrão do sistema</p>
-        </div>
+      {/* ─── Matrix Config Header ─── */}
+      <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-10 lg:p-14 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         
-        <div className="flex items-center gap-4 w-full max-w-md">
-          <div className="relative flex-1 group">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-900 transition-colors pointer-events-none">
-              <Filter size={14} />
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-zinc-900 text-white rounded-2xl flex items-center justify-center border border-zinc-800 shadow-inner">
+                <Globe size={28} />
+              </div>
+              <div>
+                <h4 className="text-[20px] font-black text-white uppercase tracking-tighter leading-none">MATRIZ_DE_DISPONIBILIDADE</h4>
+                <p className="text-[10px] text-zinc-600 font-mono font-black uppercase tracking-[0.4em] mt-3">Protocolo Mestre de Agenda // v2.0</p>
+              </div>
             </div>
-            <select 
-              value={selectedSession} 
-              onChange={(e) => setSelectedSession(e.target.value)}
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold text-zinc-700 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition-all outline-none appearance-none cursor-pointer shadow-inner"
-            >
-              <option value="">Agenda Padrão (Sistema)</option>
-              {sessions.map(s => (
-                <option key={s.id} value={s.id}>Personalizar: {s.name}</option>
-              ))}
-            </select>
           </div>
-          <button onClick={loadSlots} className="p-3 border border-zinc-200 rounded-xl hover:bg-zinc-50 text-zinc-500 transition-all shadow-sm">
-            <Loader2 size={16} className={isLoading ? "animate-spin" : ""} />
-          </button>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full max-w-2xl">
+            <div className="relative flex-1 w-full group">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-white transition-colors duration-300">
+                <Database size={18} />
+              </div>
+              <select 
+                value={selectedSession} 
+                onChange={(e) => setSelectedSession(e.target.value)}
+                className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-12 py-5 text-[12px] font-black uppercase tracking-[0.2em] text-white focus:border-white transition-all duration-500 appearance-none cursor-pointer shadow-inner"
+              >
+                <option value="">:: ACESSO_RAIZ_GLOBAL ::</option>
+                {sessions.map(s => (
+                  <option key={s.id} value={s.id}>:: {s.name.toUpperCase()} ::</option>
+                ))}
+              </select>
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-hover:text-white transition-colors">
+                 <Filter size={16} />
+              </div>
+            </div>
+            
+            <button 
+              onClick={loadSlots} 
+              className="w-16 h-16 bg-zinc-900 hover:bg-zinc-800 border-2 border-zinc-800 hover:border-white rounded-2xl flex items-center justify-center text-zinc-600 hover:text-white transition-all active:scale-90"
+            >
+              <Loader2 size={24} className={isLoading ? "animate-spin text-white" : ""} />
+            </button>
+          </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-32 bg-white/50 border border-zinc-100 border-dashed rounded-2xl">
-          <Loader2 className="animate-spin text-zinc-300" size={32} />
-          <p className="mt-4 text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Buscando horários...</p>
+        <div className="flex flex-col items-center justify-center py-64 bg-zinc-950/20 border-2 border-dashed border-zinc-900 rounded-[3rem] gap-8">
+          <div className="relative">
+             <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={60} strokeWidth={2.5} />
+             <div className="absolute inset-0 blur-3xl bg-[var(--color-admin-accent)] opacity-20 animate-pulse" />
+          </div>
+          <p className="text-[12px] font-mono font-black text-zinc-700 uppercase tracking-[0.6em] animate-pulse">Sincronizando Grade Temporal...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
           {days.map(day => (
-            <div key={day.value} className="bg-white border border-zinc-200 rounded-xl flex flex-col overflow-hidden shadow-sm group/card">
-              <div className="bg-zinc-50 px-4 py-3 border-b border-zinc-100 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-400">{day.label}</span>
+            <div key={day.value} className="bg-zinc-950 border border-zinc-900 rounded-[2rem] flex flex-col overflow-hidden shadow-2xl transition-all hover:border-white group/card">
+              <div className="bg-black px-6 py-5 border-b border-zinc-900 flex items-center justify-center">
+                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-700 font-mono group-hover/card:text-white transition-colors">{day.label}</span>
               </div>
               
-              <div className="p-3 space-y-2 flex-1 min-h-[350px] bg-zinc-50/20">
+              <div className="p-4 space-y-4 flex-1 min-h-[450px] custom-scrollbar">
                 <AnimatePresence initial={false}>
                   {slots.filter(s => s.day_of_week === day.value).map(slot => {
                     const isGlobal = slot.source === 'global';
@@ -121,32 +140,30 @@ export function StandardSlotsSection() {
                     return (
                       <motion.div 
                         key={slot.id || `${slot.day_of_week}-${slot.start_time}`} 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className={`flex items-center justify-between p-3 rounded-xl border transition-all group ${
+                        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                        className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all group ${
                           isDeactivated 
-                            ? 'bg-rose-50 border-rose-100 grayscale opacity-50' 
-                            : 'bg-white border-zinc-100 hover:border-zinc-300 hover:shadow-md'
+                            ? 'bg-red-500/5 border-red-500/10 grayscale opacity-40' 
+                            : 'bg-black border-zinc-900 hover:border-white hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'
                         }`}
                       >
-                        <div className="flex flex-col gap-0.5">
-                          <span className={`text-sm font-bold tracking-tight ${isDeactivated ? 'text-rose-900 line-through' : 'text-zinc-900 group-hover:text-blue-600'}`}>
+                        <div className="flex flex-col gap-2">
+                           <span className={`text-[18px] font-black font-mono tracking-tighter ${isDeactivated ? 'text-red-900 line-through' : 'text-white group-hover:text-white transition-colors'}`}>
                             {slot.start_time.slice(0, 5)}
                           </span>
-                          <div className="flex items-center gap-1">
-                             {isGlobal ? <Globe size={8} className="text-zinc-400" /> : <ShieldCheck size={8} className="text-blue-500" />}
-                             <span className={`text-[7px] font-bold uppercase tracking-tight ${isGlobal ? 'text-zinc-400' : 'text-blue-600/70'}`}>
-                               {isGlobal ? 'Padrão' : 'Prioridade'}
+                          <div className="flex items-center gap-2">
+                             <div className={`w-1.5 h-1.5 rounded-full ${isGlobal ? 'bg-zinc-800' : 'bg-[var(--color-admin-accent)] shadow-[0_0_10px_var(--color-admin-accent)]'}`} />
+                             <span className={`text-[9px] font-black uppercase tracking-widest ${isGlobal ? 'text-zinc-700' : 'text-[var(--color-admin-accent)]'}`}>
+                               {isGlobal ? 'RAIZ' : 'SOBREPOSICAO'}
                              </span>
                           </div>
                         </div>
 
                         <button 
                           onClick={() => handleDeleteSlot(slot.id, day.value, slot.start_time)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100"
+                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-700 hover:text-red-500 hover:border-red-500 transition-all opacity-0 group-hover:opacity-100 active:scale-90"
                         >
-                          <X size={14} strokeWidth={2.5} />
+                          <Trash2 size={18} />
                         </button>
                       </motion.div>
                     );
@@ -154,35 +171,35 @@ export function StandardSlotsSection() {
                 </AnimatePresence>
 
                 {addingToDay === day.value ? (
-                  <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-white border border-zinc-200 rounded-xl space-y-3 mt-4 shadow-xl">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-zinc-900 border-2 border-white rounded-[1.5rem] space-y-5 mt-6 shadow-2xl relative z-20">
                     <input 
                       type="time" 
                       value={newSlotTime} 
                       onChange={(e) => setNewSlotTime(e.target.value)}
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-zinc-900"
+                      className="w-full bg-black border-2 border-zinc-800 rounded-xl px-4 py-4 text-[16px] font-mono font-black text-white outline-none focus:border-white transition-all"
                     />
                     <div className="flex gap-2">
                        <button 
                         onClick={() => handleAddSlot(day.value)}
                         disabled={isSaving}
-                        className="flex-1 bg-zinc-900 text-white text-[9px] font-bold py-2 rounded-lg hover:bg-zinc-800 disabled:opacity-50 uppercase tracking-widest"
+                        className="flex-1 bg-white text-black text-[11px] font-black py-4 rounded-xl hover:bg-zinc-200 disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-xl"
                       >
-                        Salvar
+                        INJETAR
                       </button>
                       <button 
                         onClick={() => setAddingToDay(null)}
-                        className="p-2 border border-zinc-200 text-zinc-400 rounded-lg hover:bg-zinc-50 transition-colors"
+                        className="p-4 bg-black border-2 border-zinc-800 text-zinc-600 rounded-xl hover:text-white hover:border-white transition-all"
                       >
-                        <X size={14} />
+                        <X size={20} />
                       </button>
                     </div>
                   </motion.div>
                 ) : (
                   <button 
                     onClick={() => setAddingToDay(day.value)}
-                    className="w-full mt-4 flex items-center justify-center gap-2 p-4 border border-zinc-200 bg-zinc-50/30 text-zinc-400 hover:text-zinc-900 hover:bg-white hover:border-zinc-300 transition-all rounded-xl text-[9px] font-bold uppercase tracking-[0.2em]"
+                    className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-zinc-900 bg-black text-zinc-800 hover:text-white hover:border-white transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
                   >
-                    <Plus size={14} /> ADICIONAR
+                    <Plus size={20} strokeWidth={3} /> NOVO_HORARIO
                   </button>
                 )}
               </div>
@@ -191,12 +208,22 @@ export function StandardSlotsSection() {
         </div>
       )}
 
-      {isSaving && (
-        <div className="fixed bottom-10 right-10 bg-zinc-900 text-white px-6 py-3 rounded-xl flex items-center gap-3 shadow-2xl z-50 animate-in slide-in-from-bottom-5">
-          <Loader2 className="animate-spin text-blue-400" size={16} />
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Salvando alterações...</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {isSaving && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed bottom-12 right-12 bg-white text-black px-10 py-6 rounded-2xl flex items-center gap-5 shadow-[0_0_100px_rgba(255,255,255,0.1)] z-[200] border-2 border-black"
+          >
+            <div className="relative">
+              <Loader2 className="animate-spin" size={24} strokeWidth={3} />
+            </div>
+            <div className="flex flex-col">
+               <span className="text-[13px] font-black uppercase tracking-[0.3em]">SINCRONIZANDO_NUCLEO</span>
+               <span className="text-[10px] text-zinc-500 font-mono font-black uppercase tracking-tighter">Atualizando Ledger...</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
