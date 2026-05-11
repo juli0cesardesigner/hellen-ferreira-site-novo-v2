@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database } from "lucide-react";
+import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database, RefreshCw } from "lucide-react";
 import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
