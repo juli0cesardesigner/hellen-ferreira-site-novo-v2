@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-admin-bg)] flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 font-sans selection:bg-[var(--color-admin-accent)]/30 text-[var(--color-admin-text)] relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--color-admin-bg)] flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 admin-scope selection:bg-[var(--color-admin-accent)]/30 text-[var(--color-admin-text)] relative overflow-hidden">
       
       {/* ─── Clean Backdrop ─── */}
       <div className="absolute inset-0 pointer-events-none z-[0] bg-gradient-to-tr from-[var(--color-admin-bg)] via-white/5 to-[var(--color-admin-bg)]" />

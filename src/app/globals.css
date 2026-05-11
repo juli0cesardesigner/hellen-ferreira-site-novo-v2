@@ -34,6 +34,23 @@
   /* Animations */
   --animate-fade-in-up: fade-in-up 800ms ease forwards;
 
+}
+
+.admin-scope {
+  font-family: var(--font-admin) !important;
+}
+
+.admin-scope h1, 
+.admin-scope h2, 
+.admin-scope h3, 
+.admin-scope h4, 
+.admin-scope h5, 
+.admin-scope h6 {
+  font-family: var(--font-admin) !important;
+}
+
+@theme {
+
   /* ──────────────────────────────────────────────
      ADMIN DESIGN SYSTEM (Professional / Sober SaaS)
      Font: Inter | Palette: Slate/Gray | Shape: Soft

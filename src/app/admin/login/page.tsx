@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 antialiased relative overflow-hidden font-mono">
+    <div className="min-h-screen bg-black flex items-center justify-center p-6 antialiased relative overflow-hidden admin-scope">
       
       {/* ─── CRT/Scanline Overlay ─── */}
       <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
