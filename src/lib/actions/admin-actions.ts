@@ -282,7 +282,12 @@ export async function listSchemaSlots(sessionId: string | null) {
 
   specificSlots?.forEach((ss: any) => {
     const key = `${ss.day_of_week}-${ss.start_time}`;
-    finalMap[key] = { ...ss, source: 'specific' };
+    const isGlobalOverride = !!finalMap[key];
+    finalMap[key] = { 
+      ...ss, 
+      source: isGlobalOverride ? 'global' : 'specific',
+      is_override: isGlobalOverride 
+    };
   });
 
   const merged = Object.values(finalMap).sort((a: any, b: any) => {
