@@ -112,17 +112,17 @@ export default function AdminDashboard() {
 
       {/* ─── Bottom Nav Mobile ─── */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-admin-surface)]/90 backdrop-blur-xl border-t border-[var(--color-admin-border)] px-4 pt-2 pb-safe-bottom flex items-center justify-between z-50 shadow-lg">
-        <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={22} />} />
-        <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar size={22} />} />
+        <BottomNavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard />} />
+        <BottomNavItem active={activeTab === 'slots'} onClick={() => setActiveTab('slots')} icon={<Calendar />} />
         <button 
           onClick={() => setIsManualBookingOpen(true)} 
-          className="w-16 h-16 bg-[var(--color-admin-accent)] text-white rounded-[2rem] flex items-center justify-center -mt-12 shadow-lg active:scale-90 transition-all border-[6px] border-[var(--color-admin-bg)]"
+          className="w-14 h-14 bg-[var(--color-admin-accent)] text-white rounded-2xl flex items-center justify-center -mt-10 shadow-lg active:scale-90 transition-all border-[4px] border-[var(--color-admin-bg)]"
           aria-label="Nova reserva"
         >
-          <Plus size={32} strokeWidth={3} />
+          <Plus size={30} strokeWidth={3} />
         </button>
-        <BottomNavItem active={activeTab === 'blocks'} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck size={22} />} />
-        <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock size={22} />} />
+        <BottomNavItem active={activeTab === 'blocks'} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck />} />
+        <BottomNavItem active={activeTab === 'history'} onClick={() => setActiveTab('history')} icon={<Clock />} />
       </div>
 
       {/* ─── Main Content Industrial ─── */}
@@ -446,12 +446,12 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
   return (
     <button 
       onClick={onClick}
-      className={`p-4 rounded-2xl transition-all relative ${
+      className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all relative ${
         active ? 'text-[var(--color-admin-accent)]' : 'text-slate-400'
       }`}
     >
-      {React.cloneElement(icon as React.ReactElement<any>, { size: 24, strokeWidth: active ? 3 : 2 })}
-      {active && <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_10px_var(--color-admin-accent)]" />}
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 24, strokeWidth: active ? 2.5 : 2 })}
+      {active && <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_10px_var(--color-admin-accent)]" />}
     </button>
   );
 }
