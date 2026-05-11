@@ -185,6 +185,71 @@ export async function removeBlockedDate(id: string) {
   return { success: true };
 }
 
+export async function listSessions() {
+  await validateAdmin();
+  const { data, error } = await getAdminClient()
+    .from('sessions')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao listar sessões:", error);
+    return { sessions: [] };
+  }
+
+  return { sessions: data };
+}
+
+export async function createSession(data: any) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('sessions')
+    .insert([data]);
+
+  if (error) {
+    console.error("Erro ao criar sessão:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function updateSession(id: string, updates: any) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('sessions')
+    .update(updates)
+    .eq('id', id);
+
+  if (error) {
+    console.error("Erro ao atualizar sessão:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function deleteSession(id: string) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('sessions')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("Erro ao deletar sessão:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
 export async function listSchemaSlots(sessionId: string | null) {
   await validateAdmin();
   const admin = getAdminClient();
