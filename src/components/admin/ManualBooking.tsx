@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, AlertCircle, Copy, Check, User, Mail, Phone, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database } from "lucide-react";
+import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, AlertCircle, Copy, Check, User, Mail, Phone, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database, Info } from "lucide-react";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 import { createManualBooking } from "@/lib/actions/admin-actions";
 import { getAvailableSlots } from "@/lib/actions/booking-actions";
