@@ -118,10 +118,12 @@ export async function getBookingsList() {
   return { bookings: data };
 }
 
-export async function getPastBookingsList() {
+export async function getAllBookingsList(filter: 'all' | 'past' | 'future' = 'all') {
   await validateAdmin();
   const today = new Date().toISOString().split('T')[0];
-  const { data, error } = await getAdminClient()
+  const admin = getAdminClient();
+  
+  let query = admin
     .from('bookings')
     .select(`
       *,
@@ -129,13 +131,20 @@ export async function getPastBookingsList() {
         name,
         theme_color
       )
-    `)
-    .lt('booking_date', today)
-    .order('booking_date', { ascending: false })
-    .limit(100);
+    `);
+
+  if (filter === 'past') {
+    query = query.lt('booking_date', today).order('booking_date', { ascending: false });
+  } else if (filter === 'future') {
+    query = query.gte('booking_date', today).order('booking_date', { ascending: true });
+  } else {
+    query = query.order('booking_date', { ascending: false });
+  }
+
+  const { data, error } = await query.limit(200);
 
   if (error) {
-    console.error("Erro ao carregar histórico:", error);
+    console.error("Erro ao carregar lista geral:", error);
     return { bookings: [] };
   }
 

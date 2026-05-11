@@ -6,7 +6,7 @@ import { MassBlockingSection } from "@/components/admin/MassBlocking";
 import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 
-import { getBookingsList, getAdminStats, getPastBookingsList } from "@/lib/actions/admin-actions";
+import { getBookingsList, getAdminStats, getAllBookingsList } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
@@ -22,13 +22,14 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isManualBookingOpen, setIsManualBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [historyFilter, setHistoryFilter] = useState<'all' | 'past' | 'future'>('all');
 
   async function loadData() {
     setIsLoading(true);
     try {
       const [statsData, bookingsData] = await Promise.all([
         getAdminStats(),
-        activeTab === 'history' ? getPastBookingsList() : getBookingsList()
+        activeTab === 'history' ? getAllBookingsList(historyFilter) : getBookingsList()
       ]);
       setStats(statsData);
       setBookings(bookingsData.bookings || []);
@@ -41,7 +42,7 @@ export default function AdminDashboard() {
 
   React.useEffect(() => {
     loadData();
-  }, [activeTab]);
+  }, [activeTab, historyFilter]);
 
   return (
     <div className="min-h-screen bg-[var(--color-admin-bg)] flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 admin-scope selection:bg-[var(--color-admin-accent)]/30 text-[var(--color-admin-text)] relative overflow-hidden">
@@ -229,11 +230,25 @@ export default function AdminDashboard() {
                     <Clock size={40} strokeWidth={2.5} />
                   </div>
                   <div className="relative z-10">
-                    <h3 className="text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Histórico de Dados</h3>
-                    <p className="text-[13px] text-[var(--color-admin-text-muted)] font-medium mt-3">Visualização completa de todos os registros passados</p>
+                    <h3 className="text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Dados & Listagem</h3>
+                    <div className="flex gap-2 mt-4">
+                      {(['all', 'past', 'future'] as const).map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setHistoryFilter(f)}
+                          className={`px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                            historyFilter === f 
+                              ? 'bg-[var(--color-admin-accent)] text-white border-[var(--color-admin-accent)]' 
+                              : 'bg-[var(--color-admin-bg)] text-slate-500 border-[var(--color-admin-border)]'
+                          }`}
+                        >
+                          {f === 'all' ? 'Tudo' : f === 'past' ? 'Passados' : 'Futuros'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-accent)] px-8 py-4 rounded-2xl text-[12px] font-bold text-white transition-all shadow-md active:scale-95 relative z-10">
-                    Atualizar Dados
+                  <button onClick={loadData} className="ml-auto bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] px-8 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] transition-all shadow-sm active:scale-95 relative z-10">
+                    Sincronizar
                   </button>
                </div>
                
