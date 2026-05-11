@@ -165,7 +165,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-5 lg:p-14 custom-scrollbar bg-[var(--color-admin-bg)]">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-14 custom-scrollbar bg-[var(--color-admin-bg)]">
           
           <AnimatePresence>
             {isManualBookingOpen && (
@@ -202,20 +202,20 @@ export default function AdminDashboard() {
               {/* Bookings Table - Modern Glass List */}
               <div className="bg-transparent lg:bg-[var(--color-admin-surface)] border-none lg:border border-[var(--color-admin-border)] rounded-none lg:rounded-[2.5rem] overflow-hidden lg:shadow-sm">
                 <div className="px-0 lg:px-12 py-6 lg:py-12 border-none lg:border-b border-[var(--color-admin-border)] flex items-center justify-between bg-transparent lg:bg-white">
-                  <div className="flex items-center gap-5">
-                    <div className="w-2 h-10 bg-[var(--color-admin-accent)] rounded-full hidden lg:block" />
+                  <div className="flex items-center gap-4 lg:gap-5">
+                    <div className="w-1.5 h-8 bg-[var(--color-admin-accent)] rounded-full lg:block hidden" />
                     <div>
                       <h3 className="text-[20px] lg:text-[24px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Próximos Agendamentos</h3>
                       <p className="text-[12px] lg:text-[13px] text-[var(--color-admin-text-muted)] font-medium mt-2">Gerenciando {bookings.length} registros ativos</p>
                     </div>
                   </div>
-                  <button onClick={loadData} className="bg-[var(--color-admin-surface)] lg:bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-4 lg:py-3 rounded-2xl lg:rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-3 transition-all active:scale-95 shadow-sm lg:shadow-none">
+                  <button onClick={loadData} className="bg-[var(--color-admin-surface)] lg:bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3 lg:px-6 lg:py-3 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] flex items-center gap-3 transition-all active:scale-95 shadow-sm lg:shadow-none">
                     <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
                     <span className="hidden sm:inline">Atualizar</span>
                   </button>
                 </div>
                 
-                <div className="px-0 lg:p-12 mt-6 lg:mt-0">
+                <div className="px-0 lg:p-12 mt-4 lg:mt-0">
                   <BookingTable bookings={bookings} onEdit={setSelectedBooking} isLoading={isLoading} />
                 </div>
               </div>
@@ -460,7 +460,7 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
 
 function StatMetric({ label, value, icon, isPositive, trend }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean, trend: string }) {
   return (
-    <div className="bg-[var(--color-admin-surface)] p-6 lg:p-8 border border-[var(--color-admin-border)] rounded-3xl lg:rounded-[2.5rem] flex flex-col justify-between h-40 lg:h-48 transition-all shadow-sm relative overflow-hidden">
+    <div className="w-full bg-[var(--color-admin-surface)] p-6 lg:p-8 border border-[var(--color-admin-border)] rounded-2xl lg:rounded-[2.5rem] flex flex-col justify-between h-40 lg:h-48 transition-all shadow-sm relative overflow-hidden">
       <div className="absolute -right-8 -top-8 p-12 opacity-5 rotate-12 duration-1000">
          {React.cloneElement(icon as React.ReactElement<any>, { size: 100, strokeWidth: 1 })}
       </div>
