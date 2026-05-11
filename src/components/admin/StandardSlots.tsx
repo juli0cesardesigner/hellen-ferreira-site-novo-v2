@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database, RefreshCw } from "lucide-react";
+import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
@@ -40,15 +40,27 @@ export function StandardSlotsSection() {
     setIsSaving(false);
   };
 
-  const handleDeleteSlot = async (id: string | null, dayOfWeek: number, startTime: string) => {
-    if (!confirm("Deseja remover este horário da agenda?")) return;
+  const handleToggleSlot = async (slot: any, dayOfWeek: number) => {
     setIsSaving(true);
     
-    const slot = slots.find(s => s.id === id || (s.day_of_week === dayOfWeek && s.start_time === startTime));
-    if (selectedSession && slot?.source === 'global') {
-        await addSchemaSlot(dayOfWeek, startTime, selectedSession, false);
-    } else if (id) {
-        await deleteSchemaSlot(id);
+    const isGlobal = slot.source === 'global';
+    
+    if (selectedSession && isGlobal) {
+        // Toggling visibility of a global slot for this specific session
+        if (slot.is_active) {
+            // Hide it: add a record with is_active = false
+            await addSchemaSlot(dayOfWeek, slot.start_time, selectedSession, false);
+        } else {
+            // Show it: delete the overriding record
+            if (slot.id) await deleteSchemaSlot(slot.id);
+        }
+    } else {
+        // Actual deletion
+        if (!confirm("Deseja remover este horário da agenda?")) {
+            setIsSaving(false);
+            return;
+        }
+        if (slot.id) await deleteSchemaSlot(slot.id);
     }
     
     await loadSlots();
@@ -160,10 +172,18 @@ export function StandardSlotsSection() {
                         </div>
 
                         <button 
-                          onClick={() => handleDeleteSlot(slot.id, day.value, slot.start_time)}
-                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
+                          onClick={() => handleToggleSlot(slot, day.value)}
+                          className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-all active:scale-90 ${
+                            (selectedSession && slot.source === 'global')
+                              ? 'bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-[var(--color-admin-accent)]'
+                              : 'bg-[var(--color-admin-surface)] border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)]'
+                          }`}
                         >
-                          <Trash2 size={18} />
+                          {selectedSession && slot.source === 'global' ? (
+                            slot.is_active ? <Eye size={18} /> : <EyeOff size={18} className="text-red-400" />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
                         </button>
                       </motion.div>
                     );
