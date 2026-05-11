@@ -190,7 +190,7 @@ export default function AdminDashboard() {
                 <StatMetric label="Sessões Hoje" value={isLoading ? "---" : stats.todaySessions} icon={<BarChart size={24} />} trend="Hoje" />
                 <StatMetric label="Sessões na Semana" value={isLoading ? "---" : stats.weekSessions} icon={<Calendar size={24} />} trend="7 dias" />
                 <StatMetric 
-                  label="Faturamento Total" 
+                  label="Faturamento Mensal" 
                   value={isLoading ? "---" : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
                   isPositive 
                   icon={<Database size={24} />}

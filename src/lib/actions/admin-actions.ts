@@ -48,10 +48,17 @@ async function validateAdmin() {
 
 export async function getAdminStats() {
   await validateAdmin();
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+  
+  // Próxima semana
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
   const nextWeekStr = nextWeek.toISOString().split('T')[0];
+
+  // Início e Fim do Mês atual
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
   const admin = getAdminClient();
 
@@ -70,13 +77,15 @@ export async function getAdminStats() {
     .lte('booking_date', nextWeekStr)
     .neq('status', 'cancelled');
 
-  // Faturamento Confirmado (Soma do paid_amount das bookings)
-  const { data: bookingsRevenue } = await admin
+  // Faturamento MENSAL (Apenas Confirmado ou Concluído)
+  const { data: monthlyRevenueData } = await admin
     .from('bookings')
     .select('paid_amount')
-    .neq('status', 'cancelled');
+    .gte('booking_date', firstDayOfMonth)
+    .lte('booking_date', lastDayOfMonth)
+    .in('status', ['confirmed', 'concluido']);
 
-  const totalRevenue = bookingsRevenue?.reduce((acc: number, curr: { paid_amount: number }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
+  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: { paid_amount: number }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
 
   return {
     todaySessions: todayCount || 0,
