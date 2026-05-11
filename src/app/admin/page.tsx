@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                   value={isLoading ? "---" : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
                   isPositive 
                   icon={<Database size={24} />}
-                  trend="Total"
+                  trend="Mensal"
                 />
               </div>
 
@@ -328,15 +328,15 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                   </td>
                   <td className="px-8 py-7 bg-[var(--color-admin-bg)]/50 border-y border-[var(--color-admin-border)] transition-all duration-300">
                     <div className="flex items-center gap-4">
-                      <div className={`w-3 h-3 rounded-full shadow-[0_0_15px_currentColor] ${
-                        booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
+                       <div className={`w-3 h-3 rounded-full shadow-[0_0_15px_currentColor] ${
+                        (booking.status === 'confirmed' || booking.status === 'completed') ? 'text-emerald-500 bg-emerald-500' : 
                         booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
                       }`} />
                       <span className={`text-[11px] font-bold ${
-                        booking.status === 'confirmed' ? 'text-emerald-500' : 
+                        (booking.status === 'confirmed' || booking.status === 'completed') ? 'text-emerald-500' : 
                         booking.status === 'pending' ? 'text-amber-500' : 'text-red-500'
                       }`}>
-                         {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
+                         {(booking.status === 'confirmed' || booking.status === 'completed') ? (booking.status === 'completed' ? 'Concluído' : 'Confirmado') : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
                       </span>
                     </div>
                   </td>
@@ -392,9 +392,9 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                 </span>
                 <div className="flex items-center gap-4">
                    <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] ${
-                     booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
-                     booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
-                   }`} />
+                      (booking.status === 'confirmed' || booking.status === 'completed') ? 'text-emerald-500 bg-emerald-500' : 
+                      booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
+                    }`} />
                     <span className="text-[16px] font-bold text-[var(--color-admin-text)]">
                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
                    </span>

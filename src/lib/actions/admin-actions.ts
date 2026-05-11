@@ -83,9 +83,9 @@ export async function getAdminStats() {
     .select('paid_amount')
     .gte('booking_date', firstDayOfMonth)
     .lte('booking_date', lastDayOfMonth)
-    .in('status', ['confirmed', 'concluido']);
+    .in('status', ['confirmed', 'completed']);
 
-  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: { paid_amount: number }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
+  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: { paid_amount: any }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
 
   return {
     todaySessions: todayCount || 0,
