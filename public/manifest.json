@@ -11,13 +11,13 @@
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/brand/black.png",
+      "src": "/brand/white.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand/black.png",
+      "src": "/brand/white.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

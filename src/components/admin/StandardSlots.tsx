@@ -79,8 +79,8 @@ export function StandardSlotsSection() {
                 <Globe size={28} />
               </div>
               <div>
-                <h4 className="text-[20px] font-black text-white uppercase tracking-tighter leading-none">MATRIZ_DE_DISPONIBILIDADE</h4>
-                <p className="text-[10px] text-zinc-600 font-mono font-black uppercase tracking-[0.4em] mt-3">Protocolo Mestre de Agenda // v2.0</p>
+                <h4 className="text-[20px] font-bold text-white tracking-tight leading-none">Horários de Atendimento</h4>
+                <p className="text-[11px] text-slate-500 font-medium mt-2">Gerencie a grade de horários padrão do estúdio</p>
               </div>
             </div>
           </div>
@@ -95,9 +95,9 @@ export function StandardSlotsSection() {
                 onChange={(e) => setSelectedSession(e.target.value)}
                 className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-12 py-5 text-[12px] font-black uppercase tracking-[0.2em] text-white focus:border-white transition-all duration-500 appearance-none cursor-pointer shadow-inner"
               >
-                <option value="">:: ACESSO_RAIZ_GLOBAL ::</option>
+                <option value="">Configuração Geral</option>
                 {sessions.map(s => (
-                  <option key={s.id} value={s.id}>:: {s.name.toUpperCase()} ::</option>
+                  <option key={s.id} value={s.id}>{s.name.toUpperCase()}</option>
                 ))}
               </select>
               <div className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-800 pointer-events-none group-hover:text-white transition-colors">
@@ -121,14 +121,14 @@ export function StandardSlotsSection() {
              <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={60} strokeWidth={2.5} />
              <div className="absolute inset-0 blur-3xl bg-[var(--color-admin-accent)] opacity-20 animate-pulse" />
           </div>
-          <p className="text-[12px] font-mono font-black text-zinc-700 uppercase tracking-[0.6em] animate-pulse">Sincronizando Grade Temporal...</p>
+          <p className="text-[13px] font-bold text-slate-500 uppercase tracking-wider animate-pulse">Atualizando horários...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
           {days.map(day => (
             <div key={day.value} className="bg-zinc-950 border border-zinc-900 rounded-[2rem] flex flex-col overflow-hidden shadow-2xl transition-all hover:border-white group/card">
               <div className="bg-black px-6 py-5 border-b border-zinc-900 flex items-center justify-center">
-                <span className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-700 font-mono group-hover/card:text-white transition-colors">{day.label}</span>
+                <span className="text-[11px] font-bold text-slate-500 tracking-wide group-hover/card:text-white transition-colors">{day.label}</span>
               </div>
               
               <div className="p-4 space-y-4 flex-1 min-h-[450px] custom-scrollbar">
@@ -148,13 +148,13 @@ export function StandardSlotsSection() {
                         }`}
                       >
                         <div className="flex flex-col gap-2">
-                           <span className={`text-[18px] font-black font-mono tracking-tighter ${isDeactivated ? 'text-red-900 line-through' : 'text-white group-hover:text-white transition-colors'}`}>
+                           <span className={`text-[18px] font-bold tracking-tight ${isDeactivated ? 'text-red-900/50 line-through' : 'text-white group-hover:text-white transition-colors'}`}>
                             {slot.start_time.slice(0, 5)}
                           </span>
                           <div className="flex items-center gap-2">
                              <div className={`w-1.5 h-1.5 rounded-full ${isGlobal ? 'bg-zinc-800' : 'bg-[var(--color-admin-accent)] shadow-[0_0_10px_var(--color-admin-accent)]'}`} />
                              <span className={`text-[9px] font-black uppercase tracking-widest ${isGlobal ? 'text-zinc-700' : 'text-[var(--color-admin-accent)]'}`}>
-                               {isGlobal ? 'RAIZ' : 'SOBREPOSICAO'}
+                               {isGlobal ? 'PADRÃO' : 'ESPECÍFICO'}
                              </span>
                           </div>
                         </div>
@@ -176,7 +176,7 @@ export function StandardSlotsSection() {
                       type="time" 
                       value={newSlotTime} 
                       onChange={(e) => setNewSlotTime(e.target.value)}
-                      className="w-full bg-black border-2 border-zinc-800 rounded-xl px-4 py-4 text-[16px] font-mono font-black text-white outline-none focus:border-white transition-all"
+                      className="w-full bg-black border-2 border-zinc-800 rounded-xl px-4 py-4 text-[16px] font-bold text-white outline-none focus:border-white transition-all"
                     />
                     <div className="flex gap-2">
                        <button 
@@ -184,7 +184,7 @@ export function StandardSlotsSection() {
                         disabled={isSaving}
                         className="flex-1 bg-white text-black text-[11px] font-black py-4 rounded-xl hover:bg-zinc-200 disabled:opacity-30 uppercase tracking-[0.2em] transition-all shadow-xl"
                       >
-                        INJETAR
+                        Adicionar
                       </button>
                       <button 
                         onClick={() => setAddingToDay(null)}
@@ -199,7 +199,7 @@ export function StandardSlotsSection() {
                     onClick={() => setAddingToDay(day.value)}
                     className="w-full mt-8 flex items-center justify-center gap-3 p-6 border-2 border-dashed border-zinc-900 bg-black text-zinc-800 hover:text-white hover:border-white transition-all rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em]"
                   >
-                    <Plus size={20} strokeWidth={3} /> NOVO_HORARIO
+                    <Plus size={20} strokeWidth={2.5} /> Novo Horário
                   </button>
                 )}
               </div>
@@ -218,8 +218,8 @@ export function StandardSlotsSection() {
               <Loader2 className="animate-spin" size={24} strokeWidth={3} />
             </div>
             <div className="flex flex-col">
-               <span className="text-[13px] font-black uppercase tracking-[0.3em]">SINCRONIZANDO_NUCLEO</span>
-               <span className="text-[10px] text-zinc-500 font-mono font-black uppercase tracking-tighter">Atualizando Ledger...</span>
+               <span className="text-[13px] font-bold uppercase tracking-wider">Sincronizando</span>
+               <span className="text-[11px] text-slate-500 font-medium">Salvando alterações...</span>
             </div>
           </motion.div>
         )}

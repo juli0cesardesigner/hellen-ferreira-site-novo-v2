@@ -35,20 +35,20 @@
   --animate-fade-in-up: fade-in-up 800ms ease forwards;
 
   /* ──────────────────────────────────────────────
-     ADMIN DESIGN SYSTEM (High-End Industrial / Dark Terminal)
-     Font: Inter | Palette: Zinc/Slate | Shape: Precision
+     ADMIN DESIGN SYSTEM (Professional / Sober SaaS)
+     Font: Inter | Palette: Slate/Gray | Shape: Soft
      ────────────────────────────────────────────── */
   --font-admin: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Geist Mono", monospace;
-  --color-admin-bg: #09090b; /* Zinc 950 */
-  --color-admin-surface: #18181b; /* Zinc 900 */
-  --color-admin-border: #27272a; /* Zinc 800 */
-  --color-admin-border-hover: #3f3f46; /* Zinc 700 */
-  --color-admin-text: #fafafa; /* Zinc 50 */
-  --color-admin-text-secondary: #a1a1aa; /* Zinc 400 */
-  --color-admin-text-muted: #52525b; /* Zinc 600 */
-  --color-admin-accent: #3b82f6; /* Blue 500 - System Primary */
-  --color-admin-accent-hover: #60a5fa; /* Blue 400 */
+  --color-admin-bg: #020617; /* Deep Slate 950 */
+  --color-admin-surface: #0f172a; /* Slate 900 */
+  --color-admin-card: #1e293b; /* Slate 800 */
+  --color-admin-border: #334155; /* Slate 700 */
+  --color-admin-border-hover: #475569; /* Slate 600 */
+  --color-admin-text: #f8fafc; /* Slate 50 */
+  --color-admin-text-secondary: #cbd5e1; /* Slate 300 */
+  --color-admin-text-muted: #94a3b8; /* Slate 400 */
+  --color-admin-accent: #3b82f6; /* Corporate Blue */
+  --color-admin-accent-hover: #60a5fa;
   --color-admin-info: #0ea5e9;
   --color-admin-success: #10b981;
   --color-admin-warning: #f59e0b;

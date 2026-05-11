@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { LayoutDashboard, Clock, Calendar, Plus, Settings, ShieldCheck, Activity, Database, ChevronRight, LogOut, Loader2 } from "lucide-react";
+import { LayoutDashboard, Clock, Calendar, Plus, Settings, ShieldCheck, RefreshCw, Database, ChevronRight, LogOut, Loader2, BarChart } from "lucide-react";
 import { MassBlockingSection } from "@/components/admin/MassBlocking";
 import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
@@ -46,9 +46,8 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-black flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 font-sans selection:bg-[var(--color-admin-accent)]/30 text-white relative overflow-hidden">
       
-      {/* ─── CRT/Scanline Overlay ─── */}
-      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
-      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+      {/* ─── Clean Backdrop ─── */}
+      <div className="absolute inset-0 pointer-events-none z-[0] bg-gradient-to-tr from-[var(--color-admin-bg)] via-slate-900/50 to-[var(--color-admin-bg)]" />
 
       {/* ─── Sidebar Industrial ─── */}
       <aside className="w-72 bg-zinc-950 border-r border-zinc-900 flex flex-col hidden lg:flex shrink-0 relative z-20">
@@ -57,56 +56,56 @@ export default function AdminDashboard() {
             HF
           </div>
           <div>
-            <h2 className="font-black text-[15px] text-white uppercase tracking-tighter leading-none">NÚCLEO_DO_SISTEMA</h2>
-            <p className="text-[9px] text-[var(--color-admin-accent)] font-mono font-black tracking-[0.3em] mt-2 animate-pulse">:: STATUS_ESTÁVEL ::</p>
+            <h2 className="font-bold text-[16px] text-white tracking-tight leading-none">Hellen Ferreira</h2>
+
           </div>
         </div>
         
-        <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
-          <div className="px-4 py-2 text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-4 font-mono">MÓDULOS_PRINCIPAIS</div>
+        <nav className="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
+          <div className="px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Principal</div>
           
           <SidebarNavItem 
             active={activeTab === 'overview'} 
             onClick={() => setActiveTab('overview')} 
             icon={<LayoutDashboard size={20} />} 
-            label="DASHBOARD" 
+            label="Dashboard" 
           />
           <SidebarNavItem 
             active={activeTab === 'slots'} 
             onClick={() => setActiveTab('slots')} 
             icon={<Calendar size={20} />} 
-            label="AGENDA_MESTRA" 
+            label="Agenda" 
           />
           <SidebarNavItem 
             active={activeTab === 'history'} 
             onClick={() => setActiveTab('history')} 
             icon={<Clock size={20} />} 
-            label="HISTÓRICO_LOGS" 
+            label="Histórico" 
           />
           
-          <div className="px-4 py-2 text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mt-10 mb-4 font-mono">AJUSTES_DO_MOTOR</div>
+          <div className="px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-10 mb-2">Configurações</div>
           
           <SidebarNavItem 
             active={activeTab === 'sessions'} 
             onClick={() => setActiveTab('sessions')} 
             icon={<Settings size={20} />} 
-            label="SERVIÇOS" 
+            label="Serviços" 
           />
           <SidebarNavItem 
             active={activeTab === 'blocks'} 
             onClick={() => setActiveTab('blocks')} 
             icon={<ShieldCheck size={20} />} 
-            label="SEGURANÇA" 
+            label="Segurança" 
           />
         </nav>
 
         <div className="p-6 border-t border-zinc-900 bg-black/40">
           <button 
             onClick={() => logout()}
-            className="flex items-center gap-4 w-full px-5 py-4 text-zinc-600 hover:text-white hover:bg-red-500/10 transition-all rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] group border border-transparent hover:border-red-500/20"
+            className="flex items-center gap-4 w-full px-5 py-4 text-zinc-400 hover:text-white hover:bg-red-500/10 transition-all rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] group border border-transparent hover:border-red-500/20"
           >
             <LogOut size={18} className="group-hover:translate-x-1 transition-transform" /> 
-            <span>ENCERRAR_SESSÃO</span>
+            <span>Sair</span>
           </button>
         </div>
       </aside>
@@ -136,28 +135,25 @@ export default function AdminDashboard() {
             <div>
               <h1 className="text-[18px] lg:text-[24px] font-black text-white uppercase tracking-tighter flex items-center gap-4">
                 <span className="w-3 h-3 bg-[var(--color-admin-accent)] rounded-full animate-pulse shadow-[0_0_15px_var(--color-admin-accent)]" />
-                {activeTab === 'overview' && "PAINEL_OPERACIONAL"}
-                {activeTab === 'slots' && "MATRIZ_DE_AGENDA"}
-                {activeTab === 'history' && "ARQUIVO_DE_LOGS"}
-                {activeTab === 'sessions' && "LÓGICA_DE_SERVIÇOS"}
-                {activeTab === 'blocks' && "PROTOCOLOS_DE_SEGURANÇA"}
+                {activeTab === 'overview' && "Dashboard"}
+                {activeTab === 'slots' && "Agenda de Horários"}
+                {activeTab === 'history' && "Histórico de Reservas"}
+                {activeTab === 'sessions' && "Serviços e Preços"}
+                {activeTab === 'blocks' && "Bloqueios de Agenda"}
               </h1>
-              <p className="hidden sm:block text-[9px] font-mono font-black text-zinc-600 uppercase tracking-[0.5em] mt-1">UNIDADE_OPERACIONAL_01 // REGIÃO: SA-EAST-1</p>
+              <p className="hidden sm:block text-[11px] font-medium text-slate-400 mt-1">Gerenciamento administrativo do estúdio</p>
             </div>
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-4 px-5 py-2.5 bg-black border border-zinc-900 rounded-2xl shadow-inner">
-               <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981] animate-pulse" />
-               <span className="text-[10px] font-mono font-black text-zinc-500 uppercase tracking-widest">Rede: ESTÁVEL</span>
-            </div>
+
             
             <button 
               onClick={loadData}
               className="w-12 h-12 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-[var(--color-admin-accent)] rounded-2xl transition-all border border-zinc-800 active:scale-90"
               title="Sincronizar"
             >
-              <Activity size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
+              <RefreshCw size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
             </button>
 
             <button 
@@ -165,7 +161,7 @@ export default function AdminDashboard() {
               className="hidden lg:flex bg-white hover:bg-zinc-200 text-black text-[11px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl items-center gap-3 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] active:scale-95 group"
             >
               <Plus size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-500" /> 
-              INJEÇÃO_MANUAL
+              Novo Agendamento
             </button>
           </div>
         </header>
@@ -194,30 +190,30 @@ export default function AdminDashboard() {
               
               {/* Metrics Grid - Technical High Density */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <StatMetric label="SESSÕES_HOJE" value={isLoading ? "---" : stats.todaySessions} icon={<Activity size={24} />} trend="TEMPO_REAL" />
-                <StatMetric label="DEMANDA_7D" value={isLoading ? "---" : stats.weekSessions} icon={<Calendar size={24} />} trend="PREDITIVO" />
+                <StatMetric label="Sessões Hoje" value={isLoading ? "---" : stats.todaySessions} icon={<BarChart size={24} />} trend="Hoje" />
+                <StatMetric label="Sessões na Semana" value={isLoading ? "---" : stats.weekSessions} icon={<Calendar size={24} />} trend="7 dias" />
                 <StatMetric 
-                  label="VOLUME_FINANCEIRO" 
+                  label="Faturamento Total" 
                   value={isLoading ? "---" : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stats.totalRevenue)} 
                   isPositive 
                   icon={<Database size={24} />}
-                  trend="LIQUIDEZ"
+                  trend="Total"
                 />
               </div>
 
-              {/* Bookings Data Grid - Terminal Style */}
+              {/* Bookings Data Grid */}
               <div className="bg-zinc-950 border border-zinc-900 rounded-[2.5rem] overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.8)] relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 <div className="px-10 py-8 border-b border-zinc-900 bg-black/40 flex items-center justify-between relative z-10">
                   <div>
-                    <h3 className="text-[14px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-4">
-                       <div className="w-1.5 h-6 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_15px_var(--color-admin-accent)]" /> 
-                       FLUXO_OPERACIONAL
+                     <h3 className="text-[15px] font-bold text-white tracking-tight flex items-center gap-3">
+                       <div className="w-1 h-5 bg-[var(--color-admin-accent)] rounded-full" /> 
+                       Próximos Agendamentos
                     </h3>
-                    <p className="text-[9px] font-mono font-black text-zinc-700 uppercase tracking-[0.4em] mt-2 ml-6">Total_Registros: {bookings.length} Pontos_Entrada</p>
+                    <p className="text-[12px] font-medium text-slate-400 mt-1 ml-4">Gerenciando {bookings.length} registros ativos</p>
                   </div>
-                  <button onClick={loadData} className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-xl text-[10px] font-black text-[var(--color-admin-accent)] hover:text-white flex items-center gap-3 transition-all border border-zinc-800 shadow-inner">
-                    <Clock size={16} className="animate-pulse" /> SINCRONIZAR
+                   <button onClick={loadData} className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-[12px] font-bold text-white flex items-center gap-2 transition-all border border-slate-700 shadow-sm">
+                    <Clock size={16} /> Atualizar
                   </button>
                 </div>
                 <div className="p-4 relative z-10">
@@ -237,11 +233,11 @@ export default function AdminDashboard() {
                     <Clock size={40} strokeWidth={2.5} />
                   </div>
                   <div className="relative z-10">
-                    <h3 className="text-[28px] font-black text-white uppercase tracking-tighter leading-none">ARQUIVO_MESTRE</h3>
-                    <p className="text-[11px] text-zinc-600 font-mono font-black uppercase tracking-[0.5em] mt-4">Snapshot Estático // Camada_Persistência_V2</p>
+                    <h3 className="text-[28px] font-bold text-white tracking-tight leading-none">Histórico de Dados</h3>
+                    <p className="text-[13px] text-slate-400 font-medium mt-3">Visualização completa de todos os registros passados</p>
                   </div>
-                  <button onClick={loadData} className="ml-auto bg-white hover:bg-zinc-200 px-10 py-5 rounded-2xl text-[11px] font-black text-black uppercase tracking-[0.2em] transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-95 relative z-10">
-                    PUXAR_DADOS_HISTÓRICOS
+                  <button onClick={loadData} className="ml-auto bg-white hover:bg-slate-200 px-8 py-4 rounded-2xl text-[12px] font-bold text-black transition-all shadow-lg active:scale-95 relative z-10">
+                    Atualizar Dados
                   </button>
                </div>
                
@@ -272,7 +268,7 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
           <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={60} strokeWidth={2.5} />
           <div className="absolute inset-0 blur-2xl bg-[var(--color-admin-accent)] opacity-30 animate-pulse" />
         </div>
-        <p className="text-[12px] font-mono font-black text-zinc-600 uppercase tracking-[0.6em] animate-pulse">Estabelecendo_Link_Seguro...</p>
+        <p className="text-[13px] font-bold text-slate-500 tracking-wider">Carregando informações...</p>
       </div>
     );
   }
@@ -281,10 +277,10 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
     return (
       <div className="py-48 text-center">
         <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] border border-dashed border-zinc-800 flex items-center justify-center mx-auto mb-8 shadow-inner">
-           <Database size={32} className="text-zinc-700" />
+           <Database size={32} className="text-zinc-500" />
         </div>
-        <p className="text-[14px] font-black text-zinc-600 uppercase tracking-[0.4em]">DB_REGISTRO_NULO</p>
-        <p className="text-[10px] font-mono font-black text-zinc-800 uppercase tracking-[0.2em] mt-3">Nenhum registro ativo encontrado no escopo atual</p>
+        <p className="text-[15px] font-bold text-slate-300 tracking-tight">Nenhum registro encontrado</p>
+        <p className="text-[12px] font-medium text-slate-500 mt-2">Os dados solicitados não estão disponíveis no momento.</p>
       </div>
     );
   }
@@ -294,13 +290,13 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
       <div className="hidden lg:block overflow-x-auto custom-scrollbar">
         <table className="w-full text-left border-separate border-spacing-y-4 px-6">
           <thead>
-            <tr className="text-[11px] font-black text-zinc-700 uppercase tracking-[0.4em] font-mono">
-              <th className="px-8 py-6">TIMESTAMP</th>
-              <th className="px-8 py-6">IDENTIDADE</th>
-              <th className="px-8 py-6">CATEGORIA</th>
-              <th className="px-8 py-6">STATUS</th>
-              <th className="px-8 py-6 text-right">VALOR</th>
-              <th className="px-8 py-6 text-right">AÇÕES</th>
+            <tr className="text-[12px] font-bold text-slate-500 tracking-tight">
+              <th className="px-8 py-5">Data/Hora</th>
+              <th className="px-8 py-5">Cliente</th>
+              <th className="px-8 py-5">Serviço</th>
+              <th className="px-8 py-5">Status</th>
+              <th className="px-8 py-5 text-right">Valor</th>
+              <th className="px-8 py-5 text-right">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -312,20 +308,20 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                   className="group transition-all"
                 >
                   <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 rounded-l-[1.5rem] border-y border-l border-zinc-900 transition-all duration-300">
-                    <div className="text-[15px] font-black text-white font-mono tracking-tighter">
-                       {new Date(booking.booking_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    <div className="text-[15px] font-bold text-white">
+                       {new Date(booking.booking_date).toLocaleDateString('pt-BR')}
                     </div>
-                    <div className="text-[12px] text-[var(--color-admin-accent)] mt-1.5 font-mono font-black tracking-[0.2em]">
-                       T_OFFSET: {booking.start_time.slice(0, 5)}Z
+                    <div className="text-[12px] text-slate-400 font-medium mt-1">
+                       {booking.start_time.slice(0, 5)}h
                     </div>
                   </td>
                   <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 transition-all duration-300">
-                    <div className="text-[14px] font-black text-white uppercase tracking-tight">{booking.customer_name || booking.client_name}</div>
-                    <div className="text-[10px] text-zinc-600 font-mono mt-1.5 font-black uppercase tracking-widest">HASH: {booking.id.split('-')[0].toUpperCase()}</div>
+                    <div className="text-[14px] font-bold text-white tracking-tight">{booking.customer_name || booking.client_name}</div>
+                    <div className="text-[11px] text-slate-500 mt-1 font-medium italic">ref: {booking.id.split('-')[0]}</div>
                   </td>
                   <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 transition-all duration-300">
                     <span 
-                      className="text-[10px] font-black px-4 py-2 rounded-xl border-2 uppercase tracking-[0.2em] bg-black inline-block shadow-inner"
+                      className="text-[11px] font-bold px-4 py-2 rounded-lg border bg-slate-900 inline-block"
                       style={{ 
                         color: colors.isCustom ? colors.styles?.color : undefined, 
                         borderColor: colors.isCustom ? colors.styles?.borderColor : undefined 
@@ -340,25 +336,25 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                         booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
                         booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
                       }`} />
-                      <span className={`text-[11px] font-black uppercase tracking-[0.3em] font-mono ${
+                      <span className={`text-[11px] font-bold ${
                         booking.status === 'confirmed' ? 'text-emerald-500' : 
                         booking.status === 'pending' ? 'text-amber-500' : 'text-red-500'
                       }`}>
-                         {booking.status === 'confirmed' ? 'VERIFICADO' : booking.status === 'pending' ? 'EM_FILA' : 'NULO'}
+                         {booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'pending' ? 'Pendente' : 'Cancelado'}
                       </span>
                     </div>
                   </td>
                   <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 border-y border-zinc-900 text-right transition-all duration-300">
-                    <span className="text-[16px] font-mono font-black text-white tracking-tighter">
+                    <span className="text-[16px] font-bold text-white">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
                     </span>
                   </td>
                   <td className="px-8 py-7 bg-zinc-900/50 group-hover:bg-zinc-900 rounded-r-[1.5rem] border-y border-r border-zinc-900 text-right transition-all duration-300">
                     <button 
                       onClick={() => onEdit(booking)}
-                      className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 text-zinc-600 hover:text-white hover:border-white hover:bg-zinc-900 flex items-center justify-center transition-all ml-auto shadow-2xl active:scale-90 group"
+                      className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 text-zinc-400 hover:text-white hover:border-white hover:bg-zinc-900 flex items-center justify-center transition-all ml-auto shadow-2xl active:scale-90 group"
                     >
-                      <Settings size={20} className="group-hover:rotate-180 transition-transform duration-700" />
+                      <Settings size={20} className="group-hover:rotate-45 transition-transform duration-300" />
                     </button>
                   </td>
                 </tr>
@@ -380,17 +376,17 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
               <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-admin-accent)]/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-active:opacity-100 transition-opacity" />
               <div className="flex justify-between items-start mb-6">
                 <div className="flex flex-col gap-2">
-                  <span className="text-[11px] font-mono font-black text-[var(--color-admin-accent)] uppercase tracking-[0.3em]">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
-                  <span className="text-[20px] font-black text-white uppercase tracking-tighter leading-tight">{booking.customer_name || booking.client_name}</span>
+                  <span className="text-[12px] font-bold text-slate-400">{new Date(booking.booking_date).toLocaleDateString('pt-BR')}</span>
+                  <span className="text-[18px] font-bold text-white tracking-tight leading-tight">{booking.customer_name || booking.client_name}</span>
                 </div>
-                <div className="bg-black px-4 py-2.5 rounded-2xl border border-zinc-800 text-[12px] font-mono font-black text-white shadow-inner">
-                  {booking.start_time.slice(0, 5)}
+                <div className="bg-slate-800 px-4 py-2 rounded-xl border border-slate-700 text-[13px] font-bold text-white">
+                  {booking.start_time.slice(0, 5)}h
                 </div>
               </div>
               
               <div className="flex items-center justify-between mt-8 pt-6 border-t border-zinc-900">
-                <span 
-                  className="text-[10px] font-black px-4 py-2 rounded-xl border-2 uppercase tracking-[0.1em] bg-black shadow-inner"
+                   <span 
+                  className="text-[11px] font-bold px-4 py-2 rounded-lg border bg-slate-900"
                   style={{ 
                     color: colors.isCustom ? colors.styles?.color : undefined, 
                     borderColor: colors.isCustom ? colors.styles?.borderColor : undefined 
@@ -403,7 +399,7 @@ function BookingTable({ bookings, onEdit, isLoading }: { bookings: any[], onEdit
                      booking.status === 'confirmed' ? 'text-emerald-500 bg-emerald-500' : 
                      booking.status === 'pending' ? 'text-amber-500 bg-amber-500' : 'text-red-500 bg-red-500'
                    }`} />
-                   <span className="text-[16px] font-mono font-black text-white tracking-tighter">
+                    <span className="text-[16px] font-bold text-white">
                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(booking.paid_amount)}
                    </span>
                 </div>
@@ -420,14 +416,14 @@ function SidebarNavItem({ active, onClick, icon, label }: { active: boolean, onC
   return (
     <button 
       onClick={onClick}
-      className={`w-full flex items-center gap-5 px-6 py-5 rounded-[1.25rem] transition-all text-[13px] font-black uppercase tracking-[0.3em] group relative overflow-hidden ${
+      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all text-[14px] font-bold group relative overflow-hidden ${
         active 
-          ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.15)] scale-[1.02]' 
-          : 'text-zinc-600 hover:text-white hover:bg-zinc-900 border border-transparent hover:border-zinc-800'
+          ? 'bg-white text-black shadow-lg scale-[1.02]' 
+          : 'text-slate-500 hover:text-white hover:bg-slate-800 border border-transparent'
       }`}
     >
-      <div className={`${active ? 'text-black' : 'text-zinc-800 group-hover:text-white'} transition-colors`}>
-        {React.cloneElement(icon as React.ReactElement<any>, { strokeWidth: active ? 3 : 2 })}
+      <div className={`${active ? 'text-black' : 'text-slate-600 group-hover:text-white'} transition-colors`}>
+        {React.cloneElement(icon as React.ReactElement<any>, { strokeWidth: active ? 2.5 : 2 })}
       </div>
       <span className="relative z-10">{label}</span>
       {active && <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-black/10" />}
@@ -440,7 +436,7 @@ function BottomNavItem({ active, onClick, icon }: { active: boolean, onClick: ()
     <button 
       onClick={onClick}
       className={`p-5 rounded-2xl transition-all relative ${
-        active ? 'text-white' : 'text-zinc-700'
+        active ? 'text-white' : 'text-zinc-500'
       }`}
     >
       {React.cloneElement(icon as React.ReactElement<any>, { size: 24, strokeWidth: active ? 3 : 2 })}
@@ -457,16 +453,16 @@ function StatMetric({ label, value, icon, isPositive, trend }: { label: string, 
       </div>
 
       <div className="flex justify-between items-start relative z-10">
-        <div className="space-y-3">
-           <p className="text-[11px] font-black text-zinc-700 uppercase tracking-[0.4em] font-mono">{label}</p>
+        <div className="space-y-2">
+           <p className="text-[13px] font-bold text-slate-400 capitalize">{label}</p>
            <div className="flex items-center gap-3">
-              <span className={`text-[9px] font-mono font-black px-2.5 py-1 rounded-lg bg-black border-2 ${isPositive ? 'text-emerald-500 border-emerald-500/20' : 'text-zinc-700 border-zinc-900'}`}>
+              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-900 border ${isPositive ? 'text-emerald-500 border-emerald-500/20' : 'text-slate-500 border-slate-800'}`}>
                 {trend}
               </span>
            </div>
         </div>
       </div>
-      <h4 className="text-4xl font-black tracking-tighter text-white font-mono relative z-10">
+      <h4 className="text-4xl font-bold tracking-tight text-white relative z-10">
         {value}
       </h4>
     </div>

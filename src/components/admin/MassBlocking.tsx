@@ -5,6 +5,7 @@ import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Lock, Calendar, Ca
 import { motion, AnimatePresence } from "framer-motion";
 import { getBlockedDates, addBlockedDate, removeBlockedDate } from "@/lib/actions/admin-actions";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 
 export function MassBlockingSection() {
   const [startDate, setStartDate] = useState("");
@@ -76,49 +77,37 @@ export function MassBlockingSection() {
                 <Lock size={28} />
               </div>
               <div>
-                <h4 className="text-[20px] font-black text-white uppercase tracking-tighter leading-none">PROTOCOLOS_SEGURANCA</h4>
-                <p className="text-[10px] text-zinc-600 font-mono font-black uppercase tracking-[0.4em] mt-3">Bloqueio de Acesso em Massa // Nível Sistema</p>
+                <h4 className="text-[20px] font-bold text-white tracking-tight leading-none">Bloqueio de Agenda</h4>
+                <p className="text-[11px] text-slate-400 font-medium mt-2">Bloqueie períodos específicos para novos agendamentos</p>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex items-end gap-6 flex-1 max-w-4xl">
-            <div className="space-y-3 flex-1">
-              <label className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">DATA_INICIAL</label>
-              <div className="relative">
-                <Calendar size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 pointer-events-none" />
-                <input 
-                  type="date" 
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-6 py-4 text-[14px] font-black text-white outline-none focus:border-red-500 transition-all duration-500"
-                />
-              </div>
-            </div>
+            <InternalDatePicker
+              label="Data Inicial"
+              value={startDate}
+              onChange={setStartDate}
+              className="flex-1"
+            />
             
-            <div className="space-y-3 flex-1">
-              <label className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">DATA_FINAL</label>
-              <div className="relative">
-                <CalendarX size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 pointer-events-none" />
-                <input 
-                  type="date" 
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-6 py-4 text-[14px] font-black text-white outline-none focus:border-red-500 transition-all duration-500"
-                />
-              </div>
-            </div>
+            <InternalDatePicker
+              label="Data Final"
+              value={endDate}
+              onChange={setEndDate}
+              className="flex-1"
+            />
 
             <div className="space-y-3 flex-1 lg:flex-[1.5]">
-              <label className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">MOTIVO_DO_BLOQUEIO</label>
+               <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Motivo do Bloqueio</label>
               <div className="relative">
-                <Info size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 pointer-events-none" />
+                <Info size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                 <input 
                   type="text" 
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="EX: MANUTENCAO_PREVENTIVA"
-                  className="w-full bg-black border-2 border-zinc-900 rounded-2xl pl-14 pr-6 py-4 text-[13px] font-black text-white outline-none focus:border-red-500 transition-all duration-500 placeholder:text-zinc-800"
+                  placeholder="Ex: Férias, Manutenção..."
+                  className="w-full bg-black border-2 border-slate-800 rounded-2xl pl-14 pr-6 py-4 text-[13px] font-bold text-white outline-none focus:border-red-500/50 transition-all shadow-inner placeholder:text-slate-800"
                 />
               </div>
             </div>
@@ -126,10 +115,10 @@ export function MassBlockingSection() {
             <button 
               onClick={handleCreateBlock}
               disabled={isSaving || !startDate || !endDate}
-              className="bg-white hover:bg-red-500 hover:text-white text-black px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-90 disabled:opacity-20 shadow-2xl h-[60px]"
+              className="bg-white hover:bg-red-500 hover:text-white text-black px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center justify-center gap-3 transition-all active:scale-90 disabled:opacity-20 shadow-2xl h-[60px]"
             >
-              {isSaving ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} strokeWidth={3} />}
-              INJETAR_BLOQUEIO
+              {isSaving ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} strokeWidth={2.5} />}
+              Confirmar bloqueio
             </button>
           </div>
         </div>
@@ -140,9 +129,9 @@ export function MassBlockingSection() {
         <div className="flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
              <div className="w-1.5 h-6 bg-red-500 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
-             <h4 className="text-[14px] font-black text-white uppercase tracking-[0.3em]">LISTA_DE_RESTRICOES_ATIVAS</h4>
+             <h4 className="text-[14px] font-bold text-white tracking-tight">Bloqueios ativos</h4>
           </div>
-          <span className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-[0.3em]">TOTAL_DE_BLOQUEIOS: {blocks.length}</span>
+           <span className="text-[11px] font-bold text-slate-500 tracking-wide">Total: {blocks.length}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
@@ -152,7 +141,7 @@ export function MassBlockingSection() {
                   <Loader2 className="animate-spin text-red-500" size={60} strokeWidth={2.5} />
                   <div className="absolute inset-0 blur-3xl bg-red-500 opacity-20 animate-pulse" />
                </div>
-               <p className="text-[12px] font-mono font-black uppercase text-zinc-700 tracking-[0.5em] animate-pulse">Escaneando Blocos de Memória...</p>
+               <p className="text-[13px] font-bold text-slate-500 tracking-tight animate-pulse">Carregando bloqueios...</p>
             </div>
           ) : (
             <>
@@ -166,25 +155,25 @@ export function MassBlockingSection() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
                     
                     <div className="flex items-center gap-8 relative z-10">
-                      <div className="w-16 h-16 bg-black border border-zinc-900 flex items-center justify-center text-zinc-700 rounded-2xl shadow-inner group-hover:border-red-500/20 transition-all group-hover:text-red-500">
+                      <div className="w-16 h-16 bg-black border border-zinc-900 flex items-center justify-center text-zinc-500 rounded-2xl shadow-inner group-hover:border-red-500/20 transition-all group-hover:text-red-500">
                         <CalendarX size={28} />
                       </div>
                       <div>
-                        <h5 className="text-[18px] font-black text-white font-mono tracking-tighter uppercase leading-none">
+                        <h5 className="text-[18px] font-bold text-white tracking-tight leading-none">
                           {new Date(block.start_date).toLocaleDateString('pt-BR')} 
-                          <span className="mx-4 text-zinc-800">→</span>
+                          <span className="mx-4 text-zinc-700">→</span>
                           {new Date(block.end_date).toLocaleDateString('pt-BR')}
                         </h5>
                         <div className="flex items-center gap-3 mt-4">
                            <div className="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_#ef4444] animate-pulse" />
-                           <p className="text-[11px] text-zinc-600 font-black uppercase tracking-widest truncate max-w-[250px]">{block.reason}</p>
+                           <p className="text-[12px] text-slate-400 font-bold tracking-tight truncate max-w-[250px]">{block.reason}</p>
                         </div>
                       </div>
                     </div>
                     
                     <button 
                       onClick={() => setConfirmDeleteId(block.id)}
-                      className="w-14 h-14 flex items-center justify-center rounded-2xl bg-black border border-zinc-900 text-zinc-700 hover:text-red-500 hover:border-red-500 hover:bg-zinc-900 transition-all opacity-0 group-hover:opacity-100 shadow-2xl active:scale-90 relative z-10"
+                      className="w-14 h-14 flex items-center justify-center rounded-2xl bg-black border border-zinc-900 text-zinc-500 hover:text-red-500 hover:border-red-500 hover:bg-zinc-900 transition-all opacity-0 group-hover:opacity-100 shadow-2xl active:scale-90 relative z-10"
                     >
                       <Trash2 size={22} />
                     </button>
@@ -193,13 +182,13 @@ export function MassBlockingSection() {
               </AnimatePresence>
 
               {blocks.length === 0 && (
-                <div className="col-span-full py-48 border-2 border-dashed border-zinc-900 rounded-[3rem] flex flex-col items-center justify-center text-zinc-800 gap-8 bg-zinc-950/20">
+                <div className="col-span-full py-48 border-2 border-dashed border-zinc-900 rounded-[3rem] flex flex-col items-center justify-center text-zinc-700 gap-8 bg-zinc-950/20">
                     <div className="w-24 h-24 bg-zinc-900 rounded-[2rem] flex items-center justify-center border border-zinc-800 shadow-inner">
                        <ShieldOff size={48} strokeWidth={1} />
                     </div>
                     <div className="text-center space-y-2">
-                      <p className="text-[16px] font-black uppercase tracking-[0.6em]">SISTEMA_NOMINAL</p>
-                      <p className="text-[10px] font-mono font-black uppercase tracking-[0.2em] opacity-40">Sem restrições ambientais detectadas</p>
+                       <p className="text-[16px] font-bold text-slate-500">Nenhum bloqueio</p>
+                      <p className="text-[11px] font-medium text-slate-600 mt-2">A agenda está livre para todos os dias</p>
                     </div>
                 </div>
               )}
@@ -210,10 +199,10 @@ export function MassBlockingSection() {
 
       <ConfirmModal
         isOpen={!!confirmDeleteId}
-        title="AUTORIZAR_REVERSAO"
-        message="A execução desta sequência restaurará o acesso público ao intervalo temporal especificado. Você confirma a purga deste protocolo de segurança?"
-        confirmLabel="EXECUTAR_LIMPEZA"
-        cancelLabel="ABORTAR_ACAO"
+        title="Remover Bloqueio"
+        message="Esta ação irá liberar o período selecionado para novos agendamentos no site. Deseja continuar?"
+        confirmLabel="Remover Bloqueio"
+        cancelLabel="Cancelar"
         onConfirm={() => confirmDeleteId && handleRemoveBlock(confirmDeleteId)}
         onCancel={() => setConfirmDeleteId(null)}
       />

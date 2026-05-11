@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Edit2, 
-  Palette, Settings, ShieldCheck, Activity, Info, Database, 
+  Palette, Settings, ShieldCheck, Camera, Info, Database, 
   Briefcase, CalendarClock, Globe, ArrowRight 
 } from "lucide-react";
 import { 
@@ -44,10 +44,8 @@ export function SessionConfigSection() {
     setIsSaving(true);
     const data = {
       name: formData.get("name") as string,
-      duration_minutes: parseInt(formData.get("duration") as string),
-      price: parseFloat(formData.get("price") as string),
+      duration_slots: parseInt(formData.get("duration") as string),
       theme_color: formData.get("color") as string,
-      description: formData.get("description") as string,
     };
 
     let res;
@@ -68,7 +66,7 @@ export function SessionConfigSection() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("SEQUÊNCIA DE PURGA ACIONADA. Isso removerá todos os templates associados a este ID. Continuar?")) return;
+    if (!confirm("Tem certeza que deseja excluir este serviço? Todos os horários associados serão removidos. Continuar?")) return;
     setIsSaving(true);
     const res = await deleteSession(id);
     if (res.success) {
@@ -105,18 +103,18 @@ export function SessionConfigSection() {
                 <Briefcase size={28} />
               </div>
               <div>
-                <h2 className="text-[14px] lg:text-[20px] font-black text-white uppercase tracking-tighter leading-none">Gestão de Protocolos de Serviço</h2>
-                <p className="text-[8px] lg:text-[10px] uppercase font-black text-zinc-600 tracking-[0.4em] mt-2 font-mono">Status: Sistema Operando</p>
+                <h2 className="text-[14px] lg:text-[20px] font-bold text-white tracking-tight leading-none">Serviços e Pacotes</h2>
+                <p className="text-[11px] text-slate-500 font-medium mt-2">Gerenciamento de ofertas do estúdio</p>
               </div>
             </div>
           </div>
 
           <button 
             onClick={() => { setEditingSession(null); setIsModalOpen(true); }}
-            className="bg-white hover:bg-zinc-200 text-black px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-4 transition-all shadow-2xl active:scale-95 group"
+            className="bg-white hover:bg-zinc-200 text-black px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-2xl active:scale-95 group"
           >
-            <Plus size={20} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-500" /> 
-            NOVA_SESSAO
+            <Plus size={20} strokeWidth={2.5} className="group-hover:rotate-90 transition-transform duration-500" /> 
+            Novo Serviço
           </button>
         </div>
       </div>
@@ -127,7 +125,7 @@ export function SessionConfigSection() {
               <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={60} strokeWidth={2.5} />
               <div className="absolute inset-0 blur-3xl bg-[var(--color-admin-accent)] opacity-20 animate-pulse" />
            </div>
-           <p className="text-[12px] font-mono font-black text-zinc-700 uppercase tracking-[0.6em] animate-pulse">Compilando Unidades de Lógica...</p>
+           <p className="text-[13px] font-bold text-slate-500 uppercase tracking-wider animate-pulse">Carregando serviços...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
@@ -145,7 +143,7 @@ export function SessionConfigSection() {
                     className="w-14 h-14 rounded-2xl border-2 shadow-inner flex items-center justify-center bg-black"
                     style={{ borderColor: session.theme_color || '#333' }}
                   >
-                    <Activity size={24} style={{ color: session.theme_color || '#fff' }} />
+                    <Camera size={24} style={{ color: session.theme_color || '#fff' }} />
                   </div>
                   <div className="flex gap-3">
                     <button 
@@ -173,19 +171,14 @@ export function SessionConfigSection() {
                 <h5 className="text-[22px] font-black text-white uppercase tracking-tighter leading-none mb-3 group-hover:text-[var(--color-admin-accent)] transition-colors">
                   {session.name}
                 </h5>
-                <p className="text-[11px] text-zinc-600 font-mono font-black uppercase tracking-widest mb-8">SYS_ID: {session.id.split('-')[0]}</p>
+                <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-8">ID: {session.id.split('-')[0]}</p>
                 
                 <div className="space-y-4 pt-8 border-t border-zinc-900">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em]">DURACAO</span>
-                    <span className="text-[14px] font-mono font-black text-white">{session.duration_minutes} MIN</span>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Duração</span>
+                    <span className="text-[14px] font-bold text-white">{(session.duration_slots || 0) * 30} MIN</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em]">VAL_CREDITO</span>
-                    <span className="text-[16px] font-mono font-black text-[var(--color-admin-accent)]">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(session.price)}
-                    </span>
-                  </div>
+
                 </div>
               </div>
             </motion.div>
@@ -211,10 +204,10 @@ export function SessionConfigSection() {
               <div className="p-10 lg:p-14">
                 <div className="flex justify-between items-center mb-12">
                   <div>
-                    <h3 className="text-[28px] font-black text-white uppercase tracking-tighter leading-none">
-                      {editingSession ? 'ATUALIZAR_PARAMETRO' : 'NOVA_UNIDADE_LOGICA'}
+                    <h3 className="text-[28px] font-bold text-white tracking-tight leading-none">
+                      {editingSession ? 'Editar serviço' : 'Novo serviço'}
                     </h3>
-                    <p className="text-[10px] text-zinc-600 font-mono font-black uppercase tracking-[0.4em] mt-3">Protocolo de Template // v2.0</p>
+                    <p className="text-[11px] text-slate-500 font-medium mt-2">Configure os detalhes do serviço oferecido</p>
                   </div>
                   <button 
                     onClick={() => setIsModalOpen(false)}
@@ -225,43 +218,29 @@ export function SessionConfigSection() {
                 </div>
 
                 <form action={handleSave} className="space-y-8">
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Nome do Serviço</label>
+                    <input 
+                      name="name" 
+                      required 
+                      defaultValue={editingSession?.name}
+                      placeholder="Ex: Ensaio Gestante"
+                      className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all placeholder:text-zinc-800" 
+                    />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">NOME_DO_SERVICO</label>
-                      <input 
-                        name="name" 
-                        required 
-                        defaultValue={editingSession?.name}
-                        placeholder="EX: SESSÃO_ALPHA"
-                        className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all placeholder:text-zinc-800" 
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">DURACAO (MIN)</label>
+                      <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Slots (30min cada)</label>
                       <input 
                         name="duration" 
                         type="number" 
                         required 
-                        defaultValue={editingSession?.duration_minutes || 60}
-                        className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all" 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">VALOR (BRL)</label>
-                      <input 
-                        name="price" 
-                        type="number" 
-                        step="0.01" 
-                        required 
-                        defaultValue={editingSession?.price || 0}
+                        defaultValue={editingSession?.duration_slots || 2}
                         className="w-full bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-black text-white outline-none focus:border-white transition-all" 
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">COR_HEXADECIMAL</label>
+                      <label className="text-[11px] font-bold text-slate-400 tracking-wide ml-2">Cor do Calendário</label>
                       <div className="flex gap-4">
                         <input 
                           name="color" 
@@ -273,30 +252,22 @@ export function SessionConfigSection() {
                           type="text" 
                           placeholder="#000000"
                           defaultValue={editingSession?.theme_color || "#3b82f6"}
-                          className="flex-1 bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-mono font-black text-white outline-none focus:border-white transition-all" 
+                          className="flex-1 bg-black border-2 border-zinc-900 rounded-2xl px-6 py-4 text-[14px] font-bold text-white outline-none focus:border-white transition-all" 
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">METADATA_DESCRICAO</label>
-                    <textarea 
-                      name="description" 
-                      defaultValue={editingSession?.description}
-                      placeholder="Input operacional detalhes aqui..."
-                      className="w-full bg-black border-2 border-zinc-900 rounded-[1.5rem] px-6 py-4 text-[13px] font-black text-white outline-none focus:border-white transition-all h-32 resize-none placeholder:text-zinc-800" 
-                    />
-                  </div>
+
 
                   <div className="pt-8">
                     <button 
                       type="submit" 
                       disabled={isSaving}
-                      className="w-full bg-white hover:bg-zinc-200 text-black py-6 rounded-[1.5rem] font-black text-[14px] uppercase tracking-[0.4em] flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl disabled:opacity-50 group"
+                      className="w-full bg-white hover:bg-zinc-200 text-black py-6 rounded-[1.5rem] font-bold text-[14px] tracking-tight flex items-center justify-center gap-4 transition-all active:scale-95 shadow-2xl disabled:opacity-50 group"
                     >
-                      {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} strokeWidth={3} />}
-                      {editingSession ? 'CONFIRMAR_LOGICA' : 'IMPLEMENTAR_SERVICO'}
+                      {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} strokeWidth={2.5} />}
+                      {editingSession ? 'Salvar Alterações' : 'Criar Serviço'}
                     </button>
                   </div>
                 </form>
@@ -323,10 +294,10 @@ export function SessionConfigSection() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-[28px] font-black text-white uppercase tracking-tighter leading-none">
-                      Matriz_Temporal_Override
+                      Horários Específicos
                     </h3>
-                    <p className="text-[10px] text-[var(--color-admin-accent)] font-mono font-black uppercase tracking-[0.4em] mt-3">
-                      Alvo: {viewingMatrix.name}
+                    <p className="text-[11px] text-[var(--color-admin-accent)] font-bold uppercase tracking-wider mt-3">
+                      Serviço: {viewingMatrix.name}
                     </p>
                   </div>
                   <button 
@@ -342,7 +313,7 @@ export function SessionConfigSection() {
                 {isMatrixLoading ? (
                   <div className="flex flex-col items-center justify-center py-40 gap-6">
                     <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={48} />
-                    <p className="text-[10px] font-mono font-black text-zinc-700 uppercase tracking-[0.4em]">Inspecionando Matriz...</p>
+                    <p className="text-[13px] font-bold text-slate-500 uppercase tracking-wider">Carregando horários...</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -353,7 +324,7 @@ export function SessionConfigSection() {
                         <div key={dayIndex} className="bg-zinc-900/50 border border-zinc-900 rounded-[2rem] p-8 space-y-6">
                           <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
                             <span className="text-[11px] font-black text-white uppercase tracking-widest">{dayName}</span>
-                            <span className="text-[9px] font-mono text-zinc-600 uppercase">{daySlots.length} SLOTS</span>
+                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{daySlots.length} HORÁRIOS</span>
                           </div>
                           
                           <div className="space-y-3">
@@ -367,7 +338,7 @@ export function SessionConfigSection() {
                                     : "bg-black text-zinc-600 border-zinc-900 hover:border-zinc-700"
                                 }`}
                               >
-                                <span className="text-[14px] font-mono font-black">{slot.start_time.substring(0, 5)}</span>
+                                <span className="text-[14px] font-bold">{slot.start_time.substring(0, 5)}</span>
                                 {slot.is_active ? (
                                   <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
                                 ) : (
@@ -396,8 +367,8 @@ export function SessionConfigSection() {
           >
             <Loader2 className="animate-spin" size={24} strokeWidth={3} />
             <div className="flex flex-col">
-               <span className="text-[13px] font-black uppercase tracking-[0.3em]">SINCRONIZANDO</span>
-               <span className="text-[10px] text-zinc-500 font-mono font-black uppercase tracking-tighter">Atualizando Ledger...</span>
+               <span className="text-[13px] font-bold uppercase tracking-wider">Sincronizando</span>
+               <span className="text-[11px] text-slate-500 font-medium">Salvando alterações...</span>
             </div>
           </motion.div>
         )}
