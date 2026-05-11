@@ -12,7 +12,7 @@ const navLinks = [
   { name: "Início", href: "/" },
   { name: "Sessões", href: SITE_CONFIG.links.services },
   { name: "Sobre", href: SITE_CONFIG.links.about },
-  { name: "Agendar", href: SITE_CONFIG.links.booking },
+  // { name: "Agendar", href: SITE_CONFIG.links.booking },
 ];
 
 export function Navbar() {
