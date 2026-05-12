@@ -11,7 +11,7 @@ import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 import ExpensesConfig from "@/components/admin/ExpensesConfig";
 
-import { getBookingsList, getAdminStats, getAllBookingsList, getFinanceDetailedStats, getDayMasterGrid, getBlockedDates, getExpenses, getFinanceSummary } from "@/lib/actions/admin-actions";
+import { getDashboardData, getBookingsList, getAdminStats, getAllBookingsList, getFinanceDetailedStats, getDayMasterGrid, getBlockedDates, getExpenses, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
@@ -72,16 +72,11 @@ export default function AdminDashboard() {
     if (background) setIsSyncing(true);
     else setIsLoading(true);
     try {
-      const [statsData, bookingsData, gridData, blocksData] = await Promise.all([
-        getAdminStats(),
-        getBookingsList(),
-        getDayMasterGrid(selectedDate.getDay()),
-        getBlockedDates()
-      ]);
-      setStats(statsData);
-      setBookings(bookingsData.bookings || []);
-      setDaySlots(gridData.slots || []);
-      setBlockedDates(blocksData.blocks || []);
+      const data = await getDashboardData(selectedDate.getDay(), viewDate.getFullYear(), viewDate.getMonth());
+      setStats(data.stats);
+      setBookings(data.bookings.bookings || []);
+      setDaySlots(data.grid.slots || []);
+      setBlockedDates(data.blocks.blocks || []);
     } catch (e) {
       console.error(e);
       const background = isBackground === true;
@@ -92,12 +87,12 @@ export default function AdminDashboard() {
     }
   }
 
-  // Reload grid when selectedDate changes
+  // Reload grid when selectedDate or viewDate changes
   React.useEffect(() => {
     if (activeTab === 'calendar') {
       loadData(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, viewDate]);
 
   async function loadFinanceData(isBackground?: boolean | any) {
     const background = isBackground === true;

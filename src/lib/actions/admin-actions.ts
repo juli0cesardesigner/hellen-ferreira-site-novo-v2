@@ -221,6 +221,66 @@ export async function getBlockedDates() {
   return { blocks: data };
 }
 
+export async function getDashboardData(dayOfWeek: number, year: number, month: number) {
+  await validateAdmin();
+  const admin = getAdminClient();
+  
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const startTargetMonth = new Date(year, month, 1).toISOString().split('T')[0];
+  const endTargetMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
+
+  const pStats = admin
+    .from('bookings')
+    .select('status, total_amount, paid_amount')
+    .gte('booking_date', firstDayOfMonth)
+    .lte('booking_date', lastDayOfMonth);
+
+  const pBookings = admin
+    .from('bookings')
+    .select(`
+      *,
+      sessions (
+        name,
+        theme_color
+      )
+    `)
+    .gte('booking_date', startTargetMonth)
+    .lte('booking_date', endTargetMonth)
+    .order('booking_date', { ascending: true })
+    .limit(300);
+
+  const pGrid = admin
+    .from('schema_slots')
+    .select('*')
+    .eq('day_of_week', dayOfWeek)
+    .eq('is_active', true)
+    .order('start_time', { ascending: true });
+
+  const pBlocks = admin
+    .from('blocked_dates')
+    .select('*')
+    .order('start_date', { ascending: true });
+
+  const [resStats, resBookings, resGrid, resBlocks] = await Promise.all([pStats, pBookings, pGrid, pBlocks]);
+
+  const totalRevenue = resStats.data?.reduce((acc: number, curr: any) => {
+    if (curr.status === 'cancelled') return acc;
+    return acc + (Number(curr.total_amount) || 0);
+  }, 0) || 0;
+
+  const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: any) => [s.start_time, s])).values());
+
+  return {
+    stats: { totalRevenue },
+    bookings: { bookings: resBookings.data || [] },
+    grid: { slots: uniqueSlots as any[] },
+    blocks: { blocks: resBlocks.data || [] }
+  };
+}
+
 export async function syncSessionColors() {
   await validateAdmin();
   const admin = getAdminClient();
