@@ -454,6 +454,7 @@ export async function createBooking(data: {
  * Processa o pagamento real vindo do Brick (Transparent Checkout)
  */
 export async function processPayment(paymentData: any, bookingId: string) {
+  console.log("🚀 processPayment iniciado para bookingId:", bookingId);
   try {
     const { mpClient } = await import('@/lib/utils/mercadopago');
     const { Payment } = await import('mercadopago');
@@ -486,6 +487,7 @@ export async function processPayment(paymentData: any, bookingId: string) {
 
     // 2. Se for Pix, retornar os dados do QR Code
     if (paymentData.payment_method_id === 'pix') {
+      console.log("✅ Pagamento Pix criado com sucesso. Retornando QR Code.");
       return {
         success: true,
         status: response.status,

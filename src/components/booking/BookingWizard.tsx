@@ -112,8 +112,17 @@ export default function BookingWizard({
             },
             onSubmit: async (paymentFormData: any) => {
               try {
-                console.log("Submitting Payment Data:", paymentFormData);
-                const res = await processPayment(paymentFormData, bookingId!);
+                console.log("🧱 Brick onSubmit - Payment Data:", paymentFormData);
+                console.log("📝 Booking ID no momento do submit:", bookingId);
+                
+                if (!bookingId) {
+                  console.error("❌ Erro: bookingId está ausente no submit.");
+                  showToast("Erro interno: ID do agendamento ausente.", "error");
+                  return;
+                }
+
+                const res = await processPayment(paymentFormData, bookingId);
+                console.log("📡 Resposta do processPayment:", res);
                 
                 if (res.success) {
                   if (paymentFormData.payment_method_id === 'pix') {
