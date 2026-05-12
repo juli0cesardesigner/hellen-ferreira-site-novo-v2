@@ -7,7 +7,7 @@ import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 
-type Step = 'schedule' | 'details' | 'payment' | 'pix' | 'success';
+type Step = 'schedule' | 'details' | 'payment' | 'checkout' | 'pix' | 'success';
 
 interface BookingWizardProps {
   initialSessionId?: string;
@@ -38,6 +38,8 @@ export default function BookingWizard({
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [mpLoaded, setMpLoaded] = useState(false);
 
   // Determinar o pacote ativo baseado no Tier selecionado
   const activePackage = session?.session_packages?.find((p: any) => p.tier_order === selectedTier) || session?.session_packages?.[0];
@@ -50,6 +52,70 @@ export default function BookingWizard({
     }
     loadSession();
   }, [sessionId]);
+
+  // Carregar SDK do Mercado Pago
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://sdk.mercadopago.com/js/v2';
+    script.async = true;
+    script.onload = () => setMpLoaded(true);
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // Inicializar o Brick de Pagamento quando tivermos o preferenceId
+  useEffect(() => {
+    if (step === 'checkout' && preferenceId && mpLoaded) {
+      const mp = new (window as any).MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
+      const bricksBuilder = mp.bricks();
+
+      const renderPaymentBrick = async (bricksBuilder: any) => {
+        const settings = {
+          initialization: {
+            amount: paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print),
+            preferenceId: preferenceId,
+          },
+          customization: {
+            paymentMethods: {
+              ticket: "all",
+              bankTransfer: "all",
+              creditCard: "all",
+              debitCard: "all",
+              mercadoPago: "all",
+            },
+            visual: {
+              style: {
+                theme: "default", // ou 'dark'
+              },
+            },
+          },
+          callbacks: {
+            onReady: () => {
+              console.log("Brick Ready");
+              setIsLoading(false);
+            },
+            onSubmit: ({ selectedPaymentMethod, formData }: any) => {
+              // Opcional: tratar submissão customizada
+            },
+            onError: (error: any) => {
+              console.error(error);
+              showToast("Erro ao carregar o checkout.", "error");
+            },
+          },
+        };
+        window.paymentBrickController = await bricksBuilder.create(
+          "payment",
+          "paymentBrick_container",
+          settings
+        );
+      };
+
+      renderPaymentBrick(bricksBuilder);
+    }
+  }, [step, preferenceId, mpLoaded]);
 
   // Carregar disponibilidade do mês
   useEffect(() => {
@@ -121,17 +187,9 @@ export default function BookingWizard({
       selectedTier
     });
     
-    if (res.success && res.paymentType === 'pix') {
-      setPixData(res.pixData);
-      setStep('pix');
-      setIsLoading(false);
-    } else if (res.success && res.paymentUrl) {
-      // Fallback para Checkout Pro se necessário
-      window.location.href = res.paymentUrl;
-    } else if (res.success && !res.error) {
-      // Agendamento concluído sem necessidade de pagamento imediato
-      setStep('success');
-      setIsLoading(false);
+    if (res.success && res.preferenceId) {
+      setPreferenceId(res.preferenceId);
+      setStep('checkout');
     } else {
       setIsLoading(false);
       showToast(res.error || "Erro ao criar agendamento. Tente novamente.", "error");
@@ -440,6 +498,34 @@ export default function BookingWizard({
                   className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4"
                 >
                   {isLoading ? "Processando..." : "Finalizar Agendamento"} <CreditCard size={18} />
+                </button>
+              </motion.div>
+            )}
+
+            {step === 'checkout' && (
+              <motion.div 
+                key="checkout"
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto space-y-8 py-8"
+              >
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl font-serif italic text-[#2C2A29]">Pagamento Seguro</h3>
+                  <p className="text-sm text-[#8C8681] font-light">Escolha a melhor forma para você.</p>
+                </div>
+
+                <div id="paymentBrick_container">
+                  {/* O Mercado Pago vai injetar o checkout aqui */}
+                  <div className="flex flex-col items-center justify-center py-20">
+                     <div className="w-10 h-10 border-4 border-blush/20 border-t-blush rounded-full animate-spin" />
+                     <p className="text-[10px] uppercase tracking-widest text-[#8C8681] mt-4 font-bold">Carregando Checkout Seguro...</p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setStep('payment')}
+                  className="w-full py-4 text-[10px] uppercase tracking-widest text-[#8C8681] hover:text-blush transition-colors"
+                >
+                  Alterar Opções de Pacote
                 </button>
               </motion.div>
             )}

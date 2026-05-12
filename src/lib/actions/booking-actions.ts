@@ -393,61 +393,59 @@ export async function createBooking(data: {
     return { error: "Erro ao registrar agendamento." };
   }
 
-  // 4. Integrar com Mercado Pago Checkout Transparente (PIX)
+  // 4. Integrar com Mercado Pago para Checkout Transparente / Modal
   try {
     const { mpClient } = await import('@/lib/utils/mercadopago');
-    const { Payment } = await import('mercadopago');
+    const { Preference } = await import('mercadopago');
     
-    const payment = new Payment(mpClient);
+    const preference = new Preference(mpClient);
     
-    // Mercado Pago Checkout Transparente - PIX
-    const response = await payment.create({
+    const response = await preference.create({
       body: {
-        transaction_amount: Number(amountToPay),
-        description: `${session.name} - ${selectedPackage.name}`,
-        payment_method_id: 'pix',
+        items: [
+          {
+            id: booking.id,
+            title: `${session.name} - ${selectedPackage.name}`,
+            quantity: 1,
+            unit_price: Number(amountToPay),
+            currency_id: 'BRL',
+          }
+        ],
         payer: {
+          name: data.clientName,
           email: data.clientEmail,
-          first_name: data.clientName.split(' ')[0],
-          last_name: data.clientName.split(' ').slice(1).join(' ') || 'Cliente',
+          phone: {
+            number: data.clientPhone.replace(/\D/g, '')
+          },
           identification: {
             type: 'CPF',
-            number: data.clientCpf?.replace(/\D/g, '') || '00000000000'
+            number: data.clientCpf?.replace(/\D/g, '')
           }
         },
         external_reference: booking.id,
         metadata: {
           booking_id: booking.id,
         },
-        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app'}/api/webhooks/mercadopago`,
+        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/api/webhooks/mercadopago`,
+        back_urls: {
+          success: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/agendar/sucesso`,
+          failure: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/agendar/falha`,
+          pending: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/agendar/pendente`,
+        },
+        auto_return: 'approved',
       }
     });
 
-    // Se for Pix, retornamos os dados do QR Code para o front exibir
-    if (response.payment_method_id === 'pix') {
-      return { 
-        success: true, 
-        bookingId: booking.id,
-        paymentType: 'pix',
-        pixData: {
-          qrCode: response.point_of_interaction?.transaction_data?.qr_code,
-          qrCodeBase64: response.point_of_interaction?.transaction_data?.qr_code_base64,
-          expiresAt: response.date_of_expiration
-        }
-      };
-    }
-
     return { 
       success: true, 
-      bookingId: booking.id, 
-      paymentUrl: (response as any).sandbox_init_point || (response as any).init_point 
+      bookingId: booking.id,
+      preferenceId: response.id, // Retornamos o ID para o Brick do frontend
     };
   } catch (mpError: any) {
-    console.error("Erro Mercado Pago Transparente:", mpError);
+    console.error("Erro ao criar preferência Mercado Pago:", mpError);
     return { 
       success: false, 
-      bookingId: booking.id, 
-      error: "Não conseguimos gerar seu PIX. Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
+      error: "Ocorreu um erro ao iniciar o pagamento. Por favor, tente novamente." 
     };
   }
 }
