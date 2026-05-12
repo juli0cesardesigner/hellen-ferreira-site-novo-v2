@@ -451,7 +451,6 @@ export async function createBooking(data: {
     };
   }
 }
-}
 
 /**
  * Busca os detalhes completos da sessão pelo ID (Modelo Estático)

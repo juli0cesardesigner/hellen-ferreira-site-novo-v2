@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: "Database update failed" }, { status: 500 });
         }
         console.log(`✅ Agendamento ${bookingId} confirmado com sucesso!`);
-      } else if (['rejected', 'cancelled', 'refunded', 'charged_back'].includes(status)) {
+      } else if (status && ['rejected', 'cancelled', 'refunded', 'charged_back'].includes(status)) {
         // Marcar como cancelado se o pagamento falhou ou foi devolvido
         await supabase
           .from('bookings')
