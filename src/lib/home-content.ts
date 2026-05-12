@@ -27,13 +27,13 @@ export const HOME_CONTENT = {
     {
       title: "Newborn",
       description: "A paz, a pureza e os detalhes do seu novo mundo.",
-      slug: "../servicos",
+      slug: "newborn-menina",
       category: "newborn-menina",
     },
     {
       title: "Mensal",
       description: "A energia, o sorriso e a alegria que preenchem as paredes da sua casa.",
-      slug: "../servicos",
+      slug: "mensal-menino",
       category: "mensal-menino",
     },
     {

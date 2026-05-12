@@ -239,6 +239,12 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       .lte('booking_date', endDate)
       .in('status', ['confirmed', 'pending']);
 
+    // 0.1 Buscar antecedência mínima
+    const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+    const minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    const now = new Date();
+    const minBookingTime = new Date(now.getTime() + (minNoticeHours * 60 * 60 * 1000));
+
     // Construir o mapa de disponibilidade
     const availabilityMap: Record<string, boolean> = {};
     const lastDay = new Date(year, month + 1, 0).getDate();
@@ -262,6 +268,22 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       if (isBlocked || totalSlotsInDay === 0 || !isWithinRange) {
         availabilityMap[dateStr] = false;
         continue;
+      }
+
+      // Check notice period for the day
+      // Se a data é hoje ou amanhã, precisamos validar se ainda restam slots fora da zona de restrição
+      if (dateStr <= minBookingTime.toISOString().split('T')[0]) {
+        const slotsForThisDay = Object.values(finalSlotsMap).filter((s: any) => s.day_of_week === dayOfWeek && s.is_active);
+        const hasAnyFutureSlot = slotsForThisDay.some((s: any) => {
+          const [h, m, sec] = s.start_time.split(':').map(Number);
+          const slotDate = new Date(year, month, day, h, m, sec || 0);
+          return slotDate >= minBookingTime;
+        });
+
+        if (!hasAnyFutureSlot) {
+          availabilityMap[dateStr] = false;
+          continue;
+        }
       }
 
       const dayBookingsCount = bookings?.filter((b: any) => b.booking_date === dateStr).length || 0;

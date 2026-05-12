@@ -143,7 +143,7 @@ export default function AdminDashboard() {
           <div className="min-w-0">
             <h2 className="font-bold text-[14px] text-[var(--color-admin-text)] tracking-tight leading-none truncate">Hellen Ferreira</h2>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 opacity-60">
-              {greeting}, mamãe
+              {greeting} mamãe
             </p>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
               <div className="min-w-0">
                 <h2 className="font-bold text-[13px] text-[var(--color-admin-text)] tracking-tight leading-none truncate">Hellen Ferreira</h2>
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] mt-1 opacity-70">
-                  {greeting}, mamãe
+                  {greeting} mamãe
                 </p>
               </div>
             </div>

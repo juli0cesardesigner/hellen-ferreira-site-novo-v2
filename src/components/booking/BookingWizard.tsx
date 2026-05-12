@@ -236,18 +236,15 @@ export default function BookingWizard({
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
                       {isSlotsLoading ? (
                         [1,2,3,4].map(i => <div key={i} className="h-14 bg-[#F5F1EE] animate-pulse rounded-sm" />)
-                      ) : selectedDateSlots.length > 0 ? (
-                        selectedDateSlots.map((slot) => (
+                      ) : selectedDateSlots.filter(s => s.available).length > 0 ? (
+                        selectedDateSlots.filter(s => s.available).map((slot) => (
                           <button
                             key={slot.time}
-                            disabled={!slot.available}
                             onClick={() => setSelectedTime(slot.time)}
                             className={`py-4 rounded-sm text-[11px] uppercase tracking-widest font-bold border transition-all
                               ${selectedTime === slot.time 
                                 ? 'bg-[#2C2A29] text-white border-[#2C2A29] shadow-lg' 
-                                : slot.available 
-                                  ? 'bg-white text-[#595552] border-[#E6DFD3] hover:border-blush hover:text-blush' 
-                                  : 'bg-transparent text-[#8C8681]/30 border-transparent italic cursor-not-allowed'}
+                                : 'bg-white text-[#595552] border-[#E6DFD3] hover:border-blush hover:text-blush'}
                             `}
                           >
                             {slot.time.substring(0, 5)}
