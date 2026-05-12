@@ -77,6 +77,13 @@ export default function BookingWizard({
           initialization: {
             amount: paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print),
             preferenceId: preferenceId,
+            payer: {
+              email: formData.email,
+              identification: {
+                type: 'CPF',
+                number: formData.cpf.replace(/\D/g, ''),
+              },
+            },
           },
           customization: {
             paymentMethods: {
