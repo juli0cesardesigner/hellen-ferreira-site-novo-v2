@@ -7,7 +7,7 @@ import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 
-type Step = 'schedule' | 'details' | 'payment' | 'success';
+type Step = 'schedule' | 'details' | 'payment' | 'pix' | 'success';
 
 interface BookingWizardProps {
   initialSessionId?: string;
@@ -32,11 +32,12 @@ export default function BookingWizard({
   const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
   const [selectedDateSlots, setSelectedDateSlots] = useState<any[]>([]);
   
-  const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "", cpf: "" });
   const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
+  const [pixData, setPixData] = useState<any>(null);
 
   // Determinar o pacote ativo baseado no Tier selecionado
   const activePackage = session?.session_packages?.find((p: any) => p.tier_order === selectedTier) || session?.session_packages?.[0];
@@ -112,6 +113,7 @@ export default function BookingWizard({
       clientName: formData.name,
       clientEmail: formData.email,
       clientPhone: formData.whatsapp,
+      clientCpf: formData.cpf,
       bookingDate: selectedDate,
       startTime: selectedTime,
       paymentType,
@@ -119,8 +121,12 @@ export default function BookingWizard({
       selectedTier
     });
     
-    if (res.success && res.paymentUrl) {
-      // Redireciona imediatamente para o Mercado Pago
+    if (res.success && res.paymentType === 'pix') {
+      setPixData(res.pixData);
+      setStep('pix');
+      setIsLoading(false);
+    } else if (res.success && res.paymentUrl) {
+      // Fallback para Checkout Pro se necessário
       window.location.href = res.paymentUrl;
     } else if (res.success && !res.error) {
       // Agendamento concluído sem necessidade de pagamento imediato
@@ -129,6 +135,29 @@ export default function BookingWizard({
     } else {
       setIsLoading(false);
       showToast(res.error || "Erro ao criar agendamento. Tente novamente.", "error");
+    }
+  };
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.slice(0, 11);
+    
+    // Aplicar máscara 000.000.000-00
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})/, "$1.$2.$3");
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{3})/, "$1.$2");
+    }
+    
+    setFormData({ ...formData, cpf: value });
+  };
+
+  const copyPixCode = () => {
+    if (pixData?.qrCode) {
+      navigator.clipboard.writeText(pixData.qrCode);
+      showToast("Código Pix copiado!", "success");
     }
   };
 
@@ -313,10 +342,18 @@ export default function BookingWizard({
                       />
                     </div>
                   </div>
+                  <div className="space-y-2">
+                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF (Necessário para Pix)</label>
+                     <input 
+                      type="text" placeholder="000.000.000-00"
+                      className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
+                      value={formData.cpf} onChange={handleCpfChange}
+                    />
+                  </div>
                 </div>
 
                 <button 
-                  disabled={!formData.name || !formData.whatsapp}
+                  disabled={!formData.name || !formData.whatsapp || formData.cpf.length < 14}
                   onClick={() => setStep('payment')}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
@@ -403,6 +440,50 @@ export default function BookingWizard({
                   className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4"
                 >
                   {isLoading ? "Processando..." : "Finalizar Agendamento"} <CreditCard size={18} />
+                </button>
+              </motion.div>
+            )}
+
+            {step === 'pix' && (
+              <motion.div 
+                key="pix"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="max-w-md mx-auto space-y-8 py-8 text-center"
+              >
+                <div className="space-y-4">
+                  <h3 className="text-3xl font-serif italic text-[#2C2A29]">Pagamento via Pix</h3>
+                  <p className="text-sm text-[#8C8681] font-light">Escaneie o código abaixo ou copie o código Pix para finalizar seu agendamento.</p>
+                </div>
+
+                <div className="bg-white p-6 rounded-lg border border-[#E6DFD3] shadow-inner inline-block mx-auto">
+                  {pixData?.qrCodeBase64 && (
+                    <img 
+                      src={`data:image/png;base64,${pixData.qrCodeBase64}`} 
+                      alt="QR Code Pix" 
+                      className="w-64 h-64 mx-auto"
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <button 
+                    onClick={copyPixCode}
+                    className="w-full py-4 bg-[#F5F2EC] text-[#2C2A29] rounded-sm text-[10px] uppercase tracking-widest font-bold hover:bg-[#E6DFD3] transition-all flex items-center justify-center gap-2"
+                  >
+                    Copiar Código Pix
+                  </button>
+                  
+                  <div className="p-4 bg-blush/5 border border-blush/10 rounded-sm">
+                    <p className="text-[10px] text-blush font-bold uppercase tracking-widest animate-pulse">Aguardando confirmação...</p>
+                    <p className="text-[9px] text-[#8C8681] mt-2 uppercase tracking-widest">Assim que você pagar, esta tela atualizará automaticamente.</p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setStep('success')}
+                  className="text-[10px] uppercase tracking-[0.4em] text-[#8C8681] border-b border-[#E6DFD3] pb-2 hover:text-blush transition-colors font-bold"
+                >
+                  Já realizei o pagamento
                 </button>
               </motion.div>
             )}

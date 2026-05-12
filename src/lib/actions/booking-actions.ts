@@ -1,6 +1,6 @@
 "use server";
 
-// Stripe Payment Integration - Fully Active
+// Mercado Pago Payment Integration - Active for Pix and Credit Card
 
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
@@ -307,6 +307,7 @@ export async function createBooking(data: {
   clientName: string;
   clientEmail: string;
   clientPhone: string;
+  clientCpf?: string;
   bookingDate: string;
   startTime: string;
   paymentType: 'deposit' | 'full';
@@ -315,9 +316,9 @@ export async function createBooking(data: {
 }) {
   const tier = data.selectedTier || 1;
 
-  // 0. Validar credenciais do Stripe
-  if (!process.env.STRIPE_SECRET_KEY) {
-    console.error("STRIPE_SECRET_KEY não configurado no servidor.");
+  // 0. Validar credenciais do Mercado Pago
+  if (!process.env.MERCADOPAGO_ACCESS_TOKEN) {
+    console.error("MERCADOPAGO_ACCESS_TOKEN não configurado no servidor.");
     return { 
       error: "O sistema de pagamentos está em manutenção (Configuração ausente). Por favor, tente novamente mais tarde." 
     };
@@ -392,48 +393,64 @@ export async function createBooking(data: {
     return { error: "Erro ao registrar agendamento." };
   }
 
-  // 4. Integrar com Stripe REAL
+  // 4. Integrar com Mercado Pago Checkout Transparente (PIX)
   try {
-    const { stripe } = await import('@/lib/utils/stripe');
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app';
-
-    const session_mp = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: 'brl',
-            product_data: {
-              name: `${session.name} - ${selectedPackage.name}`,
-              description: `Agendamento para ${data.clientName} em ${data.bookingDate} às ${data.startTime}`,
-            },
-            unit_amount: Math.round(amountToPay * 100), // Stripe usa centavos
-          },
-          quantity: 1,
+    const { mpClient } = await import('@/lib/utils/mercadopago');
+    const { Payment } = await import('mercadopago');
+    
+    const payment = new Payment(mpClient);
+    
+    // Mercado Pago Checkout Transparente - PIX
+    const response = await payment.create({
+      body: {
+        transaction_amount: Number(amountToPay),
+        description: `${session.name} - ${selectedPackage.name}`,
+        payment_method_id: 'pix',
+        payer: {
+          email: data.clientEmail,
+          first_name: data.clientName.split(' ')[0],
+          last_name: data.clientName.split(' ').slice(1).join(' ') || 'Cliente',
+          identification: {
+            type: 'CPF',
+            number: data.clientCpf?.replace(/\D/g, '') || '00000000000'
+          }
         },
-      ],
-      mode: 'payment',
-      success_url: `${baseUrl}/?success=true&bookingId=${booking.id}`,
-      cancel_url: `${baseUrl}/agendar?cancelled=true`,
-      customer_email: data.clientEmail,
-      client_reference_id: booking.id,
-      metadata: {
-        bookingId: booking.id,
-      },
+        external_reference: booking.id,
+        metadata: {
+          booking_id: booking.id,
+        },
+        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellen-ferreira-site-novo-v2.vercel.app'}/api/webhooks/mercadopago`,
+      }
     });
+
+    // Se for Pix, retornamos os dados do QR Code para o front exibir
+    if (response.payment_method_id === 'pix') {
+      return { 
+        success: true, 
+        bookingId: booking.id,
+        paymentType: 'pix',
+        pixData: {
+          qrCode: response.point_of_interaction?.transaction_data?.qr_code,
+          qrCodeBase64: response.point_of_interaction?.transaction_data?.qr_code_base64,
+          expiresAt: response.date_of_expiration
+        }
+      };
+    }
 
     return { 
       success: true, 
       bookingId: booking.id, 
-      paymentUrl: session_mp.url // Link REAL do Stripe Checkout
+      paymentUrl: (response as any).sandbox_init_point || (response as any).init_point 
     };
-  } catch (stripeError: any) {
-    console.error("Erro Stripe:", stripeError);
+  } catch (mpError: any) {
+    console.error("Erro Mercado Pago Transparente:", mpError);
     return { 
       success: false, 
       bookingId: booking.id, 
-      error: "Não conseguimos gerar seu link de pagamento (Stripe). Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
+      error: "Não conseguimos gerar seu PIX. Seu agendamento foi registrado, mas não confirmado. Entre em contato manualmente." 
     };
   }
+}
 }
 
 /**
