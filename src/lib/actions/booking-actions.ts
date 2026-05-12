@@ -451,6 +451,69 @@ export async function createBooking(data: {
 }
 
 /**
+ * Processa o pagamento real vindo do Brick (Transparent Checkout)
+ */
+export async function processPayment(paymentData: any, bookingId: string) {
+  try {
+    const { mpClient } = await import('@/lib/utils/mercadopago');
+    const { Payment } = await import('mercadopago');
+    
+    const payment = new Payment(mpClient);
+    
+    // 1. Criar o pagamento no Mercado Pago
+    const response = await payment.create({
+      body: {
+        transaction_amount: Number(paymentData.transaction_amount),
+        token: paymentData.token,
+        description: paymentData.description || "Agendamento de Sessão Fotográfica",
+        installments: Number(paymentData.installments),
+        payment_method_id: paymentData.payment_method_id,
+        issuer_id: paymentData.issuer_id,
+        payer: {
+          email: paymentData.payer.email,
+          identification: {
+            type: paymentData.payer.identification.type,
+            number: paymentData.payer.identification.number,
+          },
+        },
+        external_reference: bookingId,
+        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/api/webhooks/mercadopago`,
+        metadata: {
+          booking_id: bookingId,
+        },
+      }
+    });
+
+    // 2. Se for Pix, retornar os dados do QR Code
+    if (paymentData.payment_method_id === 'pix') {
+      return {
+        success: true,
+        status: response.status,
+        paymentId: response.id,
+        pixData: {
+          qrCode: response.point_of_interaction?.transaction_data?.qr_code,
+          qrCodeBase64: response.point_of_interaction?.transaction_data?.qr_code_base64,
+        }
+      };
+    }
+
+    // 3. Para outros métodos (Cartão), retornar o status
+    return {
+      success: true,
+      status: response.status,
+      paymentId: response.id,
+    };
+
+  } catch (error: any) {
+    console.error("Erro ao processar pagamento:", error);
+    return {
+      success: false,
+      error: error.message || "Erro ao processar pagamento."
+    };
+  }
+}
+
+/**
  * Busca os detalhes completos da sessão pelo ID (Modelo Estático)
  */
 export async function fetchSessionDetails(id: string) {

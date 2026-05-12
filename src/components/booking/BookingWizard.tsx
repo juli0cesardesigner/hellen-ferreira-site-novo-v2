@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar as CalendarIcon, Clock, User, CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability } from "@/lib/actions/booking-actions";
+import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 
 type Step = 'schedule' | 'details' | 'payment' | 'checkout' | 'pix' | 'success';
@@ -39,6 +39,7 @@ export default function BookingWizard({
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
 
   // Determinar o pacote ativo baseado no Tier selecionado
@@ -69,6 +70,10 @@ export default function BookingWizard({
   // Inicializar o Brick de Pagamento quando tivermos o preferenceId
   useEffect(() => {
     if (step === 'checkout' && preferenceId && mpLoaded) {
+      // Limpar container anterior se existir
+      const container = document.getElementById("paymentBrick_container");
+      if (container) container.innerHTML = "";
+
       const mp = new (window as any).MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
       const bricksBuilder = mp.bricks();
 
@@ -96,7 +101,7 @@ export default function BookingWizard({
             },
             visual: {
               style: {
-                theme: "default", // ou 'dark'
+                theme: "default",
               },
             },
           },
@@ -105,12 +110,39 @@ export default function BookingWizard({
               console.log("Brick Ready");
               setIsLoading(false);
             },
+            onSubmit: async (paymentFormData: any) => {
+              try {
+                console.log("Submitting Payment Data:", paymentFormData);
+                const res = await processPayment(paymentFormData, bookingId!);
+                
+                if (res.success) {
+                  if (paymentFormData.payment_method_id === 'pix') {
+                    setPixData(res.pixData);
+                    setStep('pix');
+                  } else if (res.status === 'approved' || res.status === 'in_process') {
+                    setStep('success');
+                  } else {
+                    showToast(`Status do pagamento: ${res.status}`, "warning");
+                    setStep('success'); // Avança mesmo assim e deixa o webhook/admin cuidar
+                  }
+                } else {
+                  showToast(res.error || "Erro ao processar pagamento.", "error");
+                }
+              } catch (err) {
+                console.error("Erro no callback onSubmit:", err);
+                showToast("Erro ao processar o pagamento. Tente novamente.", "error");
+              }
+            },
             onError: (error: any) => {
               console.error("Erro no Brick:", error);
-              // Não mostrar toast aqui para não atrapalhar o retry do próprio brick
             },
           },
         };
+        
+        if (window.paymentBrickController) {
+          await window.paymentBrickController.unmount();
+        }
+
         window.paymentBrickController = await bricksBuilder.create(
           "payment",
           "paymentBrick_container",
@@ -120,7 +152,13 @@ export default function BookingWizard({
 
       renderPaymentBrick(bricksBuilder);
     }
-  }, [step, preferenceId, mpLoaded]);
+    
+    return () => {
+      if (window.paymentBrickController && typeof window.paymentBrickController.unmount === 'function') {
+        window.paymentBrickController.unmount();
+      }
+    };
+  }, [step, preferenceId, mpLoaded, bookingId]);
 
   // Carregar disponibilidade do mês
   useEffect(() => {
@@ -193,6 +231,7 @@ export default function BookingWizard({
     });
     
     if (res.success && res.preferenceId) {
+      setBookingId(res.bookingId);
       setPreferenceId(res.preferenceId);
       setStep('checkout');
     } else {
