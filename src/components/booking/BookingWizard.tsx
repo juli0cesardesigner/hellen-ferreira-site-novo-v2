@@ -104,12 +104,9 @@ export default function BookingWizard({
               console.log("Brick Ready");
               setIsLoading(false);
             },
-            onSubmit: ({ selectedPaymentMethod, formData }: any) => {
-              // Opcional: tratar submissão customizada
-            },
             onError: (error: any) => {
-              console.error(error);
-              showToast("Erro ao carregar o checkout.", "error");
+              console.error("Erro no Brick:", error);
+              // Não mostrar toast aqui para não atrapalhar o retry do próprio brick
             },
           },
         };
