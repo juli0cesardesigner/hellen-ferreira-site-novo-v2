@@ -122,7 +122,7 @@ export default function BookingWizard({
                   } else if (res.status === 'approved' || res.status === 'in_process') {
                     setStep('success');
                   } else {
-                    showToast(`Status do pagamento: ${res.status}`, "warning");
+                    showToast(`Status do pagamento: ${res.status}`, "info");
                     setStep('success'); // Avança mesmo assim e deixa o webhook/admin cuidar
                   }
                 } else {
