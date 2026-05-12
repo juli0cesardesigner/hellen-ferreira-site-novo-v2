@@ -13,19 +13,26 @@ export interface SessionPackage {
 export interface Session {
   id: string;
   name: string;
+  slug: string;
   is_active: boolean;
   duration_slots: number;
   deposit_price: number;
+  theme_color: string; // Hex color for the calendar view
   session_packages: SessionPackage[];
+  is_perpetual?: boolean;
+  start_date?: string | null;
+  end_date?: string | null;
 }
 
 export const SESSIONS_DATA: Record<string, Session> = {
   "1595bad4-1d33-4c39-9ca3-1ec2d1849962": {
     id: "1595bad4-1d33-4c39-9ca3-1ec2d1849962",
     name: "Civil",
+    slug: "civil",
     is_active: true,
     duration_slots: 2,
     deposit_price: 100,
+    theme_color: "#FFD700", // Gold (Civil)
     session_packages: [
       {
         id: "3d5af0a6-ebb2-4484-b9c5-c024c886baa5",
@@ -54,9 +61,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "50674a5b-ad94-442b-b4d1-328f4d7f59db": {
     id: "50674a5b-ad94-442b-b4d1-328f4d7f59db",
     name: "Revelação",
+    slug: "revelacao",
     is_active: true,
     duration_slots: 1,
     deposit_price: 50,
+    theme_color: "#800080", // Deep Purple (Revelação)
     session_packages: [
       {
         id: "c669452f-7f1e-4b03-b9d7-b1259bd8839e",
@@ -74,9 +83,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2": {
     id: "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2",
     name: "Smash the Cake",
+    slug: "smash-the-cake",
     is_active: true,
     duration_slots: 1,
     deposit_price: 100,
+    theme_color: "#00E5FF", // Electric Cyan (Smash)
     session_packages: [
       {
         id: "b5220708-4c6c-4e29-87ae-44d7f400eaa0",
@@ -94,9 +105,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "7024263c-2f3e-4c7f-a66f-cf04e2bd069a": {
     id: "7024263c-2f3e-4c7f-a66f-cf04e2bd069a",
     name: "Feminino",
+    slug: "feminino",
     is_active: true,
     duration_slots: 1,
     deposit_price: 100,
+    theme_color: "#FF4D4D", // Vivid Red/Coral (Feminino)
     session_packages: [
       {
         id: "3ba22e7d-4fdf-4e1c-9116-dedff0fac862",
@@ -125,9 +138,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "70b4d4e6-72b5-4262-890c-cf0730e0db8e": {
     id: "70b4d4e6-72b5-4262-890c-cf0730e0db8e",
     name: "Família",
+    slug: "familia",
     is_active: true,
     duration_slots: 1,
     deposit_price: 150,
+    theme_color: "#008844", // Forest Green
     session_packages: [
       {
         id: "456a321d-3c25-43e4-8055-1f8a946f29c6",
@@ -145,9 +160,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "a232eb5e-1583-4fb7-82da-84008e37f1b4": {
     id: "a232eb5e-1583-4fb7-82da-84008e37f1b4",
     name: "Newborn",
+    slug: "newborn",
     is_active: true,
     duration_slots: 2,
     deposit_price: 200,
+    theme_color: "#FF69B4", // Hot Pink (Newborn)
     session_packages: [
       {
         id: "77ce2962-6bb0-442e-8fb2-d8e300da99fe",
@@ -176,9 +193,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "a67d857c-72ea-441a-9761-1e809bd1bf13": {
     id: "a67d857c-72ea-441a-9761-1e809bd1bf13",
     name: "Mensal",
+    slug: "mensal",
     is_active: true,
     duration_slots: 1,
     deposit_price: 50,
+    theme_color: "#0000FF", // Pure Blue (Acompanhamento)
     session_packages: [
       {
         id: "011b3835-0cd2-406a-b3a0-75e5a52b93d2",
@@ -196,9 +215,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "be68f0ac-d486-4cad-8ea4-3eed090ffada": {
     id: "be68f0ac-d486-4cad-8ea4-3eed090ffada",
     name: "Gestante",
+    slug: "gestante",
     is_active: true,
     duration_slots: 1,
     deposit_price: 100,
+    theme_color: "#007FFF", // Azure Blue (Gestante)
     session_packages: [
       {
         id: "f9a0b675-35b0-4465-a46c-a9d63e5a394a",
@@ -227,9 +248,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "decd8b7e-1b04-498f-89ac-d846f37b2929": {
     id: "decd8b7e-1b04-498f-89ac-d846f37b2929",
     name: "Casal",
+    slug: "casal",
     is_active: true,
     duration_slots: 1,
     deposit_price: 100,
+    theme_color: "#FF4500", // Orange Red (Casal)
     session_packages: [
       {
         id: "9a309759-78a4-47bd-bca2-e07dbdafb074",
@@ -258,9 +281,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   "dfe6e10c-0fa5-446d-873d-25c7e78b8bba": {
     id: "dfe6e10c-0fa5-446d-873d-25c7e78b8bba",
     name: "Corporativo",
+    slug: "corporativo",
     is_active: true,
     duration_slots: 1,
     deposit_price: 100,
+    theme_color: "#1A237E", // Dark Indigo (Corporativo)
     session_packages: [
       {
         id: "5439e4e2-1a3b-4ea9-a977-6c8e10ec464d",
@@ -285,5 +310,31 @@ export const SESSIONS_DATA: Record<string, Session> = {
         is_active: true
       }
     ]
+  },
+  "f7d1a2b3-c4d5-4e6f-a7b8-c9d0e1f2a3b4": {
+    id: "f7d1a2b3-c4d5-4e6f-a7b8-c9d0e1f2a3b4",
+    name: "Dia das Mães",
+    slug: "dia-das-maes",
+    is_active: true,
+    duration_slots: 1,
+    deposit_price: 100,
+    theme_color: "#E91E63", // Hot Pink
+    session_packages: [
+      {
+        id: "m0m-pkg-1",
+        name: "Pacote Especial",
+        description: "Amor em cada clique",
+        tier_order: 1,
+        price_digital: 450,
+        price_print: 500,
+        upgrade_label: "Digital + Porta Retrato",
+        features: ["15 Fotos digitais", "Cenário exclusivo de Dia das Mães", "Entrega via galeria online"],
+        is_active: true
+      }
+    ]
   }
 };
+
+export function getSlugById(id: string): string | null {
+  return SESSIONS_DATA[id]?.slug || null;
+}

@@ -179,7 +179,7 @@ export default function MensalMeninaPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=a67d857c-72ea-441a-9761-1e809bd1bf13&tier=${pkg1.tier_order}`} 
+                    href={`/agendar/mensal?tier=${pkg1.tier_order}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

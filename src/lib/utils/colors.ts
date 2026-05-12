@@ -20,74 +20,81 @@ export const getSessionColor = (name: string, customColor?: string) => {
 
   const n = (customColor || name || "")?.toLowerCase() || "";
   
-  if (n.includes('blue') || n.includes('newborn')) return {
-    bg: 'bg-blue-100/50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
-    accent: 'bg-blue-500'
+  if (n.includes('blue') || n.includes('mensal') || n.includes('acompanhamento')) return {
+    bg: 'bg-blue-100',
+    text: 'text-blue-900',
+    border: 'border-blue-300',
+    accent: 'bg-blue-600'
   };
   
-  if (n.includes('teal') || n.includes('gestante')) return {
-    bg: 'bg-teal-100/50',
-    text: 'text-teal-700',
-    border: 'border-teal-200',
-    accent: 'bg-teal-500'
+  if (n.includes('gestante')) return {
+    bg: 'bg-sky-200',
+    text: 'text-sky-950',
+    border: 'border-sky-400',
+    accent: 'bg-sky-600'
   };
   
-  if (n.includes('emerald') || n.includes('green') || n.includes('família') || n.includes('familia')) return {
-    bg: 'bg-emerald-100/50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
-    accent: 'bg-emerald-500'
+  if (n.includes('família') || n.includes('familia')) return {
+    bg: 'bg-emerald-200',
+    text: 'text-emerald-950',
+    border: 'border-emerald-400',
+    accent: 'bg-emerald-700'
   };
   
-  if (n.includes('orange') || n.includes('cake') || n.includes('smash')) return {
-    bg: 'bg-orange-100/50',
-    text: 'text-orange-700',
-    border: 'border-orange-200',
-    accent: 'bg-orange-500'
+  if (n.includes('smash')) return {
+    bg: 'bg-cyan-100',
+    text: 'text-cyan-900',
+    border: 'border-cyan-300',
+    accent: 'bg-cyan-500'
   };
   
-  if (n.includes('rose') || n.includes('pink') || n.includes('feminino')) return {
-    bg: 'bg-rose-100/50',
-    text: 'text-rose-700',
-    border: 'border-rose-200',
-    accent: 'bg-rose-500'
+  if (n.includes('feminino')) return {
+    bg: 'bg-red-200',
+    text: 'text-red-950',
+    border: 'border-red-400',
+    accent: 'bg-red-600'
   };
   
-  if (n.includes('amber') || n.includes('yellow') || n.includes('mensal')) return {
-    bg: 'bg-amber-100/50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
-    accent: 'bg-amber-500'
+  if (n.includes('newborn') || n.includes('bebê')) return {
+    bg: 'bg-rose-100',
+    text: 'text-rose-900',
+    border: 'border-rose-300',
+    accent: 'bg-rose-400'
   };
   
-  if (n.includes('indigo') || n.includes('casal')) return {
-    bg: 'bg-indigo-100/50',
-    text: 'text-indigo-700',
-    border: 'border-indigo-200',
-    accent: 'bg-indigo-500'
+  if (n.includes('casal')) return {
+    bg: 'bg-orange-200',
+    text: 'text-orange-950',
+    border: 'border-orange-400',
+    accent: 'bg-orange-600'
   };
   
-  if (n.includes('slate') || n.includes('corporativo')) return {
-    bg: 'bg-slate-100',
-    text: 'text-slate-700',
-    border: 'border-slate-200',
-    accent: 'bg-slate-500'
+  if (n.includes('corporativo')) return {
+    bg: 'bg-slate-300',
+    text: 'text-slate-950',
+    border: 'border-slate-500',
+    accent: 'bg-slate-900'
   };
   
-  if (n.includes('sky') || n.includes('civil')) return {
-    bg: 'bg-sky-100/50',
-    text: 'text-sky-700',
-    border: 'border-sky-200',
-    accent: 'bg-sky-500'
+  if (n.includes('civil')) return {
+    bg: 'bg-amber-200',
+    text: 'text-amber-950',
+    border: 'border-amber-400',
+    accent: 'bg-amber-600'
   };
   
-  if (n.includes('violet') || n.includes('purple') || n.includes('revelação') || n.includes('revelacao')) return {
-    bg: 'bg-violet-100/50',
-    text: 'text-violet-700',
-    border: 'border-violet-200',
-    accent: 'bg-violet-500'
+  if (n.includes('revelação') || n.includes('revelacao')) return {
+    bg: 'bg-purple-200',
+    text: 'text-purple-950',
+    border: 'border-purple-400',
+    accent: 'bg-purple-600'
+  };
+
+  if (n.includes('mães') || n.includes('maes')) return {
+    bg: 'bg-pink-200',
+    text: 'text-pink-950',
+    border: 'border-pink-400',
+    accent: 'bg-pink-600'
   };
   
   return {

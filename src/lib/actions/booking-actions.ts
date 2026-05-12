@@ -32,11 +32,25 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
     const date = new Date(dateStr);
     const dayOfWeek = date.getUTCDay();
 
-    // 0. Verificar se a sessão está ativa
-    const session = SESSIONS_DATA[sessionId];
+    // 0. Buscar detalhes da sessão no banco para ter as datas de disponibilidade reais
+    const { data: dbSession } = await getSupabase()
+      .from('sessions')
+      .select('is_active, is_perpetual, start_date, end_date, duration_slots')
+      .eq('id', sessionId)
+      .single();
 
-    if (!session || !session.is_active) {
+    if (!dbSession || !dbSession.is_active) {
       return { slots: [], message: "Este serviço está temporariamente pausado." };
+    }
+
+    // Verificar restrição de data para serviços sazonais
+    if (!dbSession.is_perpetual) {
+      if (dbSession.start_date && dateStr < dbSession.start_date) {
+        return { slots: [], message: "Este serviço ainda não está disponível para agendamento." };
+      }
+      if (dbSession.end_date && dateStr > dbSession.end_date) {
+        return { slots: [], message: "Este serviço não está mais disponível para esta data." };
+      }
     }
 
     // 1. Verificar se a data está bloqueada (Bloqueio em Massa)
@@ -85,9 +99,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
       .eq('booking_date', dateStr)
       .in('status', ['confirmed', 'pending']);
 
-    // 4. Pegar detalhes da sessão (duração)
-    const { data: dbSession } = await getSupabase().from('sessions').select('duration_slots').eq('id', sessionId).single();
-    const duration = dbSession?.duration_slots || session.duration_slots;
+    const duration = dbSession?.duration_slots || 1;
 
     // 4.1 Master Grid: a grade absoluta de tempo da profissional no dia
     const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
@@ -137,8 +149,12 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     const startDate = new Date(year, month, 1).toISOString().split('T')[0];
     const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
-    // 0. Verificar se a sessão está ativa
-    const session = SESSIONS_DATA[sessionId];
+    // 0. Buscar detalhes da sessão no banco
+    const { data: session } = await getSupabase()
+      .from('sessions')
+      .select('is_active, is_perpetual, start_date, end_date')
+      .eq('id', sessionId)
+      .single();
 
     if (!session || !session.is_active) {
       return {};
@@ -199,9 +215,16 @@ export async function getMonthAvailability(year: number, month: number, sessionI
 
       // Check if day is blocked
       const isBlocked = blockedDays?.some((b: any) => dateStr >= b.start_date && dateStr <= b.end_date);
+      
+      // Check session date restriction
+      const isWithinRange = session.is_perpetual || (
+        (!session.start_date || dateStr >= session.start_date) &&
+        (!session.end_date || dateStr <= session.end_date)
+      );
+
       const totalSlotsInDay = activeSlotsCount[dayOfWeek] || 0;
       
-      if (isBlocked || totalSlotsInDay === 0) {
+      if (isBlocked || totalSlotsInDay === 0 || !isWithinRange) {
         availabilityMap[dateStr] = false;
         continue;
       }
@@ -360,22 +383,36 @@ export async function createBooking(data: {
  * Busca os detalhes completos da sessão pelo ID (Modelo Estático)
  */
 export async function fetchSessionDetails(id: string) {
-  console.log("Fetching session details for ID:", id);
-  const session = SESSIONS_DATA[id];
-    
-  if (!session) {
-    console.error("Session not found in SESSIONS_DATA for ID:", id);
-    console.log("Available IDs:", Object.keys(SESSIONS_DATA));
-    return { session: null };
-  }
+  try {
+    const { data: session, error } = await getSupabase()
+      .from('sessions')
+      .select(`
+        *,
+        session_packages (*)
+      `)
+      .eq('id', id)
+      .single();
 
-  if (!session.is_active) {
-    console.error("Session found but is NOT active for ID:", id);
-    return { session: null };
-  }
+    if (error || !session) {
+      console.error("Session not found in DB for ID:", id);
+      // Fallback para dados estáticos se necessário, mas o DB deve ser a fonte primária
+      return { session: SESSIONS_DATA[id] || null };
+    }
 
-  console.log("Session found and active:", session.name);
-  return { session };
+    if (!session.is_active) {
+      return { session: null };
+    }
+
+    // Ordenar pacotes por tier_order
+    if (session.session_packages) {
+      session.session_packages.sort((a: any, b: any) => a.tier_order - b.tier_order);
+    }
+
+    return { session };
+  } catch (err) {
+    console.error("Error fetching session details:", err);
+    return { session: SESSIONS_DATA[id] || null };
+  }
 }
 
 /**
@@ -384,5 +421,35 @@ export async function fetchSessionDetails(id: string) {
 export async function listActiveSessions() {
   return Object.values(SESSIONS_DATA)
     .filter(s => s.is_active)
-    .map(s => ({ id: s.id, name: s.name, is_active: s.is_active }));
+    .map(s => ({ id: s.id, name: s.name, slug: s.slug, is_active: s.is_active }));
+}
+
+/**
+ * Busca os detalhes completos da sessão pelo SLUG (Modelo Estático)
+ */
+export async function fetchSessionBySlug(slug: string) {
+  try {
+    const { data: session, error } = await getSupabase()
+      .from('sessions')
+      .select(`
+        *,
+        session_packages (*)
+      `)
+      .eq('slug', slug)
+      .single();
+
+    if (error || !session || !session.is_active) {
+      return { session: null };
+    }
+
+    // Ordenar pacotes por tier_order
+    if (session.session_packages) {
+      session.session_packages.sort((a: any, b: any) => a.tier_order - b.tier_order);
+    }
+
+    return { session };
+  } catch (err) {
+    console.error("Error fetching session by slug:", err);
+    return { session: null };
+  }
 }

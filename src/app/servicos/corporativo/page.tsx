@@ -185,7 +185,7 @@ export default function CorporativoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=dfe6e10c-0fa5-446d-873d-25c7e78b8bba&tier=${pkg1.tier_order}`} 
+                    href={`/agendar/corporativo?tier=${pkg1.tier_order}`} 
                     className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
@@ -250,7 +250,7 @@ export default function CorporativoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=dfe6e10c-0fa5-446d-873d-25c7e78b8bba&tier=${pkg2.tier_order}`} 
+                    href={`/agendar/corporativo?tier=${pkg2.tier_order}`} 
                     className="mt-12 w-full py-5 border border-text-dark text-text-dark text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-text-dark hover:text-white transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

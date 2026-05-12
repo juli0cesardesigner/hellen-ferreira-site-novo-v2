@@ -181,7 +181,7 @@ export default function GestantePage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=be68f0ac-d486-4cad-8ea4-3eed090ffada&tier=${pkg1.tier_order}`} 
+                    href={`/agendar/gestante?tier=${pkg1.tier_order}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
@@ -244,7 +244,7 @@ export default function GestantePage() {
                   </div>
 
                   <Link 
-                    href={`/agendar?sessao=be68f0ac-d486-4cad-8ea4-3eed090ffada&tier=${pkg2.tier_order}`} 
+                    href={`/agendar/gestante?tier=${pkg2.tier_order}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

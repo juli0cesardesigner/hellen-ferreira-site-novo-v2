@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Calendar, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { getSlugById } from "@/lib/data/sessions";
+
 interface BookingCTAProps {
   sessionName: string;
   sessionId: string;
@@ -34,12 +36,18 @@ export function BookingCTA({ sessionName, sessionId }: BookingCTAProps) {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <Link 
-            href={`/agendar?sessao=${sessionId}`}
-            className="group inline-flex items-center gap-4 px-12 py-5 bg-text-dark text-white rounded-sm text-[12px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all shadow-2xl hover:shadow-blush/20"
-          >
-            Agendar Sessão Agora <Calendar size={18} className="group-hover:rotate-12 transition-transform" />
-          </Link>
+          {(() => {
+            const slug = getSlugById(sessionId);
+            const href = slug ? `/agendar/${slug}` : `/agendar?sessao=${sessionId}`;
+            return (
+              <Link 
+                href={href}
+                className="group inline-flex items-center gap-4 px-12 py-5 bg-text-dark text-white rounded-sm text-[12px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all shadow-2xl hover:shadow-blush/20"
+              >
+                Agendar Sessão Agora <Calendar size={18} className="group-hover:rotate-12 transition-transform" />
+              </Link>
+            );
+          })()}
           
           <p className="mt-6 text-[10px] text-text-light uppercase tracking-widest flex items-center justify-center gap-3">
              <span className="w-8 h-[1px] bg-sand" /> Confirmação Automática via Stripe <span className="w-8 h-[1px] bg-sand" />

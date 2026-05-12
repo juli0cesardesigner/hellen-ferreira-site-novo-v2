@@ -8,6 +8,18 @@ import { getAvailableSlots } from "@/lib/actions/booking-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
+const formatCurrencyBRL = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};
+
+const parseCurrencyBRL = (value: string): number => {
+  const digits = value.replace(/\D/g, '');
+  return Number(digits) / 100;
+};
+
 export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void, onCreated: () => void }) {
   const sessions = Object.values(SESSIONS_DATA);
   const [packages, setPackages] = useState<any[]>([]);
@@ -117,23 +129,23 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
         initial={{ opacity: 0, scale: 0.95, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 30 }}
-        className="relative bg-[var(--color-admin-bg)] w-full max-w-6xl h-full lg:h-[90vh] lg:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[var(--color-admin-border)]"
+        className="relative bg-[var(--color-admin-bg)] w-full max-w-6xl h-full lg:h-[90vh] lg:rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-y-auto custom-scrollbar border border-[var(--color-admin-border)]"
       >
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 lg:p-14 space-y-10 lg:space-y-12">
+        <div className="p-8 lg:p-14 space-y-10 lg:space-y-12">
           
           {/* Engine Header Terminal */}
-          <div className="flex justify-between items-center bg-[var(--color-admin-bg)] -mx-8 lg:-mx-14 -mt-8 lg:-mt-14 px-8 lg:px-14 py-8 lg:py-10 border-b border-[var(--color-admin-border)] sticky top-0 z-20 shadow-sm">
-            <div className="flex items-center gap-4 lg:gap-6">
-               <div className="w-12 h-12 lg:w-16 lg:h-16 bg-[var(--color-admin-accent)]/10 text-[var(--color-admin-accent)] rounded-2xl flex items-center justify-center shadow-inner border border-[var(--color-admin-accent)]/20">
-                  <Plus size={28} className="lg:size-[32px]" strokeWidth={3} />
+          <div className="flex justify-between items-center bg-[var(--color-admin-bg)] -mx-8 lg:-mx-14 -mt-8 lg:-mt-14 px-8 lg:px-12 py-6 lg:py-8 border-b border-[var(--color-admin-border)] z-20">
+            <div className="flex items-center gap-4 lg:gap-5">
+               <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[var(--color-admin-accent)]/10 text-[var(--color-admin-accent)] rounded-xl flex items-center justify-center shadow-inner border border-[var(--color-admin-accent)]/20">
+                  <Plus size={24} strokeWidth={3} />
                </div>
                <div>
-                   <h2 className="text-[14px] lg:text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Novo agendamento</h2>
-                  <p className="text-[11px] font-medium text-[var(--color-admin-text-muted)] mt-2">Preencha os dados do cliente e da sessão abaixo</p>
+                   <h2 className="text-[13px] lg:text-[18px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none uppercase">Novo agendamento</h2>
+                  <p className="text-[10px] font-medium text-[var(--color-admin-text-muted)] mt-1.5 opacity-80">Parâmetros de entrada para novo registro no ledger</p>
                </div>
             </div>
-            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90">
-              <X size={28} />
+            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90 hover:text-red-500">
+              <X size={20} />
             </button>
           </div>
 
@@ -183,94 +195,98 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                  <div className="space-y-3">
-                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Nome Completo</label>
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Identidade do Cliente</label>
                     <div className="relative group">
                        <input
-                        type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
+                        type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                        placeholder="Nome do cliente..." required
+                        placeholder="Nome completo..." required
                        />
-                       <User size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
+                       <User size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">E-mail</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">E-mail</label>
                          <input
-                        type="email" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
+                        type="email" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
                         placeholder="cliente@email.com"
                         />
                     </div>
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Telefone / WhatsApp</label>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">WhatsApp</label>
                         <input
-                        type="tel" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
+                        type="tel" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                         value={formData.client_phone} onChange={(e) => setFormData({ ...formData, client_phone: e.target.value })}
                         placeholder="+55 00 00000 0000"
                         />
                     </div>
                   </div>
 
-                  <div className="bg-[var(--color-admin-surface)] rounded-[2rem] p-8 border border-[var(--color-admin-border)] shadow-inner space-y-8 mt-4">
+                  <div className="bg-[var(--color-admin-surface)] rounded-[1.5rem] p-6 border border-[var(--color-admin-border)] shadow-inner space-y-6 mt-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-[var(--color-admin-text-muted)]">
-                           <CreditCard size={18} />
-                            <h4 className="text-[13px] font-bold text-[var(--color-admin-text-secondary)] tracking-tight">Informações Financeiras</h4>
+                        <div className="flex items-center gap-2.5 text-[var(--color-admin-text-muted)]">
+                           <CreditCard size={14} />
+                            <h4 className="text-[11px] font-bold text-[var(--color-admin-text-secondary)] tracking-widest uppercase">Fluxo Financeiro</h4>
                         </div>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <div className="relative">
+                        <label className="flex items-center gap-2 cursor-pointer group">
+                             <div className="flex items-center gap-2 px-3 py-1 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-lg text-[9px] font-bold text-[var(--color-admin-text-muted)] uppercase transition-all hover:border-[var(--color-admin-accent)]/30">
                                <input 
                                   type="checkbox" checked={formData.isGift} 
                                   onChange={(e) => setFormData({...formData, isGift: e.target.checked})}
-                                  className="w-6 h-6 rounded-lg bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-blue-600 focus:ring-blue-500/20 transition-all cursor-pointer"
+                                  className="w-3.5 h-3.5 rounded bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-indigo-600 focus:ring-indigo-500/20 transition-all cursor-pointer"
                                />
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase transition-all">
-                               <Gift size={12} className={formData.isGift ? "text-emerald-500" : ""} /> 
+                               <Gift size={10} className={formData.isGift ? "text-emerald-500" : ""} /> 
                                <span>Cortesia</span>
                             </div>
                         </label>
                     </div>
                     
                     {!formData.isGift && (
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Total</label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Valor Bruto</label>
                                 <div className="relative group">
-                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-[var(--color-admin-text)] transition-colors">R$</span>
                                   <input 
-                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
-                                      value={formData.total_amount} onChange={(e) => setFormData({...formData, total_amount: parseFloat(e.target.value)})}
+                                      type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3.5 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
+                                      value={formatCurrencyBRL(formData.total_amount)} 
+                                      onChange={(e) => {
+                                        const val = parseCurrencyBRL(e.target.value);
+                                        setFormData({...formData, total_amount: val});
+                                      }}
                                   />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Pago</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Entrada (Recebido)</label>
                                 <div className="relative group">
-                                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-emerald-600 transition-colors">R$</span>
                                   <input 
-                                      type="number" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
-                                      value={formData.paid_amount} onChange={(e) => setFormData({...formData, paid_amount: parseFloat(e.target.value)})}
+                                      type="text" className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3.5 rounded-xl text-[13px] font-bold text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] shadow-inner"
+                                      value={formatCurrencyBRL(formData.paid_amount)} 
+                                      onChange={(e) => {
+                                        const val = parseCurrencyBRL(e.target.value);
+                                        setFormData({...formData, paid_amount: val});
+                                      }}
                                   />
                                 </div>
                             </div>
                         </div>
                     )}
                     
-                    <div className="space-y-3 pt-6 border-t border-[var(--color-admin-border)]">
-                        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Status do Agendamento</label>
+                    <div className="space-y-2 pt-5 border-t border-[var(--color-admin-border)]">
+                        <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Estado do Registro</label>
                         <div className="relative">
                            <select 
-                               className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
+                               className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-3.5 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                                value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value as any})}
                            >
                                <option value="confirmed">Confirmado</option>
                                <option value="pending">Pendente</option>
                            </select>
-                           <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                           <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                         </div>
                     </div>
                   </div>
@@ -284,11 +300,11 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                 </div>
 
                 <div className="space-y-8">
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Serviço</label>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Serviço de Origem</label>
                     <div className="relative">
                       <select
-                        className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
+                        className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                         value={formData.session_id}
                         onChange={(e) => {
                           const id = e.target.value;
@@ -304,12 +320,12 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                         }}
                         required
                       >
-                        <option value="">Selecionar serviço...</option>
+                        <option value="">Selecionar...</option>
                         {sessions.map(s => (
                           <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                       </select>
-                      <Database size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                      <Database size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                     </div>
                   </div>
 
@@ -319,25 +335,25 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                     onChange={(date) => setFormData({ ...formData, date })}
                   />
 
-                  <div className="space-y-3">
-                      <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Horário</label>
+                  <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Slot Temporal</label>
                       <div className="relative">
                         <select
-                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] appearance-none disabled:opacity-20 shadow-inner cursor-pointer"
+                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] appearance-none disabled:opacity-20 shadow-inner cursor-pointer"
                           value={formData.start_time}
                           disabled={!formData.date || !formData.session_id || isSlotsLoading}
                           onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                           required
                         >
-                           <option value="">{isSlotsLoading ? "Carregando horários..." : "Escolher horário..."}</option>
+                           <option value="">{isSlotsLoading ? "Carregando..." : "Escolher horário..."}</option>
                           {availableSlots.map(slot => <option key={slot} value={slot}>{slot}h</option>)}
                         </select>
                         {isSlotsLoading ? (
                           <div className="absolute right-12 top-1/2 -translate-y-1/2">
-                             <Loader2 size={18} className="animate-spin text-[var(--color-admin-accent)]" />
+                             <Loader2 size={16} className="animate-spin text-[var(--color-admin-accent)]" />
                           </div>
                         ) : (
-                           <Clock size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300" />
+                           <Clock size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
                         )}
                       </div>
                   </div>

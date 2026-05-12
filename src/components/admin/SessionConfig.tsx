@@ -4,15 +4,40 @@ import React, { useState, useEffect } from "react";
 import { 
   Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Edit2, 
   Palette, Settings, ShieldCheck, Camera, Info, Database, 
-  Briefcase, CalendarClock, Globe, ArrowRight 
+  Briefcase, CalendarClock, Globe, ArrowRight, ChevronLeft, ChevronRight 
 } from "lucide-react";
 import { 
   listSessions, createSession, updateSession, deleteSession,
-  listSchemaSlots, addSchemaSlot, deleteSchemaSlot
+  listSchemaSlots, addSchemaSlot, deleteSchemaSlot, syncSessionColors
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
+import { getSessionColor } from "@/lib/utils/colors";
 
-export function SessionConfigSection() {
+// Componentes Oficiais
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
+
+const PRESET_COLORS = [
+  "#7986CB", "#7DA0D1", "#8FA1F3", "#90CAF9", "#8ED1F5", "#4DB6AC",
+  "#C0CA33", "#2E7D32", "#81C784", "#7CB342", "#66BB6A", "#4CAF50",
+  "#E4D09A", "#FFCCBC", "#FF8A3D", "#FFB74D", "#D4A017", "#BCAAA4",
+  "#F48FB1", "#F06292", "#F5A9CB", "#CE93D8", "#B39DDB", "#9575CD",
+  "#FF4081", "#EF5350", "#9FA8DA", "#8BC34A"
+];
+
+const formatCurrencyBRL = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};
+
+const parseCurrencyBRL = (value: string): number => {
+  const digits = value.replace(/\D/g, '');
+  return Number(digits) / 100;
+};
+
+export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
   const [sessions, setSessions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +46,38 @@ export function SessionConfigSection() {
   const [viewingMatrix, setViewingMatrix] = useState<any>(null);
   const [matrixSlots, setMatrixSlots] = useState<any[]>([]);
   const [isMatrixLoading, setIsMatrixLoading] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("#3b82f6");
+  const [isPerpetual, setIsPerpetual] = useState(true);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [fullPrice, setFullPrice] = useState(0);
+  const [depositPrice, setDepositPrice] = useState(0);
+
+  // System Modal State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean,
+    title: string,
+    message: string,
+    confirmLabel?: string,
+    cancelLabel?: string,
+    onConfirm: () => void,
+    variant?: 'danger' | 'info' | 'warning'
+  } | null>(null);
+
+  const showConfirm = (config: Omit<NonNullable<typeof confirmConfig>, 'isOpen'>) => {
+    setConfirmConfig({ ...config, isOpen: true });
+  };
+
+  const closeConfirm = () => {
+    setConfirmConfig(null);
+  };
+
+  // Notify parent of editing state
+  useEffect(() => {
+    if (onEditingChange) {
+      onEditingChange(isModalOpen || !!viewingMatrix);
+    }
+  }, [isModalOpen, viewingMatrix, onEditingChange]);
 
   useEffect(() => {
     loadSessions();
@@ -40,12 +97,19 @@ export function SessionConfigSection() {
     setIsMatrixLoading(false);
   }
 
-  const handleSave = async (formData: FormData) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
     setIsSaving(true);
     const data = {
       name: formData.get("name") as string,
       duration_slots: parseInt(formData.get("duration") as string),
-      theme_color: formData.get("color") as string,
+      theme_color: selectedColor,
+      is_perpetual: isPerpetual,
+      start_date: isPerpetual ? null : startDate,
+      end_date: isPerpetual ? null : endDate,
+      full_price: fullPrice,
+      deposit_price: depositPrice
     };
 
     let res;
@@ -60,30 +124,75 @@ export function SessionConfigSection() {
       setIsModalOpen(false);
       setEditingSession(null);
     } else {
-      alert("Erro do Sistema: " + res.error);
+      showConfirm({
+        title: "Erro do Sistema",
+        message: "Não foi possível salvar as alterações: " + res.error,
+        confirmLabel: "Entendido",
+        cancelLabel: "",
+        onConfirm: closeConfirm,
+        variant: "warning"
+      });
     }
     setIsSaving(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este serviço? Todos os horários associados serão removidos. Continuar?")) return;
+  const performDelete = async (id: string) => {
     setIsSaving(true);
     const res = await deleteSession(id);
     if (res.success) {
       await loadSessions();
     } else {
-      alert("Erro do Sistema: " + res.error);
+      showConfirm({
+        title: "Erro do Sistema",
+        message: "Não foi possível excluir o serviço: " + res.error,
+        confirmLabel: "OK",
+        cancelLabel: "",
+        onConfirm: closeConfirm,
+        variant: "warning"
+      });
     }
     setIsSaving(false);
+  };
+
+  const handleDeleteRequest = (id: string) => {
+    showConfirm({
+      title: "Excluir Serviço?",
+      message: "Tem certeza que deseja excluir este serviço? Todos os horários associados na matriz serão removidos definitivamente. Esta ação não pode ser desfeita.",
+      confirmLabel: "Sim, Excluir",
+      cancelLabel: "Cancelar",
+      onConfirm: () => performDelete(id),
+      variant: "danger"
+    });
+  };
+
+  const handleSyncColorsRequest = () => {
+    showConfirm({
+      title: "Sincronizar Cores?",
+      message: "Deseja aplicar a nova paleta de cores vibrantes em todos os serviços cadastrados?",
+      confirmLabel: "Sincronizar Agora",
+      cancelLabel: "Voltar",
+      onConfirm: async () => {
+        setIsSaving(true);
+        await syncSessionColors();
+        await loadSessions();
+        setIsSaving(false);
+        showConfirm({
+          title: "Sucesso",
+          message: "Cores sincronizadas com sucesso em toda a rede de serviços.",
+          confirmLabel: "Excelente",
+          cancelLabel: "",
+          onConfirm: closeConfirm,
+          variant: "info"
+        });
+      },
+      variant: "info"
+    });
   };
 
   const handleToggleSlot = async (slot: any) => {
     if (!viewingMatrix) return;
     setIsSaving(true);
-    
-    // logic based on source
     await addSchemaSlot(slot.day_of_week, slot.start_time, viewingMatrix.id, !slot.is_active);
-    
     await loadMatrix(viewingMatrix.id);
     setIsSaving(false);
   };
@@ -109,13 +218,32 @@ export function SessionConfigSection() {
             </div>
           </div>
 
-          <button 
-            onClick={() => { setEditingSession(null); setIsModalOpen(true); }}
-            className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
-          >
-            <Plus size={20} strokeWidth={2.5} /> 
-            Novo Serviço
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handleSyncColorsRequest}
+              className="bg-white border-2 border-[var(--color-admin-border)] text-slate-600 px-6 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-3 transition-all hover:border-[var(--color-admin-accent)] hover:text-[var(--color-admin-accent)] active:scale-95 shadow-sm"
+            >
+              <Palette size={20} />
+              Sincronizar Cores
+            </button>
+
+            <button 
+              onClick={() => { 
+                setEditingSession(null); 
+                setSelectedColor("#7986CB");
+                setIsPerpetual(true);
+                setStartDate("");
+                setEndDate("");
+                setFullPrice(0);
+                setDepositPrice(0);
+                setIsModalOpen(true); 
+              }}
+              className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
+            >
+              <Plus size={20} strokeWidth={2.5} /> 
+              Novo Serviço
+            </button>
+          </div>
         </div>
       </div>
 
@@ -129,60 +257,77 @@ export function SessionConfigSection() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
-          {sessions.map((session) => (
-            <motion.div 
-              key={session.id} 
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 flex flex-col justify-between transition-all shadow-sm group relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-admin-accent)]/5 rounded-full -mr-20 -mt-20 blur-3xl opacity-0 transition-opacity" />
-              
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-8">
-                  <div 
-                    className="w-14 h-14 rounded-2xl border-2 shadow-inner flex items-center justify-center bg-[var(--color-admin-bg)]"
-                    style={{ borderColor: session.theme_color || '#333' }}
-                  >
-                    <Camera size={24} style={{ color: session.theme_color || '#333' }} />
-                  </div>
-                  <div className="flex gap-3">
+          {sessions.map((session) => {
+            const colors = getSessionColor(session.name, session.theme_color);
+            const customBg = colors.isCustom ? `${colors.customColor}25` : undefined;
+            
+            return (
+              <motion.div 
+                key={session.id} 
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                className={`group p-6 lg:p-7 border border-[var(--color-admin-border)] rounded-[2rem] transition-all hover:scale-[1.02] shadow-sm relative overflow-hidden ${!colors.isCustom ? colors.bg : ''}`}
+                style={{ backgroundColor: customBg }}
+              >
+                <div className="flex justify-between items-center mb-5 relative z-10">
+                  <h3 className="text-[17px] font-black text-[var(--color-admin-text)] uppercase tracking-tight leading-none">
+                    {session.name}
+                  </h3>
+                  <div className="flex gap-2">
                     <button 
                       onClick={() => { setViewingMatrix(session); loadMatrix(session.id); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
+                      className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)]/30 active:scale-90 shadow-sm"
                       title="Ver Matriz de Horários"
                     >
-                      <Settings size={18} />
+                      <Settings size={14} />
                     </button>
                     <button 
-                      onClick={() => { setEditingSession(session); setIsModalOpen(true); }}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
+                      onClick={() => { 
+                        setEditingSession(session); 
+                        setSelectedColor(session.theme_color || "#7986CB");
+                        setIsPerpetual(session.is_perpetual ?? true);
+                        setStartDate(session.start_date || "");
+                        setStartDate(session.start_date || "");
+                        setEndDate(session.end_date || "");
+                        setFullPrice(session.full_price || 0);
+                        setDepositPrice(session.deposit_price || 0);
+                        setIsModalOpen(true); 
+                      }}
+                      className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)]/30 active:scale-90 shadow-sm"
                     >
-                      <Edit2 size={18} />
+                      <Edit2 size={14} />
                     </button>
                     <button 
-                      onClick={() => handleDelete(session.id)}
-                      className="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] text-[var(--color-admin-text-muted)] transition-all active:scale-90"
+                      onClick={() => handleDeleteRequest(session.id)}
+                      className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-rose-500 hover:border-rose-200 active:scale-90 shadow-sm"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
 
-                <h5 className="text-[22px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none mb-3 transition-colors">
-                  {session.name}
-                </h5>
-                <p className="text-[11px] text-[var(--color-admin-text-muted)] font-bold uppercase tracking-wider mb-8">ID: {session.id.split('-')[0]}</p>
-                
-                <div className="space-y-4 pt-8 border-t border-[var(--color-admin-border)]">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">Duração</span>
-                    <span className="text-[14px] font-bold text-[var(--color-admin-text)]">{(session.duration_slots || 0) * 30} MIN</span>
+                <div className="space-y-3 pt-4 border-t border-[var(--color-admin-border)]/40 relative z-10">
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Duração</span>
+                    <span className="text-[var(--color-admin-text)]">{(session.duration_slots || 0) * 30} MIN</span>
                   </div>
-
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Disponibilidade</span>
+                    <span className={`px-3 py-1 rounded-full ${session.is_perpetual ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                      {session.is_perpetual ? 'Perpétuo' : 'Sazonal'}
+                    </span>
+                  </div>
+                  {!session.is_perpetual && session.start_date && (
+                    <div className="pt-2 flex items-center gap-2">
+                       <CalendarDays size={10} className="text-[var(--color-admin-text-muted)]" />
+                       <span className="text-[9px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-tight">
+                         {new Date(session.start_date + "T12:00:00").toLocaleDateString('pt-BR')} {session.end_date ? `até ${new Date(session.end_date + "T12:00:00").toLocaleDateString('pt-BR')}` : ''}
+                       </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -197,27 +342,29 @@ export function SessionConfigSection() {
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="w-full max-w-2xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-hidden"
+              className="w-full max-w-2xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-y-auto custom-scrollbar max-h-[90vh] flex flex-col"
             >
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-[var(--color-admin-accent)] opacity-20" />
               
-              <div className="p-10 lg:p-14">
-                <div className="flex justify-between items-center mb-12">
-                  <div>
-                    <h3 className="text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">
-                      {editingSession ? 'Editar serviço' : 'Novo serviço'}
-                    </h3>
-                    <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">Configure os detalhes do serviço oferecido</p>
-                  </div>
-                  <button 
-                    onClick={() => setIsModalOpen(false)}
-                    className="w-14 h-14 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
-                  >
-                    <X size={28} />
-                  </button>
+              {/* Header - SEM STICKY para scroll inteiriço */}
+              <div className="p-8 lg:p-12 pb-4 flex justify-between items-center border-b border-[var(--color-admin-border)]/50 shrink-0">
+                <div>
+                  <h3 className="text-[24px] lg:text-[28px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">
+                    {editingSession ? 'Editar serviço' : 'Novo serviço'}
+                  </h3>
+                  <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">Configure os detalhes do serviço oferecido</p>
                 </div>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-12 h-12 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
+                >
+                  <X size={24} />
+                </button>
+              </div>
 
-                <form action={handleSave} className="space-y-8">
+              {/* Form - SEM OVERFLOW para scroll inteiriço */}
+              <form onSubmit={handleSave} className="flex flex-col">
+                <div className="p-8 lg:p-12 space-y-8">
                   <div className="space-y-3">
                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Nome do Serviço</label>
                     <input 
@@ -241,37 +388,136 @@ export function SessionConfigSection() {
                     </div>
                     <div className="space-y-3">
                       <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Cor do Calendário</label>
-                      <div className="flex gap-4">
-                        <input 
-                          name="color" 
-                          type="color" 
-                          defaultValue={editingSession?.theme_color || "#3b82f6"}
-                          className="w-16 h-[60px] bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl p-2 cursor-pointer focus:border-[var(--color-admin-accent)] transition-all" 
-                        />
-                        <input 
-                          type="text" 
-                          placeholder="#000000"
-                          defaultValue={editingSession?.theme_color || "#3b82f6"}
-                          className="flex-1 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all" 
-                        />
+                      <div className="grid grid-cols-7 gap-2 bg-[var(--color-admin-bg)] p-4 border-2 border-[var(--color-admin-border)] rounded-2xl">
+                        {PRESET_COLORS.map(color => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setSelectedColor(color)}
+                            className={`w-full aspect-square rounded-lg transition-all border-2 relative ${
+                              selectedColor === color ? "scale-110 shadow-md ring-2 ring-white/20" : "opacity-80 hover:opacity-100"
+                            }`}
+                            style={{ 
+                              backgroundColor: color,
+                              borderColor: selectedColor === color ? 'white' : 'transparent'
+                            }}
+                          >
+                            {selectedColor === color && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
 
-
-
-                  <div className="pt-8">
-                    <button 
-                      type="submit" 
-                      disabled={isSaving}
-                      className="w-full bg-[var(--color-admin-accent)] text-white py-6 rounded-[1.5rem] font-bold text-[14px] tracking-tight flex items-center justify-center gap-4 transition-all active:scale-95 shadow-lg disabled:opacity-50 group"
-                    >
-                      {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} strokeWidth={2.5} />}
-                      {editingSession ? 'Salvar Alterações' : 'Criar Serviço'}
-                    </button>
+                  {/* ─── Precificação ─── */}
+                  <div className="p-8 bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] rounded-[2rem] space-y-8">
+                    <div className="flex items-center gap-4 mb-2">
+                       <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center border border-emerald-500/20">
+                          <Database size={18} />
+                       </div>
+                       <div>
+                          <h4 className="text-[14px] font-bold text-[var(--color-admin-text)]">Precificação Base</h4>
+                          <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium">Valores padrão para este serviço</p>
+                       </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-3">
+                         <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Preço Total (Exibição)</label>
+                         <div className="relative group">
+                            <input 
+                              type="text" 
+                              value={formatCurrencyBRL(fullPrice)} 
+                              onChange={(e) => setFullPrice(parseCurrencyBRL(e.target.value))}
+                              className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
+                            />
+                         </div>
+                       </div>
+                       <div className="space-y-3">
+                         <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Valor da Reserva (Sinal)</label>
+                         <div className="relative group">
+                            <input 
+                              type="text" 
+                              value={formatCurrencyBRL(depositPrice)} 
+                              onChange={(e) => setDepositPrice(parseCurrencyBRL(e.target.value))}
+                              className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
+                            />
+                         </div>
+                       </div>
+                    </div>
                   </div>
-                </form>
-              </div>
+
+                  {/* ─── Disponibilidade ─── */}
+                  <div className="p-8 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-[2rem] space-y-8">
+                    <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
+                      <div className="flex items-center gap-4 w-full">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${isPerpetual ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                          {isPerpetual ? <Globe size={20} /> : <CalendarClock size={20} />}
+                        </div>
+                        <div>
+                          <h4 className="text-[14px] font-bold text-[var(--color-admin-text)]">Tipo de Oferta</h4>
+                          <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium">Recorrente ou com datas limitadas</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex bg-[var(--color-admin-surface)] p-1.5 rounded-xl border border-[var(--color-admin-border)] w-full sm:w-auto">
+                        <button
+                          type="button"
+                          onClick={() => setIsPerpetual(true)}
+                          className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-[10px] lg:text-[11px] font-bold uppercase tracking-wider transition-all ${isPerpetual ? 'bg-[var(--color-admin-accent)] text-white shadow-lg' : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'}`}
+                        >
+                          Perpétuo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsPerpetual(false)}
+                          className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-[10px] lg:text-[11px] font-bold uppercase tracking-wider transition-all ${!isPerpetual ? 'bg-amber-500 text-white shadow-lg' : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'}`}
+                        >
+                          Sazonal
+                        </button>
+                      </div>
+                    </div>
+
+                    <AnimatePresence>
+                      {!isPerpetual && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }} 
+                          animate={{ opacity: 1, height: 'auto' }} 
+                          exit={{ opacity: 0, height: 0 }}
+                          className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--color-admin-border)]"
+                        >
+                          <InternalDatePicker 
+                            label="Data de Início"
+                            value={startDate}
+                            onChange={setStartDate}
+                          />
+                          <InternalDatePicker 
+                            label="Data de Término"
+                            value={endDate}
+                            onChange={setEndDate}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Footer - SEM STICKY para scroll inteiriço */}
+                <div className="p-8 lg:p-10 border-t border-[var(--color-admin-border)]/50 bg-[var(--color-admin-bg)]/30 shrink-0">
+                  <button 
+                    type="submit" 
+                    disabled={isSaving}
+                    className="w-full bg-[var(--color-admin-accent)] text-white py-6 rounded-[1.5rem] font-bold text-[14px] tracking-tight flex items-center justify-center gap-4 transition-all active:scale-95 shadow-lg disabled:opacity-50 group"
+                  >
+                    {isSaving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} strokeWidth={2.5} />}
+                    {editingSession ? 'Salvar Alterações' : 'Criar Serviço'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
@@ -288,9 +534,9 @@ export function SessionConfigSection() {
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="w-full max-w-5xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-hidden max-h-[90vh] flex flex-col"
+              className="w-full max-w-5xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-y-auto custom-scrollbar max-h-[90vh] flex flex-col"
             >
-              <div className="p-10 lg:p-14 border-b border-[var(--color-admin-border)]">
+              <div className="p-10 lg:p-14 border-b border-[var(--color-admin-border)] shrink-0">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-[28px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none">
@@ -309,7 +555,7 @@ export function SessionConfigSection() {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-10 lg:p-14 custom-scrollbar">
+              <div className="p-10 lg:p-14">
                 {isMatrixLoading ? (
                   <div className="flex flex-col items-center justify-center py-40 gap-6">
                     <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={48} />
@@ -357,6 +603,23 @@ export function SessionConfigSection() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Modal de Confirmação Único */}
+      {confirmConfig && (
+        <ConfirmModal 
+          isOpen={confirmConfig.isOpen}
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          confirmLabel={confirmConfig.confirmLabel}
+          cancelLabel={confirmConfig.cancelLabel}
+          onConfirm={() => {
+            confirmConfig.onConfirm();
+            closeConfirm();
+          }}
+          onCancel={closeConfirm}
+          variant={confirmConfig.variant}
+        />
+      )}
 
       {/* Toast Sincronização */}
       <AnimatePresence>

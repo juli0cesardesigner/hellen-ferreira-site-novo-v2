@@ -5,8 +5,9 @@ import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, Sh
 import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
-export function StandardSlotsSection() {
+export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
   const sessions = Object.values(SESSIONS_DATA);
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [slots, setSlots] = useState<any[]>([]);
@@ -15,6 +16,32 @@ export function StandardSlotsSection() {
   
   const [newSlotTime, setNewSlotTime] = useState<string>("09:00");
   const [addingToDay, setAddingToDay] = useState<number | null>(null);
+
+  // System Modal State
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean,
+    title: string,
+    message: string,
+    confirmLabel?: string,
+    cancelLabel?: string,
+    onConfirm: () => void,
+    variant?: 'danger' | 'info' | 'warning'
+  } | null>(null);
+
+  const showConfirm = (config: Omit<NonNullable<typeof confirmConfig>, 'isOpen'>) => {
+    setConfirmConfig({ ...config, isOpen: true });
+  };
+
+  const closeConfirm = () => {
+    setConfirmConfig(null);
+  };
+
+  // Notify parent if we are adding a slot or modal is open
+  useEffect(() => {
+    if (onEditingChange) {
+      onEditingChange(addingToDay !== null || !!confirmConfig);
+    }
+  }, [addingToDay, confirmConfig, onEditingChange]);
 
   useEffect(() => {
     loadSlots();
@@ -35,17 +62,23 @@ export function StandardSlotsSection() {
       await loadSlots();
       setAddingToDay(null);
     } else {
-      alert("Erro ao salvar: " + res.error);
+      showConfirm({
+        title: "Erro ao Salvar",
+        message: "Não foi possível adicionar o horário: " + res.error,
+        confirmLabel: "OK",
+        cancelLabel: "",
+        onConfirm: closeConfirm,
+        variant: "warning"
+      });
     }
     setIsSaving(false);
   };
 
   const handleToggleSlot = async (slot: any, dayOfWeek: number) => {
-    setIsSaving(true);
-    
     const isGlobal = slot.source === 'global';
     
     if (selectedSession && isGlobal) {
+        setIsSaving(true);
         // Toggling visibility of a global slot for this specific session
         if (slot.is_active) {
             // Hide it: add a record with is_active = false
@@ -54,17 +87,25 @@ export function StandardSlotsSection() {
             // Show it: delete the overriding record
             if (slot.id) await deleteSchemaSlot(slot.id);
         }
+        await loadSlots();
+        setIsSaving(false);
     } else {
-        // Actual deletion
-        if (!confirm("Deseja remover este horário da agenda?")) {
+        // Actual deletion - request confirmation
+        showConfirm({
+          title: "Remover Horário",
+          message: "Deseja remover este horário da agenda? Esta ação é definitiva para este serviço.",
+          confirmLabel: "Remover",
+          cancelLabel: "Cancelar",
+          onConfirm: async () => {
+            setIsSaving(true);
+            if (slot.id) await deleteSchemaSlot(slot.id);
+            await loadSlots();
             setIsSaving(false);
-            return;
-        }
-        if (slot.id) await deleteSchemaSlot(slot.id);
+            closeConfirm();
+          },
+          variant: "danger"
+        });
     }
-    
-    await loadSlots();
-    setIsSaving(false);
   };
 
   const days = [
@@ -117,12 +158,6 @@ export function StandardSlotsSection() {
               </div>
             </div>
             
-            <button 
-               onClick={loadSlots} 
-               className="w-16 h-16 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] transition-all active:scale-90"
-             >
-               <RefreshCw size={24} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
-            </button>
           </div>
         </div>
       </div>
@@ -143,7 +178,7 @@ export function StandardSlotsSection() {
                 <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide transition-colors">{day.label}</span>
               </div>
               
-              <div className="p-4 space-y-4 flex-1 min-h-[450px] custom-scrollbar">
+              <div className="p-4 space-y-4 flex-1 min-h-0 custom-scrollbar">
                 <AnimatePresence initial={false}>
                   {slots.filter(s => s.day_of_week === day.value).map(slot => {
                     const isGlobal = slot.source === 'global';
@@ -226,6 +261,20 @@ export function StandardSlotsSection() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Modal de Confirmação Único */}
+      {confirmConfig && (
+        <ConfirmModal 
+          isOpen={confirmConfig.isOpen}
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          confirmLabel={confirmConfig.confirmLabel}
+          cancelLabel={confirmConfig.cancelLabel}
+          onConfirm={confirmConfig.onConfirm}
+          onCancel={closeConfirm}
+          variant={confirmConfig.variant}
+        />
       )}
 
       <AnimatePresence>

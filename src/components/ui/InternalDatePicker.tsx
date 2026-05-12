@@ -40,27 +40,44 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Update position when opening
+  // Update position when opening or when window changes
   useLayoutEffect(() => {
-    if (isOpen && triggerRef.current) {
+    if (!isOpen || !triggerRef.current) return;
+
+    const updatePosition = () => {
+      if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
-      const scrollY = window.scrollY;
       const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const pickerHeight = 440; // Approx height of the picker
+      const pickerWidth = 340;
       
       let left = rect.left;
-      // If popover goes off-screen to the right, align it to the right of the trigger
-      if (left + 340 > windowWidth) {
-        left = rect.right - 340;
+      if (left + pickerWidth > windowWidth) {
+        left = rect.right - pickerWidth;
       }
-      // Mobile safety
       if (left < 10) left = 10;
 
+      // Flip logic: if no space below, open above
+      let top = rect.bottom + 8;
+      if (top + pickerHeight > windowHeight && rect.top > pickerHeight) {
+        top = rect.top - pickerHeight - 8;
+      }
+
       setPopoverPos({
-        top: rect.bottom + 8,
-        left: left,
-        width: 340
+        top,
+        left,
+        width: pickerWidth
       });
-    }
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true); // Capture scroll events from parents
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
   }, [isOpen]);
 
   const renderHeader = () => {
@@ -158,7 +175,7 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
-        <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2 mb-3 block">
+        <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70 mb-2 block">
           {label}
         </label>
       )}

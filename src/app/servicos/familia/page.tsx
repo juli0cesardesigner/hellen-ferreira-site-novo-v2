@@ -175,7 +175,7 @@ export default function FamiliaPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=70b4d4e6-72b5-4262-890c-cf0730e0db8e&tier=${pkg1.tier_order}`} 
+                    href={`/agendar/familia?tier=${pkg1.tier_order}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

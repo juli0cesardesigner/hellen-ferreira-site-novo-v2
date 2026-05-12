@@ -156,7 +156,7 @@ export default function RevelacaoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar?sessao=50674a5b-ad94-442b-b4d1-328f4d7f59db&tier=${pkg1.tier_order}`} 
+                    href={`/agendar/revelacao?tier=${pkg1.tier_order}`} 
                     className="mt-16 w-full py-6 bg-[#8B5E3C] text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#6D492E] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

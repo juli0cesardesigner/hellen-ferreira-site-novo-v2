@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import { redirect } from "next/navigation";
+import crypto from "crypto";
 
 // Lazy initialization of Supabase client with Service Role for internal admin operations
 let supabaseAdmin: any = null;
@@ -77,20 +78,74 @@ export async function getAdminStats() {
     .lte('booking_date', nextWeekStr)
     .neq('status', 'cancelled');
 
-  // Faturamento MENSAL (Apenas Confirmado ou Concluído)
+  // Faturamento MENSAL (Regra 2026: Concluído = Total | Outros = Entrada)
   const { data: monthlyRevenueData } = await admin
     .from('bookings')
-    .select('paid_amount')
+    .select('status, total_amount, paid_amount')
     .gte('booking_date', firstDayOfMonth)
-    .lte('booking_date', lastDayOfMonth)
-    .in('status', ['confirmed', 'completed']);
+    .lte('booking_date', lastDayOfMonth);
 
-  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: { paid_amount: any }) => acc + (Number(curr.paid_amount) || 0), 0) || 0;
+  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: any) => {
+    // Regra 2026: Bruto é sempre o valor total do contrato (exceto cancelados se necessário, mas aqui mantemos o potencial)
+    if (curr.status === 'cancelled') return acc;
+    return acc + (Number(curr.total_amount) || 0);
+  }, 0) || 0;
 
   return {
-    todaySessions: todayCount || 0,
-    weekSessions: weekCount || 0,
     totalRevenue
+  };
+}
+
+export async function getFinanceDetailedStats(month: number, year: number) {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  const startDate = new Date(year, month, 1).toISOString().split('T')[0];
+  const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
+
+  const { data: bookings, error } = await admin
+    .from('bookings')
+    .select(`
+      *,
+      sessions (
+        name,
+        theme_color
+      )
+    `)
+    .gte('booking_date', startDate)
+    .lte('booking_date', endDate)
+    .order('booking_date', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar dados financeiros:", error);
+    return { totalGross: 0, totalReceived: 0, byCategory: {}, bookings: [] };
+  }
+
+  const byCategory: Record<string, { totalGross: number, totalReceived: number, count: number, color?: string }> = {};
+  let totalGross = 0;
+  let totalReceived = 0;
+
+  bookings?.forEach((booking: any) => {
+    const sessionName = booking.sessions?.name || 'Outros';
+    const gross = booking.status !== 'cancelled' ? (Number(booking.total_amount) || 0) : 0;
+    const received = Number(booking.paid_amount) || 0;
+    
+    totalGross += gross;
+    totalReceived += received;
+
+    if (!byCategory[sessionName]) {
+      byCategory[sessionName] = { totalGross: 0, totalReceived: 0, count: 0, color: booking.sessions?.theme_color };
+    }
+    byCategory[sessionName].totalGross += gross;
+    byCategory[sessionName].totalReceived += received;
+    byCategory[sessionName].count += 1;
+  });
+
+  return {
+    totalGross,
+    totalReceived,
+    byCategory,
+    bookings: bookings || []
   };
 }
 
@@ -164,6 +219,203 @@ export async function getBlockedDates() {
   }
 
   return { blocks: data };
+}
+
+export async function syncSessionColors() {
+  await validateAdmin();
+  const admin = getAdminClient();
+  
+  const updates = Object.values(SESSIONS_DATA).map(session => 
+    admin.from('sessions').update({ theme_color: session.theme_color }).eq('id', session.id)
+  );
+
+  await Promise.all(updates);
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+// --- Expenses Actions ---
+
+export async function getExpenses(month: number, year: number) {
+  await validateAdmin();
+  const admin = getAdminClient();
+  
+  const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
+  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+  const { data, error } = await admin
+    .from('expenses')
+    .select('*')
+    .gte('due_date', startDate)
+    .lte('due_date', endDate)
+    .order('due_date', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function createExpense(expense: any) {
+  await validateAdmin();
+  const admin = getAdminClient();
+  const groupId = crypto.randomUUID();
+  const baseDate = new Date(expense.due_date + 'T12:00:00');
+  
+  if (expense.type === 'installment' && expense.installments > 1) {
+    const batch = [];
+    const parcelAmount = Number((expense.amount / expense.installments).toFixed(2));
+    
+    for (let i = 0; i < expense.installments; i++) {
+      const dueDate = new Date(baseDate);
+      dueDate.setMonth(baseDate.getMonth() + i);
+      
+      batch.push({
+        description: `${expense.description} (${i + 1}/${expense.installments})`,
+        amount: parcelAmount,
+        due_date: dueDate.toISOString().split('T')[0],
+        type: 'installment',
+        status: expense.status || 'pending',
+        group_id: groupId,
+        installment_number: i + 1,
+        total_installments: expense.installments
+      });
+    }
+    
+    const { error } = await admin.from('expenses').insert(batch);
+    if (error) throw error;
+  } else if (expense.type === 'fixed') {
+    // Para fixas, gera para os próximos 36 meses (3 anos)
+    const fixedBatch = [];
+    for (let i = 0; i < 36; i++) {
+      const dueDate = new Date(baseDate);
+      dueDate.setMonth(baseDate.getMonth() + i);
+      
+      fixedBatch.push({
+        description: expense.description,
+        amount: expense.amount,
+        due_date: dueDate.toISOString().split('T')[0],
+        type: 'fixed',
+        status: i === 0 ? (expense.status || 'pending') : 'pending',
+        group_id: groupId
+      });
+    }
+    const { error: fixedError } = await admin.from('expenses').insert(fixedBatch);
+    if (fixedError) throw fixedError;
+  } else {
+    const { error } = await admin.from('expenses').insert({
+      description: expense.description,
+      amount: expense.amount,
+      due_date: expense.due_date,
+      type: expense.type,
+      status: expense.status || 'pending'
+    });
+    if (error) throw error;
+  }
+
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+export async function updateExpense(id: string, updates: any, updateFuture: boolean = false) {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  if (updateFuture) {
+    const { data: current } = await admin.from('expenses').select('group_id, installment_number, due_date').eq('id', id).single();
+    
+    if (current?.group_id) {
+      // Atualiza esta e as próximas (por data ou número de parcela)
+      const query = admin
+        .from('expenses')
+        .update({
+          description: updates.description,
+          amount: updates.amount
+        })
+        .eq('group_id', current.group_id);
+
+      if (current.installment_number) {
+        query.gte('installment_number', current.installment_number);
+      } else {
+        query.gte('due_date', current.due_date);
+      }
+      
+      const { error } = await query;
+      if (error) throw error;
+    }
+  } else {
+    const { error } = await admin.from('expenses').update(updates).eq('id', id);
+    if (error) throw error;
+  }
+
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+export async function updateExpenseStatus(id: string, status: string) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('expenses')
+    .update({ status })
+    .eq('id', id);
+
+  if (error) throw error;
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+export async function deleteExpense(id: string, deleteAllInGroup: boolean = false) {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  if (deleteAllInGroup) {
+    const { data: expense } = await admin.from('expenses').select('group_id').eq('id', id).single();
+    if (expense?.group_id) {
+      await admin.from('expenses').delete().eq('group_id', expense.group_id);
+    }
+  } else {
+    await admin.from('expenses').delete().eq('id', id);
+  }
+
+  revalidatePath('/admin');
+  return { success: true };
+}
+
+export async function getFinanceSummary(month: number, year: number) {
+  await validateAdmin();
+  const admin = getAdminClient();
+  
+  const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
+  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+  const { data: bookings } = await admin
+    .from('bookings')
+    .select('total_amount, paid_amount, status')
+    .gte('booking_date', startDate)
+    .lte('booking_date', endDate);
+
+  const { data: expenses } = await admin
+    .from('expenses')
+    .select('amount, status')
+    .gte('due_date', startDate)
+    .lte('due_date', endDate);
+
+  const totalGross = bookings?.reduce((acc: number, b: any) => {
+    if (b.status === 'cancelled') return acc;
+    return acc + (Number(b.total_amount) || 0);
+  }, 0) || 0;
+
+  const totalReceived = bookings?.reduce((acc: number, b: any) => {
+    if (b.status === 'cancelled') return acc;
+    return acc + (Number(b.paid_amount) || 0);
+  }, 0) || 0;
+
+  const totalExpenses = expenses?.reduce((acc: number, e: any) => acc + (Number(e.amount) || 0), 0) || 0;
+
+  return {
+    totalGross,
+    totalReceived,
+    totalExpenses,
+    netProfit: totalReceived - totalExpenses
+  };
 }
 
 export async function addBlockedDate(startDate: string, endDate: string, reason: string) {
@@ -504,4 +756,23 @@ export async function runMigration(sql: string) {
      return { success: false, error: error.message };
   }
   return { success: true };
+}
+
+export async function getDayMasterGrid(dayOfWeek: number) {
+  await validateAdmin();
+  const { data, error } = await getAdminClient()
+    .from('schema_slots')
+    .select('*')
+    .eq('day_of_week', dayOfWeek)
+    .eq('is_active', true)
+    .order('start_time', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar grade do dia:", error);
+    return { slots: [] };
+  }
+
+  // Remove duplicates by time (caso existam por erro de configuração)
+  const uniqueSlots = Array.from(new Map(data?.map((s: any) => [s.start_time, s])).values());
+  return { slots: uniqueSlots as any[] };
 }

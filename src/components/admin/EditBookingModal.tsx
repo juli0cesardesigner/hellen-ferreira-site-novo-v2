@@ -7,6 +7,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 
+const formatCurrencyBRL = (value: number) => {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+};
+
+const parseCurrencyBRL = (value: string): number => {
+  const digits = value.replace(/\D/g, '');
+  return Number(digits) / 100;
+};
+
 export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any, onClose: () => void, onUpdated: () => void }) {
   const [formData, setFormData] = useState({
     customer_name: booking.customer_name || booking.client_name || "",
@@ -22,6 +34,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [errorConfig, setErrorConfig] = useState<{ isOpen: boolean, title: string, message: string } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +55,11 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
       onUpdated();
       onClose();
     } else {
-      alert("Erro ao salvar: " + res.error);
+      setErrorConfig({
+        isOpen: true,
+        title: "Erro ao Salvar",
+        message: "Não foi possível atualizar o agendamento: " + res.error
+      });
     }
     setIsSubmitting(false);
   };
@@ -55,11 +72,19 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
         onUpdated();
         onClose();
       } else {
-        alert("Erro ao excluir: " + res.error);
+        setErrorConfig({
+          isOpen: true,
+          title: "Erro ao Excluir",
+          message: "Não foi possível remover o agendancemento: " + res.error
+        });
       }
     } catch (error: any) {
       console.error("Critical error deleting booking:", error);
-      alert("Erro crítico de conexão ou permissão: " + (error.message || "Erro desconhecido"));
+      setErrorConfig({
+        isOpen: true,
+        title: "Erro Crítico",
+        message: "Ocorreu um erro inesperado na conexão: " + (error.message || "Erro desconhecido")
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -72,28 +97,28 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
         initial={{ opacity: 0, scale: 0.95, y: 30 }} 
         animate={{ opacity: 1, scale: 1, y: 0 }} 
         exit={{ opacity: 0, scale: 0.95, y: 30 }} 
-        className="relative bg-[var(--color-admin-bg)] w-full max-w-5xl h-full lg:max-h-[85vh] lg:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-[var(--color-admin-border)]"
+        className="relative bg-[var(--color-admin-bg)] w-full max-w-5xl h-full lg:max-h-[85vh] lg:rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col overflow-y-auto custom-scrollbar border border-[var(--color-admin-border)]"
       >
         
         {/* Admin Header Terminal */}
-        <div className="px-8 lg:px-12 py-8 lg:py-10 border-b border-[var(--color-admin-border)] flex items-center justify-between gap-6 bg-[var(--color-admin-bg)] shrink-0 sticky top-0 z-20 shadow-sm">
-          <div className="flex items-center gap-4 lg:gap-6">
-            <div className="w-12 h-12 lg:w-16 lg:h-16 bg-[var(--color-admin-accent)]/10 text-[var(--color-admin-accent)] flex items-center justify-center rounded-2xl shadow-inner border border-[var(--color-admin-accent)]/20">
-              <Database size={28} className="lg:size-[32px]" strokeWidth={2.5} />
+        <div className="px-8 lg:px-12 py-6 lg:py-8 border-b border-[var(--color-admin-border)] flex items-center justify-between gap-6 bg-[var(--color-admin-bg)] shrink-0 z-20">
+          <div className="flex items-center gap-4 lg:gap-5">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[var(--color-admin-accent)]/10 text-[var(--color-admin-accent)] flex items-center justify-center rounded-xl shadow-inner border border-[var(--color-admin-accent)]/20">
+              <Database size={24} strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
-              <h2 className="text-[14px] lg:text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none">Editar Agendamento</h2>
-              <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-2">
-                Referência: {booking.id.split('-')[0].toUpperCase()}
+              <h2 className="text-[13px] lg:text-[18px] font-bold text-[var(--color-admin-text)] tracking-tight leading-none uppercase">Editar Agendamento</h2>
+              <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium mt-1.5 opacity-80 uppercase tracking-tighter">
+                Ref: {booking.id.split('-')[0]}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90">
-            <X size={28} />
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-admin-surface)] text-[var(--color-admin-text-muted)] transition-all border border-[var(--color-admin-border)] active:scale-90 hover:text-red-500">
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-8 lg:p-14 space-y-10 lg:space-y-12">
+        <form onSubmit={handleSubmit} className="p-8 lg:p-14 space-y-10 lg:space-y-12 pb-32">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Identity Scope Terminal */}
@@ -103,30 +128,30 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
                   <h3 className="text-[14px] font-bold text-[var(--color-admin-text)] tracking-tight">Dados do Cliente</h3>
               </div>
               
-                <div className="space-y-3">
-                   <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Nome do Cliente</label>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Nome do Cliente</label>
                   <div className="relative group">
                      <input 
                       type="text" value={formData.customer_name} onChange={(e) => setFormData({...formData, customer_name: e.target.value})} 
-                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" required 
+                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" required 
                     />
-                    <User size={16} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
+                    <User size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
-                   <div className="space-y-3">
-                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">E-mail</label>
+                <div className="grid grid-cols-1 gap-4">
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">E-mail</label>
                       <input 
                       type="email" value={formData.customer_email} onChange={(e) => setFormData({...formData, customer_email: e.target.value})} 
-                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" 
+                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" 
                     />
                   </div>
-                   <div className="space-y-3">
-                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Telefone</label>
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Telefone</label>
                      <input 
                       type="tel" value={formData.customer_phone} onChange={(e) => setFormData({...formData, customer_phone: e.target.value})} 
-                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[13px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" 
+                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[12px] font-medium text-[var(--color-admin-text-secondary)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner" 
                     />
                   </div>
                 </div>
@@ -139,60 +164,68 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
                   <h3 className="text-[14px] font-bold text-[var(--color-admin-text)] tracking-tight">Detalhes do Agendamento</h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <InternalDatePicker
                   label="Data"
                   value={formData.booking_date}
                   onChange={(date) => setFormData({ ...formData, booking_date: date })}
                 />
-                <div className="space-y-3">
-                   <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Horário</label>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Horário</label>
                   <div className="relative group">
                      <input 
                       type="time" value={formData.start_time} onChange={(e) => setFormData({...formData, start_time: e.target.value})} 
-                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-5 rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" required 
+                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-4 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" required 
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[var(--color-admin-surface)] rounded-[2rem] p-8 border border-[var(--color-admin-border)] shadow-inner space-y-8 mt-4">
-                <div className="grid grid-cols-2 gap-6">
-                   <div className="space-y-2">
-                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Total</label>
+              <div className="bg-[var(--color-admin-surface)] rounded-[1.5rem] p-6 border border-[var(--color-admin-border)] shadow-inner space-y-6 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                     <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Valor Bruto</label>
                     <div className="relative group">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-[var(--color-admin-text)] transition-colors">R$</span>
-                          <input 
-                          type="number" value={formData.total_amount} onChange={(e) => setFormData({...formData, total_amount: parseFloat(e.target.value)})} 
-                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner" 
+                        <input 
+                          type="text" 
+                          value={formatCurrencyBRL(formData.total_amount)} 
+                          onChange={(e) => {
+                            const val = parseCurrencyBRL(e.target.value);
+                            setFormData({...formData, total_amount: val});
+                          }} 
+                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3.5 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner" 
                         />
                     </div>
                   </div>
-                   <div className="space-y-2">
-                     <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Valor Pago</label>
+                   <div className="space-y-1.5">
+                     <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Recebido</label>
                     <div className="relative group">
-                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[13px] font-bold text-slate-300 group-focus-within:text-emerald-600 transition-colors">R$</span>
                         <input 
-                          type="number" value={formData.paid_amount} onChange={(e) => setFormData({...formData, paid_amount: parseFloat(e.target.value)})} 
-                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] pl-12 pr-5 py-4 rounded-2xl text-[15px] font-bold text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] shadow-inner" 
+                          type="text" 
+                          value={formatCurrencyBRL(formData.paid_amount)} 
+                          onChange={(e) => {
+                            const val = parseCurrencyBRL(e.target.value);
+                            setFormData({...formData, paid_amount: val});
+                          }} 
+                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3.5 rounded-xl text-[13px] font-bold text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] shadow-inner" 
                         />
                     </div>
                   </div>
                 </div>
 
-                 <div className="space-y-3 pt-6 border-t border-[var(--color-admin-border)]">
-                   <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-1">Status</label>
+                 <div className="space-y-2 pt-5 border-t border-[var(--color-admin-border)]">
+                   <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Estado do Registro</label>
                   <div className="relative">
                      <select 
                        value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} 
-                       className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-6 py-4 rounded-2xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-wider outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
+                       className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-3.5 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-wider outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                      >
                         <option value="pending">Pendente</option>
                        <option value="confirmed">Confirmado</option>
                        <option value="cancelled">Cancelado</option>
                        <option value="completed">Concluído</option>
                     </select>
-                    <ChevronRight size={14} className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -216,6 +249,19 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
                onConfirm={handleDelete}
                onCancel={() => setShowConfirmDelete(false)}
              />
+
+             {errorConfig && (
+               <ConfirmModal
+                 isOpen={errorConfig.isOpen}
+                 title={errorConfig.title}
+                 message={errorConfig.message}
+                 confirmLabel="Entendido"
+                 cancelLabel=""
+                 onConfirm={() => setErrorConfig(null)}
+                 onCancel={() => setErrorConfig(null)}
+                 variant="warning"
+               />
+             )}
              
              <div className="flex gap-6 w-full lg:w-auto">
                   <button type="button" onClick={onClose} className="hidden lg:flex px-10 py-5 text-[12px] font-bold text-[var(--color-admin-text-muted)] transition-all active:scale-95">Cancelar</button>
