@@ -776,3 +776,23 @@ export async function getDayMasterGrid(dayOfWeek: number) {
   const uniqueSlots = Array.from(new Map(data?.map((s: any) => [s.start_time, s])).values());
   return { slots: uniqueSlots as any[] };
 }
+
+export async function getSiteSetting(key: string) {
+  const admin = getAdminClient();
+  const { data, error } = await admin.from('site_settings').select('value').eq('key', key).single();
+  if (error) return null;
+  return data.value;
+}
+
+export async function updateSiteSetting(key: string, value: string) {
+  await validateAdmin();
+  const admin = getAdminClient();
+  const { error } = await admin.from('site_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+  if (error) {
+    console.error("Erro ao atualizar configuração:", error);
+    return { success: false, error: error.message };
+  }
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}

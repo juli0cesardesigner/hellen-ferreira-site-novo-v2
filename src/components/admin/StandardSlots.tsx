@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database, RefreshCw, Eye, EyeOff } from "lucide-react";
-import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot } from "@/lib/actions/admin-actions";
+import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot, getSiteSetting, updateSiteSetting } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -16,6 +16,9 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
   
   const [newSlotTime, setNewSlotTime] = useState<string>("09:00");
   const [addingToDay, setAddingToDay] = useState<number | null>(null);
+
+  const [minNoticeHours, setMinNoticeHours] = useState<string>("24");
+  const [isUpdatingNotice, setIsUpdatingNotice] = useState(false);
 
   // System Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -45,7 +48,28 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
 
   useEffect(() => {
     loadSlots();
+    loadNoticeHours();
   }, [selectedSession]);
+
+  async function loadNoticeHours() {
+    const val = await getSiteSetting('min_booking_notice_hours');
+    if (val) setMinNoticeHours(val);
+  }
+
+  const handleUpdateNotice = async () => {
+    setIsUpdatingNotice(true);
+    const res = await updateSiteSetting('min_booking_notice_hours', minNoticeHours);
+    if (res.success) {
+      showConfirm({
+        title: "Sucesso",
+        message: "Prazo de antecedência atualizado com sucesso!",
+        confirmLabel: "Ótimo",
+        onConfirm: closeConfirm,
+        variant: "info"
+      });
+    }
+    setIsUpdatingNotice(false);
+  };
 
   async function loadSlots() {
     setIsLoading(true);
@@ -125,7 +149,7 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
       <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-10 lg:p-14 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[var(--color-admin-accent)] to-transparent opacity-0" />
         
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
+        <div className="flex flex-col xl:flex-row items-center justify-between gap-12 relative z-10">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-[var(--color-admin-bg)] text-[var(--color-admin-text)] rounded-2xl flex items-center justify-center border border-[var(--color-admin-border)] shadow-inner">
@@ -138,7 +162,34 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-6 w-full max-w-2xl">
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full max-w-4xl">
+            {/* Antecedência Mínima */}
+            <div className="flex flex-1 items-center gap-4 bg-[var(--color-admin-bg)] p-3 rounded-2xl border border-[var(--color-admin-border)] shadow-inner w-full sm:w-auto">
+              <div className="pl-3 text-[var(--color-admin-text-muted)]">
+                <Clock size={18} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-admin-text-muted)] mb-1">Antecedência Mínima</span>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    value={minNoticeHours}
+                    onChange={(e) => setMinNoticeHours(e.target.value)}
+                    className="w-16 bg-transparent border-none text-[14px] font-bold text-[var(--color-admin-text)] focus:ring-0 p-0"
+                    placeholder="24"
+                  />
+                  <span className="text-[12px] font-bold text-[var(--color-admin-text-muted)]">horas</span>
+                </div>
+              </div>
+              <button 
+                onClick={handleUpdateNotice}
+                disabled={isUpdatingNotice}
+                className="ml-auto bg-[var(--color-admin-accent)] text-white p-3 rounded-xl hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50"
+              >
+                {isUpdatingNotice ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
+              </button>
+            </div>
+
             <div className="relative flex-1 w-full group">
               <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--color-admin-text-muted)] group-focus-within:text-[var(--color-admin-accent)] transition-colors duration-300">
                 <Database size={18} />

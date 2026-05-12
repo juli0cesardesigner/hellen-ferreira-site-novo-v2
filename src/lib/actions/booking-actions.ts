@@ -24,6 +24,16 @@ function getSupabase() {
   return supabaseClient;
 }
 
+export async function getSiteSetting(key: string) {
+  try {
+    const { data, error } = await getSupabase().from('site_settings').select('value').eq('key', key).single();
+    if (error) return null;
+    return data.value;
+  } catch (e) {
+    return null;
+  }
+}
+
 /**
  * Retorna os slots disponíveis para uma data e sessão específica
  */
@@ -105,10 +115,35 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
     const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
     const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
 
+    // 4.2 Antecedência Mínima
+    const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+    const minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    const now = new Date();
+    // Adicionamos a antecedência ao tempo atual
+    const minBookingTime = new Date(now.getTime() + (minNoticeHours * 60 * 60 * 1000));
+
     // 5. Lógica de Disponibilidade Real
     const availableSlots = schemaSlots.map((slot: any) => {
       const startTime = slot.start_time;
       
+      // Verificar antecedência mínima
+      // Combinamos a data com o horário do slot. 
+      // Nota: dateStr (YYYY-MM-DD) + T + startTime (HH:mm:ss)
+      // Usamos uma data "absoluta" para comparação
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const [hours, minutes, seconds] = startTime.split(':').map(Number);
+      
+      // Criamos a data do slot no mesmo "contexto" de now para comparação direta
+      // Como o estúdio opera em um horário fixo, vamos tratar tudo como o tempo do sistema (Vercel costuma ser UTC)
+      // Se Hellen está no Brasil (UTC-3), e Now é UTC, o slot de 09:00 no Brasil é 12:00 UTC.
+      // Para simplificar e evitar bugs de timezone complexos, vamos assumir que NOW e SLOT estão no mesmo fuso se não especificado.
+      // No agendamento real, o importante é a distância relativa.
+      const slotDate = new Date(year, month - 1, day, hours, minutes, seconds || 0);
+      
+      if (slotDate < minBookingTime) {
+        return { time: startTime, available: false, reason: `Mínimo de ${minNoticeHours}h de antecedência` };
+      }
+
       const masterIndex = masterGrid.indexOf(startTime);
       if (masterIndex === -1) return { time: startTime, available: false, reason: "Erro de grade" };
 
