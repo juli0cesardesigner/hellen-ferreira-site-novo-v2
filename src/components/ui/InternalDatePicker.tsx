@@ -10,12 +10,14 @@ import { Portal } from "./Portal";
 interface DatePickerProps {
   value: string; // ISO format YYYY-MM-DD
   onChange: (date: string) => void;
+  onMonthChange?: (date: Date) => void;
+  availableDates?: Record<string, boolean>;
   label?: string;
   placeholder?: string;
   className?: string;
 }
 
-export function InternalDatePicker({ value, onChange, label, placeholder = "Selecione uma data", className }: DatePickerProps) {
+export function InternalDatePicker({ value, onChange, onMonthChange, availableDates, label, placeholder = "Selecione uma data", className }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(value ? parseISO(value) : new Date());
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0, width: 340 });
@@ -85,7 +87,11 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/40">
         <button
           type="button"
-          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+          onClick={() => {
+            const next = subMonths(currentMonth, 1);
+            setCurrentMonth(next);
+            onMonthChange?.(next);
+          }}
           className="p-2 rounded-xl text-slate-400 active:bg-[var(--color-admin-bg)] transition-all"
         >
           <ChevronLeft size={20} />
@@ -95,7 +101,11 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
         </span>
         <button
           type="button"
-          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+          onClick={() => {
+            const next = addMonths(currentMonth, 1);
+            setCurrentMonth(next);
+            onMonthChange?.(next);
+          }}
           className="p-2 rounded-xl text-slate-400 active:bg-[var(--color-admin-bg)] transition-all"
         >
           <ChevronRight size={20} />
@@ -134,21 +144,28 @@ export function InternalDatePicker({ value, onChange, label, placeholder = "Sele
       for (let i = 0; i < 7; i++) {
         formattedDate = format(day, "d");
         const cloneDay = day;
+        const dateStr = format(day, "yyyy-MM-dd");
         const isSelected = selectedDate && isSameDay(day, selectedDate);
         const isCurrentMonth = isSameMonth(day, monthStart);
         const isTodayDate = isToday(day);
+        const isPast = day < new Date(new Date().setHours(0,0,0,0));
+        
+        // If availableDates is provided, check it. Otherwise just allow if not in past.
+        const isAvailable = availableDates ? availableDates[dateStr] : true;
+        const isDisabled = !isCurrentMonth || isPast || (availableDates !== undefined && !isAvailable);
 
         days.push(
           <button
             key={day.toString()}
             type="button"
+            disabled={isDisabled}
             className={`relative h-12 w-full flex items-center justify-center text-[13px] font-bold transition-all rounded-xl active:scale-90
-              ${!isCurrentMonth ? "text-slate-200 pointer-events-none" : "text-[var(--color-admin-text-secondary)]"}
-              ${isSelected ? "bg-[var(--color-admin-accent)] text-white shadow-lg scale-95" : ""}
+              ${isDisabled ? "text-slate-200 cursor-not-allowed opacity-20" : "text-[var(--color-admin-text-secondary)] hover:bg-[var(--color-admin-bg)]"}
+              ${isSelected ? "bg-[var(--color-admin-accent)] text-white shadow-lg scale-95 !opacity-100 !text-white" : ""}
               ${isTodayDate && !isSelected ? "text-[var(--color-admin-accent)] bg-[var(--color-admin-accent)]/5" : ""}
             `}
             onClick={() => {
-              onChange(format(cloneDay, "yyyy-MM-dd"));
+              onChange(dateStr);
               setIsOpen(false);
             }}
           >

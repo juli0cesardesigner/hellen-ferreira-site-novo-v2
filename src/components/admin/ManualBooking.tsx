@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, AlertCircle, Copy, Check, User, Mail, Phone, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database, Info } from "lucide-react";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 import { createManualBooking } from "@/lib/actions/admin-actions";
-import { getAvailableSlots } from "@/lib/actions/booking-actions";
+import { getAvailableSlots, getMonthAvailability } from "@/lib/actions/booking-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
@@ -25,7 +25,10 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
   const [packages, setPackages] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
+  const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
+  const [isMonthLoading, setIsMonthLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [createdResult, setCreatedResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -58,6 +61,22 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
       }
     }
   }, [formData.session_id, formData.package_id]);
+  
+  useEffect(() => {
+    if (formData.session_id) {
+      async function loadMonthData() {
+        setIsMonthLoading(true);
+        const res = await getMonthAvailability(
+          currentMonthDate.getFullYear(),
+          currentMonthDate.getMonth(),
+          formData.session_id
+        );
+        setMonthAvailability(res);
+        setIsMonthLoading(false);
+      }
+      loadMonthData();
+    }
+  }, [formData.session_id, currentMonthDate]);
 
   useEffect(() => {
     if (formData.session_id && formData.date) {
@@ -329,11 +348,19 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                     </div>
                   </div>
 
-                  <InternalDatePicker
-                    label="Data"
-                    value={formData.date}
-                    onChange={(date) => setFormData({ ...formData, date })}
-                  />
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70 flex items-center justify-between">
+                      <span>Data da Sessão</span>
+                      {isMonthLoading && <Loader2 size={12} className="animate-spin text-[var(--color-admin-accent)]" />}
+                    </label>
+                    <InternalDatePicker
+                      value={formData.date}
+                      onChange={(date) => setFormData({ ...formData, date })}
+                      onMonthChange={(date) => setCurrentMonthDate(date)}
+                      availableDates={monthAvailability}
+                      placeholder={!formData.session_id ? "Selecione primeiro o serviço" : "Selecione o dia"}
+                    />
+                  </div>
 
                   <div className="space-y-2">
                       <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Slot Temporal</label>

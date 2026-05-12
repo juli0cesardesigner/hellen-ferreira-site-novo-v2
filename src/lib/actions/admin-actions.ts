@@ -619,6 +619,26 @@ export async function createManualBooking(data: {
   await validateAdmin();
   const admin = getAdminClient();
 
+  // 0. Validar antecedência mínima (Regra 2026: Consistência Admin/User)
+  const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+  const minNoticeHours = minNoticeHoursStr ? Number(minNoticeHoursStr) : 0;
+  
+  if (minNoticeHours > 0) {
+    const [year, month, day] = data.booking_date.split('-').map(Number);
+    const [hours, minutes] = data.start_time.split(':').map(Number);
+    const bookingDateTime = new Date(year, month - 1, day, hours, minutes);
+    
+    const minTime = new Date();
+    minTime.setHours(minTime.getHours() + minNoticeHours);
+    
+    if (bookingDateTime < minTime) {
+      return { 
+        success: false, 
+        error: `A regra de antecedência mínima (${minNoticeHours}h) deve ser respeitada. O horário mais próximo permitido é ${minTime.toLocaleString('pt-BR')}.` 
+      };
+    }
+  }
+
   // 1. Pegar a sessão para calcular o tempo final
   const session = SESSIONS_DATA[data.sessionId];
   const { data: dbSession } = await admin.from('sessions').select('duration_slots').eq('id', data.sessionId).single();
