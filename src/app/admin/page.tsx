@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [daySlots, setDaySlots] = useState<any[]>([]);
   const [blockedDates, setBlockedDates] = useState<any[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -66,8 +67,10 @@ export default function AdminDashboard() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  async function loadData() {
-    setIsLoading(true);
+  async function loadData(isBackground?: boolean | any) {
+    const background = isBackground === true;
+    if (background) setIsSyncing(true);
+    else setIsLoading(true);
     try {
       const [statsData, bookingsData, gridData, blocksData] = await Promise.all([
         getAdminStats(),
@@ -81,21 +84,25 @@ export default function AdminDashboard() {
       setBlockedDates(blocksData.blocks || []);
     } catch (e) {
       console.error(e);
-      showNotification("Erro ao carregar dados", "error");
+      const background = isBackground === true;
+      if (!background) showNotification("Erro ao carregar dados", "error");
     } finally {
       setIsLoading(false);
+      setIsSyncing(false);
     }
   }
 
   // Reload grid when selectedDate changes
   React.useEffect(() => {
     if (activeTab === 'calendar') {
-      loadData();
+      loadData(false);
     }
   }, [selectedDate]);
 
-  async function loadFinanceData() {
-    setIsFinanceLoading(true);
+  async function loadFinanceData(isBackground?: boolean | any) {
+    const background = isBackground === true;
+    if (background) setIsSyncing(true);
+    else setIsFinanceLoading(true);
     try {
       const [data, summary] = await Promise.all([
         getFinanceDetailedStats(financeDate.getMonth(), financeDate.getFullYear()),
@@ -115,17 +122,19 @@ export default function AdminDashboard() {
 
     } catch (e) {
       console.error(e);
-      showNotification("Erro ao carregar dados financeiros", "error");
+      const background = isBackground === true;
+      if (!background) showNotification("Erro ao carregar dados financeiros", "error");
     } finally {
       setIsFinanceLoading(false);
+      setIsSyncing(false);
     }
   }
 
   React.useEffect(() => {
     if (activeTab === 'finance') {
-      loadFinanceData();
+      loadFinanceData(false);
     } else {
-      loadData();
+      loadData(false);
     }
   }, [activeTab, financeDate]);
 
@@ -142,17 +151,17 @@ export default function AdminDashboard() {
     
     const channel = supabase.channel('admin-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
-        loadDataRef.current();
-        loadFinanceDataRef.current();
+        loadDataRef.current(true);
+        loadFinanceDataRef.current(true);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_dates' }, () => {
-        loadDataRef.current();
+        loadDataRef.current(true);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'schema_slots' }, () => {
-        loadDataRef.current();
+        loadDataRef.current(true);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
-        loadFinanceDataRef.current();
+        loadFinanceDataRef.current(true);
       })
       .subscribe();
 
@@ -292,8 +301,14 @@ export default function AdminDashboard() {
           </div>
           
           <div className="flex items-center gap-6">
+            {isSyncing && (
+              <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-100/50 px-3 py-1.5 rounded-full border border-slate-200">
+                <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={14} />
+                <span>Sync</span>
+              </div>
+            )}
             <button 
-              onClick={loadData}
+              onClick={() => loadData(false)}
               disabled={isEditing}
               className={`w-12 h-12 flex items-center justify-center bg-[var(--color-admin-bg)] text-slate-400 rounded-2xl transition-all border border-[var(--color-admin-border)] active:scale-90 shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--color-admin-accent)] outline-none ${isEditing ? 'opacity-20 pointer-events-none' : ''}`}
               title="Sincronizar"
