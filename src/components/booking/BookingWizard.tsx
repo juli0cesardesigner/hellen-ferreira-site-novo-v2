@@ -79,6 +79,7 @@ export default function BookingWizard({
             preferenceId: preferenceId,
             payer: {
               email: formData.email,
+              entityType: 'individual',
               identification: {
                 type: 'CPF',
                 number: formData.cpf.replace(/\D/g, ''),
