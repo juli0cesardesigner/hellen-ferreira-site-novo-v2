@@ -165,7 +165,7 @@ export default function FemininoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/feminino?tier=${pkg1.tier_order}`} 
+                    href={`/agendar/feminino/${pkg1.slug}`} 
                     className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
@@ -230,7 +230,7 @@ export default function FemininoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/feminino?tier=${pkg2.tier_order}`} 
+                    href={`/agendar/feminino/${pkg2.slug}`} 
                     className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

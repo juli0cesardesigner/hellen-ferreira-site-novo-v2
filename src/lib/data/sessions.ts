@@ -1,6 +1,7 @@
 export interface SessionPackage {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   tier_order: number;
   price_digital: number;
@@ -37,6 +38,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "3d5af0a6-ebb2-4484-b9c5-c024c886baa5",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Discreto e Intimista",
         tier_order: 1,
         price_digital: 400,
@@ -48,6 +50,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "2fd9d117-5b5a-4cf7-a596-10639aaced15",
         name: "O Sim & Celebração",
+        slug: "celebracao",
         description: "Sessão completa e romântica",
         tier_order: 2,
         price_digital: 560,
@@ -70,6 +73,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "c669452f-7f1e-4b03-b9d7-b1259bd8839e",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Momentos de surpresa eterna",
         tier_order: 1,
         price_digital: 450,
@@ -92,6 +96,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "b5220708-4c6c-4e29-87ae-44d7f400eaa0",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Primeiro aninho com festa",
         tier_order: 1,
         price_digital: 450,
@@ -114,6 +119,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "3ba22e7d-4fdf-4e1c-9116-dedff0fac862",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Elegância e Autenticidade",
         tier_order: 1,
         price_digital: 450,
@@ -125,12 +131,13 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "43509cfc-0c51-446b-9d05-0b4fa21243ba",
         name: "Retrato Celebração",
+        slug: "celebracao",
         description: "Sua história, seu legado",
         tier_order: 2,
         price_digital: 560,
         price_print: 680,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "Sessão em estúdio ou externa", "Até 04 trocas de looks", "Arquivo Digital entregue via galeria", "Consultoria completa de estilo"],
+        features: ["25 Fotos em alta resolução", "Sessão em estúdio or externa", "Até 04 trocas de looks", "Arquivo Digital entregue via galeria", "Consultoria completa de estilo"],
         is_active: true
       }
     ]
@@ -147,6 +154,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "456a321d-3c25-43e4-8055-1f8a946f29c6",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Momentos especiais juntos",
         tier_order: 1,
         price_digital: 400,
@@ -169,6 +177,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "77ce2962-6bb0-442e-8fb2-d8e300da99fe",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Foco exclusivo no bebê",
         tier_order: 1,
         price_digital: 450,
@@ -180,6 +189,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "cbaea88f-1476-4ab4-ab68-abd8552338eb",
         name: "Pacote Família",
+        slug: "familia",
         description: "O baby e as primeiras memórias",
         tier_order: 2,
         price_digital: 560,
@@ -202,6 +212,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "011b3835-0cd2-406a-b3a0-75e5a52b93d2",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Evolução registrada com delicadeza",
         tier_order: 1,
         price_digital: 150,
@@ -224,6 +235,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "f9a0b675-35b0-4465-a46c-a9d63e5a394a",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Leve e memorável",
         tier_order: 1,
         price_digital: 650,
@@ -235,6 +247,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "7a21e5f3-2374-407c-9a8b-ee93d06a190e",
         name: "Ensaio Legado",
+        slug: "legado",
         description: "Sua história, seu legado",
         tier_order: 2,
         price_digital: 950,
@@ -257,6 +270,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "9a309759-78a4-47bd-bca2-e07dbdafb074",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Leve e Intimista",
         tier_order: 1,
         price_digital: 350,
@@ -268,6 +282,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "999f17e1-efdf-4847-a3b1-5e61ed80c886",
         name: "Aventura a Dois",
+        slug: "aventura",
         description: "Um dia inesquecível",
         tier_order: 2,
         price_digital: 500,
@@ -290,6 +305,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "5439e4e2-1a3b-4ea9-a977-6c8e10ec464d",
         name: "Pacote Digital",
+        slug: "digital",
         description: "Retratos profissionais",
         tier_order: 1,
         price_digital: 450,
@@ -301,12 +317,13 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "c906f9ca-c303-4084-a8a3-13340e2ec45b",
         name: "Branding Pessoal",
+        slug: "branding",
         description: "Apresentação de marca",
         tier_order: 2,
         price_digital: 560,
         price_print: 680,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "Realizado em estúdio ou Empresa", "Até 03 trocas de roupa", "Guia de posicionamento e autoridade"],
+        features: ["25 Fotos em alta resolução", "Realizado em estúdio or Empresa", "Até 03 trocas de roupa", "Guia de posicionamento e autoridade"],
         is_active: true
       }
     ]
@@ -323,6 +340,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
       {
         id: "m0m-pkg-1",
         name: "Pacote Especial",
+        slug: "especial",
         description: "Amor em cada clique",
         tier_order: 1,
         price_digital: 450,
@@ -337,4 +355,12 @@ export const SESSIONS_DATA: Record<string, Session> = {
 
 export function getSlugById(id: string): string | null {
   return SESSIONS_DATA[id]?.slug || null;
+}
+
+export function getSessionBySlug(slug: string): Session | null {
+  return Object.values(SESSIONS_DATA).find(s => s.slug === slug) || null;
+}
+
+export function getPackageBySlug(session: Session, packageSlug: string): SessionPackage | null {
+  return session.session_packages.find(p => p.slug === packageSlug) || null;
 }

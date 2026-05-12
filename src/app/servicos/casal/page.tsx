@@ -166,7 +166,7 @@ export default function CasalPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/casal?tier=${pkg1.tier_order}`} 
+                    href={`/agendar/casal/${pkg1.slug}`} 
                     className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
@@ -231,7 +231,7 @@ export default function CasalPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/casal?tier=${pkg2.tier_order}`} 
+                    href={`/agendar/casal/${pkg2.slug}`} 
                     className="mt-16 w-full py-6 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

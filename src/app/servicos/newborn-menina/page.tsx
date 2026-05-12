@@ -182,7 +182,7 @@ export default function NewbornMeninaPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/newborn?tier=${pkg1.tier_order}`} 
+                    href={`/agendar/newborn/${pkg1.slug}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
@@ -245,7 +245,7 @@ export default function NewbornMeninaPage() {
                   </div>
 
                   <Link 
-                    href={`/agendar/newborn?tier=${pkg2.tier_order}`} 
+                    href={`/agendar/newborn/${pkg2.slug}`} 
                     className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível

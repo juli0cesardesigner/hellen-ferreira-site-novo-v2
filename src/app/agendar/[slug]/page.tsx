@@ -1,7 +1,8 @@
 import { fetchSessionBySlug } from "@/lib/actions/booking-actions";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { Metadata } from "next";
+import { getSessionBySlug } from "@/lib/data/sessions";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -31,13 +32,22 @@ export default async function AgendarSlugPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const { tier } = await searchParams;
   
-  const { session } = await fetchSessionBySlug(slug);
+  const session = getSessionBySlug(slug);
   
   if (!session) {
     notFound();
   }
 
-  const initialTier = tier ? parseInt(tier) : 1;
+  // Se o tier for fornecido via query param, redirecionamos para a URL profissional
+  if (tier) {
+    const tierNum = parseInt(tier);
+    const pkg = session.session_packages.find(p => p.tier_order === tierNum);
+    if (pkg) {
+      redirect(`/agendar/${slug}/${pkg.slug}`);
+    }
+  }
 
-  return <BookingWizard initialSessionId={session.id} initialTier={initialTier} />;
+  // Caso padrão (ex: /agendar/gestante sem tier)
+  // Pode mostrar o primeiro pacote ou o wizard padrão
+  return <BookingWizard initialSessionId={session.id} initialTier={1} />;
 }
