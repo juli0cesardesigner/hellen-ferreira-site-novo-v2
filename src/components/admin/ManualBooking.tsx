@@ -69,7 +69,8 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
         const res = await getMonthAvailability(
           currentMonthDate.getFullYear(),
           currentMonthDate.getMonth(),
-          formData.session_id
+          formData.session_id,
+          true // isAdmin
         );
         setMonthAvailability(res);
         setIsMonthLoading(false);
@@ -83,7 +84,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
       async function loadSlots() {
         setIsSlotsLoading(true);
         setAvailableSlots([]);
-        const res = await getAvailableSlots(formData.date, formData.session_id);
+        const res = await getAvailableSlots(formData.date, formData.session_id, true);
         if (Array.isArray(res.slots)) {
           setAvailableSlots(res.slots.filter(s => s.available).map((s: any) => s.time.substring(0, 5)));
         }

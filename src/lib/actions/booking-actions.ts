@@ -37,7 +37,7 @@ export async function getSiteSetting(key: string) {
 /**
  * Retorna os slots disponíveis para uma data e sessão específica
  */
-export async function getAvailableSlots(dateStr: string, sessionId: string) {
+export async function getAvailableSlots(dateStr: string, sessionId: string, isAdmin: boolean = false) {
   try {
     const date = new Date(dateStr);
     const dayOfWeek = date.getUTCDay();
@@ -140,7 +140,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
       // No agendamento real, o importante é a distância relativa.
       const slotDate = new Date(year, month - 1, day, hours, minutes, seconds || 0);
       
-      if (slotDate < minBookingTime) {
+      if (!isAdmin && slotDate < minBookingTime) {
         return { time: startTime, available: false, reason: `Mínimo de ${minNoticeHours}h de antecedência` };
       }
 
@@ -179,7 +179,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string) {
 /**
  * Retorna um resumo da disponibilidade para um mês inteiro (se há slots ou não)
  */
-export async function getMonthAvailability(year: number, month: number, sessionId: string) {
+export async function getMonthAvailability(year: number, month: number, sessionId: string, isAdmin: boolean = false) {
   try {
     const startDate = new Date(year, month, 1).toISOString().split('T')[0];
     const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
@@ -272,7 +272,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
 
       // Check notice period for the day
       // Se a data é hoje ou amanhã, precisamos validar se ainda restam slots fora da zona de restrição
-      if (dateStr <= minBookingTime.toISOString().split('T')[0]) {
+      if (!isAdmin && dateStr <= minBookingTime.toISOString().split('T')[0]) {
         const slotsForThisDay = Object.values(finalSlotsMap).filter((s: any) => s.day_of_week === dayOfWeek && s.is_active);
         const hasAnyFutureSlot = slotsForThisDay.some((s: any) => {
           const [h, m, sec] = s.start_time.split(':').map(Number);
