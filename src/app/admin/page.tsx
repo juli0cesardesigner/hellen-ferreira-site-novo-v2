@@ -17,6 +17,7 @@ import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
+import { createClient } from "@/lib/supabase/client";
 
 type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses';
 
@@ -127,6 +128,38 @@ export default function AdminDashboard() {
       loadData();
     }
   }, [activeTab, financeDate]);
+
+  const loadDataRef = React.useRef(loadData);
+  const loadFinanceDataRef = React.useRef(loadFinanceData);
+
+  React.useEffect(() => {
+    loadDataRef.current = loadData;
+    loadFinanceDataRef.current = loadFinanceData;
+  }, [loadData, loadFinanceData]);
+
+  React.useEffect(() => {
+    const supabase = createClient();
+    
+    const channel = supabase.channel('admin-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+        loadDataRef.current();
+        loadFinanceDataRef.current();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_dates' }, () => {
+        loadDataRef.current();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'schema_slots' }, () => {
+        loadDataRef.current();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => {
+        loadFinanceDataRef.current();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[var(--color-admin-bg)] flex flex-col lg:flex-row antialiased pb-20 lg:pb-0 admin-scope selection:bg-[var(--color-admin-accent)]/30 text-[var(--color-admin-text)] relative overflow-hidden">
