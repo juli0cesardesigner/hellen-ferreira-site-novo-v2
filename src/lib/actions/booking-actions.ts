@@ -471,11 +471,13 @@ export async function processPayment(paymentData: any, bookingId: string) {
         payment_method_id: paymentData.payment_method_id,
         issuer_id: paymentData.issuer_id,
         payer: {
-          email: paymentData.payer.email,
-          identification: {
-            type: paymentData.payer.identification.type,
-            number: paymentData.payer.identification.number,
-          },
+          email: paymentData.payer?.email,
+          ...(paymentData.payer?.identification ? {
+            identification: {
+              type: paymentData.payer.identification.type,
+              number: paymentData.payer.identification.number,
+            }
+          } : {}),
         },
         external_reference: bookingId,
         notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/api/webhooks/mercadopago`,

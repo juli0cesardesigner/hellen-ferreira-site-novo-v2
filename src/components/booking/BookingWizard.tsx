@@ -121,11 +121,12 @@ export default function BookingWizard({
                   return;
                 }
 
-                const res = await processPayment(paymentFormData, bookingId);
+                const formData = paymentFormData.formData;
+                const res = await processPayment(formData, bookingId);
                 console.log("📡 Resposta do processPayment:", res);
                 
                 if (res.success) {
-                  if (paymentFormData.payment_method_id === 'pix') {
+                  if (formData.payment_method_id === 'pix') {
                     setPixData(res.pixData);
                     setStep('pix');
                   } else if (res.status === 'approved' || res.status === 'in_process') {
