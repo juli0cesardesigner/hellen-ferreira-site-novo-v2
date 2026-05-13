@@ -24,6 +24,13 @@ export function InternalDatePicker({ value, onChange, onMonthChange, availableDa
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
 
+  // Sync currentMonth with value prop when it changes externally
+  useEffect(() => {
+    if (value) {
+      setCurrentMonth(parseISO(value));
+    }
+  }, [value]);
+
   // Close on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

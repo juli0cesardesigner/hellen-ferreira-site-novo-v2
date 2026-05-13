@@ -49,6 +49,9 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
     isGift: false
   });
 
+  const latestFormDataRef = useRef(formData);
+  latestFormDataRef.current = formData;
+
   useEffect(() => {
     if (formData.session_id) {
       const session = SESSIONS_DATA[formData.session_id];
@@ -68,14 +71,14 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
     if (formData.session_id) {
       async function loadMonthData() {
         const reqId = ++monthRequestIdRef.current;
+        const { session_id } = latestFormDataRef.current;
         setIsMonthLoading(true);
         const res = await getMonthAvailability(
           currentMonthDate.getFullYear(),
           currentMonthDate.getMonth(),
-          formData.session_id,
+          session_id,
           true
         );
-        // Only apply if this is still the latest request
         if (reqId !== monthRequestIdRef.current) return;
         setMonthAvailability(res);
         setIsMonthLoading(false);
@@ -86,15 +89,18 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
 
   useEffect(() => {
     if (formData.session_id && formData.date) {
+      // Reset slot selection when date changes
+      setFormData(prev => ({ ...prev, start_time: "" }));
+      
       async function loadSlots() {
         const reqId = ++slotsRequestIdRef.current;
+        const { date, session_id } = latestFormDataRef.current;
         setIsSlotsLoading(true);
         setAvailableSlots([]);
-        const res = await getAvailableSlots(formData.date, formData.session_id, true);
+        const res = await getAvailableSlots(date, session_id, true);
         // Only apply if this is still the latest request
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          // Admin vê todos os slots do dia, disponíveis ou não
           setAvailableSlots(res.slots.map((s: any) => s.time.substring(0, 5)));
         }
         setIsSlotsLoading(false);

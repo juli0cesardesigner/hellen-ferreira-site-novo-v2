@@ -42,15 +42,17 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
   const [availableSlots, setAvailableSlots] = useState<{ time: string, available: boolean }[]>([]);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const slotsRequestIdRef = useRef(0);
+  const latestBookingDateRef = useRef(formData.booking_date);
+  latestBookingDateRef.current = formData.booking_date;
 
   useEffect(() => {
     if (sessionId && formData.booking_date) {
       async function loadSlots() {
         const reqId = ++slotsRequestIdRef.current;
+        const bookingDate = latestBookingDateRef.current;
         setIsSlotsLoading(true);
         setAvailableSlots([]);
-        const res = await getAvailableSlots(formData.booking_date, sessionId, true);
-        // Only apply if this is still the latest request
+        const res = await getAvailableSlots(bookingDate, sessionId, true);
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
           setAvailableSlots(res.slots);
