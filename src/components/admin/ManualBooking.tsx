@@ -89,9 +89,6 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
 
   useEffect(() => {
     if (formData.session_id && formData.date) {
-      // Reset slot selection when date changes
-      setFormData(prev => ({ ...prev, start_time: "" }));
-      
       async function loadSlots() {
         const reqId = ++slotsRequestIdRef.current;
         const { date, session_id } = latestFormDataRef.current;
@@ -370,7 +367,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                     </label>
                     <InternalDatePicker
                       value={formData.date}
-                      onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                      onChange={(date) => setFormData(prev => ({ ...prev, date, start_time: "" }))}
                       onMonthChange={(date) => setCurrentMonthDate(date)}
                       availableDates={monthAvailability}
                       placeholder={!formData.session_id ? "Selecione primeiro o serviço" : "Selecione o dia"}
