@@ -15,6 +15,7 @@ import { getDashboardData, getBookingsList, getAdminStats, getAllBookingsList, g
 import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { BlockSlotModal } from "@/components/admin/BlockSlotModal";
+import { DeleteBlockedSlotModal } from "@/components/admin/DeleteBlockedSlotModal";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isManualBookingOpen, setIsManualBookingOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBlockedSlot, setSelectedBlockedSlot] = useState<any>(null);
   const [isSectionEditing, setIsSectionEditing] = useState(false);
   const [isMonthListExpanded, setIsMonthListExpanded] = useState(true);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
@@ -64,7 +66,7 @@ export default function AdminDashboard() {
   const [meiReport, setMeiReport] = useState<{ totalYear: number, monthByMonth: any[] }>({ totalYear: 0, monthByMonth: [] });
 
   // Consider as editing if any modal is open or if the section reports editing
-  const isEditing = isManualBookingOpen || !!selectedBooking || isSectionEditing;
+  const isEditing = isManualBookingOpen || !!selectedBooking || !!selectedBlockedSlot || isSectionEditing;
 
   const showNotification = (message: string, type: 'success' | 'error' = 'success') => {
     setNotification({ message, type });
@@ -362,6 +364,18 @@ export default function AdminDashboard() {
               />
             )}
 
+                        {selectedBlockedSlot && (
+              <DeleteBlockedSlotModal
+                booking={selectedBlockedSlot}
+                onClose={() => setSelectedBlockedSlot(null)}
+                onUpdated={() => {
+                  loadData(true);
+                  setNotification({ message: "Bloqueio removido com sucesso", type: 'success' });
+                  setTimeout(() => setNotification(null), 3000);
+                }}
+              />
+            )}
+
             {selectedBooking && (
               <EditBookingModal 
                 booking={selectedBooking} 
@@ -649,17 +663,19 @@ export default function AdminDashboard() {
                               });
 
                               if (bookingAtSlot) {
-                                const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
-                                const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') : '';
-                                
+                              const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
+                              const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') 
+: '';
+                                  
                                 const colors = isBlock 
                                   ? { isCustom: true, styles: { color: '#ef4444' } }
-                                  : getSessionColor(bookingAtSlot.sessions?.name, bookingAtSlot.sessions?.theme_color);
-                                
+                                 : getSessionColor(bookingAtSlot.sessions?.name, 
+bookingAtSlot.sessions?.theme_color);
+                                  
                                 return (
                                   <div 
                                     key={slot.id} 
-                                    onClick={() => setSelectedBooking(bookingAtSlot)}
+                                   onClick={() => isBlock ? setSelectedBlockedSlot(bookingAtSlot) : setSelectedBooking(bookingAtSlot)}
                                     className={`group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border shadow-sm ${isBlock ? 'border-red-200 bg-red-50/30' : 'border-[var(--color-admin-border)]'}`}
                                   >
                                     <div className={`w-24 flex flex-col items-center justify-center border-r pr-2 ${isBlock ? 'border-red-100' : 'border-[var(--color-admin-border)]'}`}>
@@ -926,9 +942,16 @@ export default function AdminDashboard() {
                       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="p-4 lg:p-10">
-                        <BookingList 
+                                                <BookingList 
                           bookings={financeData.bookings} 
-                          onEdit={setSelectedBooking} 
+                          onEdit={(booking) => {
+                            const isBlock = booking.customer_name?.startsWith('BLOQUEIO:');
+                            if (isBlock) {
+                              setSelectedBlockedSlot(booking);
+                            } else {
+                              setSelectedBooking(booking);
+                            }
+                          }}
                           isLoading={isFinanceLoading} 
                         />
                       </div>
@@ -1013,9 +1036,9 @@ function BookingList({ bookings, onEdit, isLoading }: { bookings: any[], onEdit:
                 const hasPaidSomething = paid > 0 && !isFullyPaid;
 
                 return (
-                  <div 
-                    key={booking.id}
-                    onClick={() => onEdit(booking)}
+                                    <div 
+                                      key={booking.id}
+                                      onClick={() => onEdit(booking)}
                     className="group bg-white rounded-[1.5rem] border border-[var(--color-admin-border)] p-5 lg:p-6 flex items-center justify-between gap-4 transition-all hover:border-[var(--color-admin-accent)]/30 hover:shadow-xl hover:translate-x-1 cursor-pointer active:scale-[0.99] shadow-sm"
                   >
                     <div className="flex items-center gap-6 lg:gap-10 flex-1 min-w-0">
