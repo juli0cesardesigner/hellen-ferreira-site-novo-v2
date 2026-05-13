@@ -19,7 +19,7 @@ export default function RevelacaoPage() {
       .then(res => res.json())
       .then(data => {
         if (data.images) {
-          setGalleryImages(data.images);
+          setGalleryImages(data.images.map((img: any) => img.path || img));
         }
       })
       .catch(err => console.error("Erro ao carregar galeria Revelação:", err));

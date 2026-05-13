@@ -5,6 +5,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
+import crypto from "crypto";
 
 // Lazy initialization of Supabase client to prevent crashes if env vars are missing during build/init
 let supabaseClient: any = null;
@@ -37,10 +38,21 @@ export async function getSiteSetting(key: string) {
 /**
  * Retorna os slots disponíveis para uma data e sessão específica
  */
+/**
+ * Helper: parse YYYY-MM-DD as local date (Brazil/America/Sao_Paulo).
+ * Using new Date("YYYY-MM-DD") without time interprets as UTC midnight,
+ * which shifts the day-of-week for negative UTC offsets.
+ * We parse manually to keep the date anchored to local calendar day.
+ */
+function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 export async function getAvailableSlots(dateStr: string, sessionId: string, isAdmin: boolean = false) {
   try {
-    const date = new Date(dateStr);
-    const dayOfWeek = date.getUTCDay();
+    const date = parseLocalDate(dateStr);
+    const dayOfWeek = date.getDay();
 
     // 0. Buscar detalhes da sessão no banco para ter as datas de disponibilidade reais
     const { data: dbSession } = await getSupabase()
@@ -98,10 +110,6 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // Filtra apenas os que restaram ativos após o merge
     const schemaSlots = Object.values(finalSlotsMap).filter((s: any) => s.is_active);
 
-    if (!schemaSlots || schemaSlots.length === 0) {
-      return { slots: [], message: "Não há horários configurados para este dia." };
-    }
-
     // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes)
     const { data: existingBookings } = await getSupabase()
       .from('bookings')
@@ -115,6 +123,17 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
     const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
 
+    // Para admin: usa a grade mestre completa, sem depender de schemaSlots
+    if (isAdmin) {
+      if (masterGrid.length === 0) {
+        return { slots: [], message: "Não há horários configurados para este dia." };
+      }
+    } else {
+      if (!schemaSlots || schemaSlots.length === 0) {
+        return { slots: [], message: "Não há horários configurados para este dia." };
+      }
+    }
+
     // 4.2 Antecedência Mínima
     const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
     const minNoticeHours = parseInt(minNoticeHoursStr || '12');
@@ -122,8 +141,15 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // Adicionamos a antecedência ao tempo atual
     const minBookingTime = new Date(now.getTime() + (minNoticeHours * 60 * 60 * 1000));
 
+    // 5. Para admin: usar a grade mestre completa, não apenas os slots do serviço
+    // Isso permite que o admin agende em QUALQUER horário livre do dia,
+    // mesmo que não esteja no schema específico do serviço.
+    const baseSlots: any[] = isAdmin
+      ? masterGrid.map((time) => ({ start_time: time, is_active: true }))
+      : schemaSlots;
+
     // 5. Lógica de Disponibilidade Real
-    const availableSlots = schemaSlots.map((slot: any) => {
+    const availableSlots = baseSlots.map((slot: any) => {
       const startTime = slot.start_time;
       
       // Verificar antecedência mínima
@@ -203,6 +229,14 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       .gte('end_date', startDate);
 
     // 2. Horários base (Schema) do serviço e Global
+    // Also fetch duration_slots for this session to compute master-grid occupancy
+    const { data: dbSession } = await getSupabase()
+      .from('sessions')
+      .select('duration_slots')
+      .eq('id', sessionId)
+      .single();
+    const durationSlots = dbSession?.duration_slots || 1;
+
     const [globalRes, specificRes] = await Promise.all([
       getSupabase().from('schema_slots').select('*').is('session_id', null).order('start_time'),
       getSupabase().from('schema_slots').select('*').eq('session_id', sessionId).order('start_time')
@@ -211,8 +245,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     const globalSlots = globalRes.data || [];
     const specificSlots = specificRes.data || [];
 
-    // Construir o mapa de slots finais baseados no merge por dia da semana
-    const activeSlotsCount: Record<number, number> = {};
+    // Build merged slot map keyed by day_of_week-start_time
     const finalSlotsMap: Record<string, any> = {};
 
     globalSlots.forEach((gs: any) => {
@@ -225,10 +258,15 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       finalSlotsMap[key] = ss;
     });
 
+    // Build per-day master grids (sorted start_time arrays for each day_of_week)
+    const masterGridByDay: Record<number, string[]> = {};
     Object.values(finalSlotsMap).forEach((s: any) => {
-      if (s.is_active) {
-        activeSlotsCount[s.day_of_week] = (activeSlotsCount[s.day_of_week] || 0) + 1;
-      }
+      if (!s.is_active) return;
+      if (!masterGridByDay[s.day_of_week]) masterGridByDay[s.day_of_week] = [];
+      masterGridByDay[s.day_of_week].push(s.start_time);
+    });
+    Object.keys(masterGridByDay).forEach((dow) => {
+      masterGridByDay[Number(dow)].sort();
     });
 
     // 3. Bookings no período
@@ -252,26 +290,24 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     for (let day = 1; day <= lastDay; day++) {
       const date = new Date(year, month, day);
       const dateStr = date.toISOString().split('T')[0];
-      const dayOfWeek = date.getUTCDay(); // Usar getUTCDay para consistência com o resto do sistema
+      const dayOfWeek = date.getDay(); // Local day-of-week, consistent with getAvailableSlots
 
       // Check if day is blocked
       const isBlocked = blockedDays?.some((b: any) => dateStr >= b.start_date && dateStr <= b.end_date);
-      
+
       // Check session date restriction
       const isWithinRange = session.is_perpetual || (
         (!session.start_date || dateStr >= session.start_date) &&
         (!session.end_date || dateStr <= session.end_date)
       );
 
-      const totalSlotsInDay = activeSlotsCount[dayOfWeek] || 0;
-      
-      if (isBlocked || totalSlotsInDay === 0 || !isWithinRange) {
+      const dayGrid = masterGridByDay[dayOfWeek];
+      if (isBlocked || !dayGrid || dayGrid.length === 0 || !isWithinRange) {
         availabilityMap[dateStr] = false;
         continue;
       }
 
       // Check notice period for the day
-      // Se a data é hoje ou amanhã, precisamos validar se ainda restam slots fora da zona de restrição
       if (!isAdmin && dateStr <= minBookingTime.toISOString().split('T')[0]) {
         const slotsForThisDay = Object.values(finalSlotsMap).filter((s: any) => s.day_of_week === dayOfWeek && s.is_active);
         const hasAnyFutureSlot = slotsForThisDay.some((s: any) => {
@@ -286,10 +322,31 @@ export async function getMonthAvailability(year: number, month: number, sessionI
         }
       }
 
-      const dayBookingsCount = bookings?.filter((b: any) => b.booking_date === dateStr).length || 0;
-      
-      // Se bookings >= slots totais, o dia está lotado
-      availabilityMap[dateStr] = dayBookingsCount < totalSlotsInDay; 
+      // Day-level availability via master-grid occupancy check
+      // A day is available if there's at least one starting slot that can accommodate
+      // a booking of duration=durationSlots without colliding with existing bookings.
+      const dayBookings = bookings?.filter((b: any) => b.booking_date === dateStr) || [];
+      let hasAvailableSlot = false;
+
+      for (let gi = 0; gi <= dayGrid.length - durationSlots; gi++) {
+        let slotAvailable = true;
+        for (let offset = 0; offset < durationSlots; offset++) {
+          const gridTime = dayGrid[gi + offset];
+          const collides = dayBookings.some((b: any) =>
+            gridTime >= b.start_time && gridTime < b.end_time
+          );
+          if (collides) {
+            slotAvailable = false;
+            break;
+          }
+        }
+        if (slotAvailable) {
+          hasAvailableSlot = true;
+          break;
+        }
+      }
+
+      availabilityMap[dateStr] = hasAvailableSlot;
     }
 
     return availabilityMap;
@@ -324,18 +381,24 @@ export async function createBooking(data: {
     };
   }
 
-  // 1. Pegamos a sessão para saber a duração e preços (incluindo pacotes)
-  const session = SESSIONS_DATA[data.sessionId];
+  // 1. Pegamos a sessão do banco primeiro (preços, pacotes, duração)
+  const { data: dbSessionFull } = await getSupabase()
+    .from('sessions')
+    .select(`*, session_packages (*)`)
+    .eq('id', data.sessionId)
+    .single();
+
+  // Fallback to static data if DB is unreachable
+  const session = (dbSessionFull && dbSessionFull.is_active) ? dbSessionFull : SESSIONS_DATA[data.sessionId];
 
   if (!session) return { error: "Sessão não encontrada." };
   if (!session.is_active) return { error: "Este serviço está temporariamente pausado." };
 
-  // 2. Pegar duração do banco
-  const { data: dbSession } = await getSupabase().from('sessions').select('duration_slots').eq('id', data.sessionId).single();
-  const durationSlots = dbSession?.duration_slots || session.duration_slots;
+  // 2. Duração do banco (ou fallback)
+  const durationSlots = dbSessionFull?.duration_slots || (session as any).duration_slots;
 
   // 3. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
-  const dayOfWeek = new Date(data.bookingDate).getUTCDay();
+  const dayOfWeek = parseLocalDate(data.bookingDate).getDay();
   const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
   const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
   
@@ -373,30 +436,14 @@ export async function createBooking(data: {
   
   const amountToPay = data.paymentType === 'deposit' ? session.deposit_price : packagePrice;
 
-  // 4. Salvar no Banco como Pending
-  const { data: booking, error } = await getSupabase().from('bookings').insert({
-    session_id: data.sessionId,
-    customer_name: data.clientName,
-    customer_email: data.clientEmail,
-    customer_phone: data.clientPhone,
-    booking_date: data.bookingDate,
-    start_time: data.startTime,
-    end_time: endTime,
-    status: 'pending',
-    package_type: data.packageType,
-    total_amount: packagePrice,
-    paid_amount: amountToPay
-  }).select().single();
-
-  if (error) {
-    console.error("Erro Supabase:", error);
-    return { error: "Erro ao registrar agendamento." };
-  }
-
-  // 4. Integrar com Mercado Pago para Checkout Transparente / Modal
+  // 4. Criar preferência de pagamento PRIMEIRO (evita booking órfão)
+  let preferenceId: string | null = null;
   try {
     const { mpClient } = await import('@/lib/utils/mercadopago');
     const { Preference } = await import('mercadopago');
+    
+    // Usar um ID temporário como external_reference; será atualizado após inserir o booking
+    const tempRef = crypto.randomUUID();
     
     const preference = new Preference(mpClient);
     
@@ -404,7 +451,7 @@ export async function createBooking(data: {
       body: {
         items: [
           {
-            id: booking.id,
+            id: tempRef,
             title: `${session.name} - ${selectedPackage.name}`,
             quantity: 1,
             unit_price: Number(amountToPay),
@@ -422,9 +469,9 @@ export async function createBooking(data: {
             number: data.clientCpf?.replace(/\D/g, '')
           }
         },
-        external_reference: booking.id,
+        external_reference: tempRef,
         metadata: {
-          booking_id: booking.id,
+          booking_id: tempRef, // Will be updated below
         },
         notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/api/webhooks/mercadopago`,
         back_urls: {
@@ -436,11 +483,7 @@ export async function createBooking(data: {
       }
     });
 
-    return { 
-      success: true, 
-      bookingId: booking.id,
-      preferenceId: response.id, // Retornamos o ID para o Brick do frontend
-    };
+    preferenceId = response.id ?? null;
   } catch (mpError: any) {
     console.error("Erro ao criar preferência Mercado Pago:", mpError);
     return { 
@@ -448,13 +491,42 @@ export async function createBooking(data: {
       error: "Ocorreu um erro ao iniciar o pagamento. Por favor, tente novamente." 
     };
   }
+
+  // 5. Salvar no Banco como 'awaiting_payment' (só depois da preferência criada)
+  const { data: booking, error } = await getSupabase().from('bookings').insert({
+    session_id: data.sessionId,
+    customer_name: data.clientName,
+    customer_email: data.clientEmail,
+    customer_phone: data.clientPhone,
+    booking_date: data.bookingDate,
+    start_time: data.startTime,
+    end_time: endTime,
+    status: 'pending',
+    package_type: data.packageType,
+    total_amount: packagePrice,
+    paid_amount: amountToPay,
+    payment_preference_id: preferenceId,
+  }).select().single();
+
+  if (error) {
+    console.error("Erro Supabase:", error);
+    return { error: "Erro ao registrar agendamento." };
+  }
+
+  return { 
+    success: true, 
+    bookingId: booking.id,
+    preferenceId, // Retornamos o ID para o Brick do frontend
+  };
 }
 
 /**
  * Processa o pagamento real vindo do Brick (Transparent Checkout)
  */
 export async function processPayment(paymentData: any, bookingId: string) {
-  console.log("🚀 processPayment iniciado para bookingId:", bookingId);
+  if (process.env.NODE_ENV === 'development') {
+    console.log("🚀 processPayment iniciado para bookingId:", bookingId);
+  }
   try {
     const { mpClient } = await import('@/lib/utils/mercadopago');
     const { Payment } = await import('mercadopago');
@@ -489,7 +561,9 @@ export async function processPayment(paymentData: any, bookingId: string) {
 
     // 2. Se for Pix, retornar os dados do QR Code
     if (paymentData.payment_method_id === 'pix') {
-      console.log("✅ Pagamento Pix criado com sucesso. Retornando QR Code.");
+      if (process.env.NODE_ENV === 'development') {
+        console.log("✅ Pagamento Pix criado com sucesso. Retornando QR Code.");
+      }
       return {
         success: true,
         status: response.status,
@@ -518,7 +592,7 @@ export async function processPayment(paymentData: any, bookingId: string) {
 }
 
 /**
- * Busca os detalhes completos da sessão pelo ID (Modelo Estático)
+ * Busca os detalhes completos da sessão pelo ID (DB first, static fallback)
  */
 export async function fetchSessionDetails(id: string) {
   try {
@@ -532,8 +606,8 @@ export async function fetchSessionDetails(id: string) {
       .single();
 
     if (error || !session) {
+      // Fallback to static data only when DB is unreachable
       console.error("Session not found in DB for ID:", id);
-      // Fallback para dados estáticos se necessário, mas o DB deve ser a fonte primária
       return { session: SESSIONS_DATA[id] || null };
     }
 
@@ -554,16 +628,30 @@ export async function fetchSessionDetails(id: string) {
 }
 
 /**
- * Lista todas as sessões ativas (Modelo Estático)
+ * Lista todas as sessões ativas (DB first, static fallback)
  */
 export async function listActiveSessions() {
+  try {
+    const { data: sessions, error } = await getSupabase()
+      .from('sessions')
+      .select('id, name, slug, is_active')
+      .eq('is_active', true)
+      .order('name');
+
+    if (!error && sessions && sessions.length > 0) {
+      return sessions;
+    }
+  } catch (e) {
+    // Fallback to static data
+  }
+
   return Object.values(SESSIONS_DATA)
     .filter(s => s.is_active)
     .map(s => ({ id: s.id, name: s.name, slug: s.slug, is_active: s.is_active }));
 }
 
 /**
- * Busca os detalhes completos da sessão pelo SLUG (Modelo Estático)
+ * Busca os detalhes completos da sessão pelo SLUG (DB first, static fallback)
  */
 export async function fetchSessionBySlug(slug: string) {
   try {

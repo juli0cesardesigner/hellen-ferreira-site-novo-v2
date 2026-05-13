@@ -2,6 +2,9 @@
 
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+// revalidatePath is used to invalidate Next.js server cache.
+// Note: the admin page is "use client" and uses Supabase realtime for live updates,
+// so revalidatePath does NOT trigger client re-renders. It is kept for SSR cache hygiene.
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import { redirect } from "next/navigation";
@@ -224,19 +227,16 @@ export async function getBlockedDates() {
 export async function getDashboardData(dayOfWeek: number, year: number, month: number) {
   await validateAdmin();
   const admin = getAdminClient();
-  
-  const now = new Date();
-  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-  const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
+  // Use the requested year/month for ALL queries — not the current month
   const startTargetMonth = new Date(year, month, 1).toISOString().split('T')[0];
   const endTargetMonth = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
   const pStats = admin
     .from('bookings')
     .select('status, total_amount, paid_amount')
-    .gte('booking_date', firstDayOfMonth)
-    .lte('booking_date', lastDayOfMonth);
+    .gte('booking_date', startTargetMonth)
+    .lte('booking_date', endTargetMonth);
 
   const pBookings = admin
     .from('bookings')
@@ -284,8 +284,12 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
 export async function syncSessionColors() {
   await validateAdmin();
   const admin = getAdminClient();
-  
-  const updates = Object.values(SESSIONS_DATA).map(session => 
+
+  // Pull sessions from DB first; fall back to static data only if DB is empty
+  const { data: dbSessions } = await admin.from('sessions').select('id, theme_color');
+  const source = (dbSessions && dbSessions.length > 0) ? dbSessions : Object.values(SESSIONS_DATA);
+
+  const updates = source.map((session: any) =>
     admin.from('sessions').update({ theme_color: session.theme_color }).eq('id', session.id)
   );
 
@@ -297,11 +301,12 @@ export async function syncSessionColors() {
 // --- Expenses Actions ---
 
 export async function getExpenses(month: number, year: number) {
+  // month is 0-indexed (JS Date convention)
   await validateAdmin();
   const admin = getAdminClient();
   
-  const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
-  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+  const startDate = new Date(year, month, 1).toISOString().split('T')[0];
+  const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
   const { data, error } = await admin
     .from('expenses')
@@ -440,11 +445,12 @@ export async function deleteExpense(id: string, deleteAllInGroup: boolean = fals
 }
 
 export async function getFinanceSummary(month: number, year: number) {
+  // month is 0-indexed (JS Date convention)
   await validateAdmin();
   const admin = getAdminClient();
   
-  const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
-  const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+  const startDate = new Date(year, month, 1).toISOString().split('T')[0];
+  const endDate = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
   const { data: bookings } = await admin
     .from('bookings')
@@ -862,6 +868,8 @@ export async function blockSlot(date: string, time: string, reason: string) {
   await validateAdmin();
   const admin = getAdminClient();
 
+  const blockReason = reason?.trim() || "Bloqueio";
+
   // Calculate end_time (30 min default)
   const [hours, minutes] = time.split(':').map(Number);
   const endDate = new Date();
@@ -869,7 +877,7 @@ export async function blockSlot(date: string, time: string, reason: string) {
   const end_time = endDate.toTimeString().split(' ')[0];
 
   const { error } = await admin.from('bookings').insert([{
-    customer_name: `BLOQUEIO: ${reason}`,
+    customer_name: `BLOQUEIO: ${blockReason}`,
     customer_email: 'admin@hellenferreira.com',
     booking_date: date,
     start_time: time,

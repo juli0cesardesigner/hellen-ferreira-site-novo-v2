@@ -23,23 +23,21 @@ export default function Home() {
       .then(res => res.json())
       .then(async data => {
         if (data.images && data.images.length > 0) {
+          // Normalize: entries may be strings (legacy) or {path, width, height, orientation}
+          const entries: { path: string; orientation?: string }[] = data.images.map((img: any) =>
+            typeof img === 'string' ? { path: img } : img
+          );
           const isDesktop = window.innerWidth >= 768;
-          
-          const checkOrientation = (src: string): Promise<boolean> => {
-            return new Promise((resolve) => {
-              const img = new window.Image();
-              img.onload = () => resolve(img.width >= img.height);
-              img.onerror = () => resolve(isDesktop); // fallback to preferred viewport ratio
-              img.src = src;
-            });
-          };
+          const preferredOrientation = isDesktop ? 'horizontal' : 'vertical';
 
-          const filtered = [];
-          // Apenas processa as primeiras N imagens para performance até termos o suficiente
-          for (const target of data.images) {
-            const isHoriz = await checkOrientation(target);
-            if (isDesktop ? isHoriz : !isHoriz) {
-              filtered.push(target);
+          const filtered: string[] = [];
+          for (const entry of entries) {
+            // Use pre-computed orientation metadata when available
+            const matchesOrientation = entry.orientation
+              ? entry.orientation === preferredOrientation
+              : true; // No metadata → accept any
+            if (matchesOrientation) {
+              filtered.push(entry.path);
             }
             if (filtered.length >= 20) break;
           }
@@ -47,7 +45,7 @@ export default function Home() {
           if (filtered.length >= 8) {
              setDynamicImages(filtered);
           } else {
-             setDynamicImages(data.images);
+             setDynamicImages(entries.map(e => e.path));
           }
         }
       })

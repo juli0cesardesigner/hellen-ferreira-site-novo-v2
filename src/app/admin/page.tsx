@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { 
   LayoutDashboard, Clock, Calendar, Plus, Settings, ShieldCheck, RefreshCw, Database, 
   ChevronRight, ChevronLeft, LogOut, Loader2, BarChart, Receipt, TrendingDown, 
@@ -44,6 +44,39 @@ export default function AdminDashboard() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBlockSlotOpen, setIsBlockSlotOpen] = useState(false);
   const [selectedTimeForAction, setSelectedTimeForAction] = useState<string | null>(null);
+
+  // ─── Daily booking counts for calendar dots ───
+  const dayBookingCounts = useMemo(() => {
+    const counts: Record<string, { regular: number; blocked: number }> = {};
+    for (const b of bookings) {
+      const dateKey = b.booking_date; // YYYY-MM-DD
+      if (!dateKey) continue;
+      if (!counts[dateKey]) {
+        counts[dateKey] = { regular: 0, blocked: 0 };
+      }
+      if (b.customer_name?.startsWith('BLOQUEIO:')) {
+        counts[dateKey].blocked++;
+      } else {
+        counts[dateKey].regular++;
+      }
+    }
+    return counts;
+  }, [bookings]);
+
+  // ─── Set of fully blocked dates (mass blocking) ───
+  const fullyBlockedDates = useMemo(() => {
+    const set = new Set<string>();
+    for (const b of blockedDates) {
+      const start = new Date(b.start_date);
+      const end = new Date(b.end_date);
+      const curr = new Date(start);
+      while (curr <= end) {
+        set.add(curr.toISOString().split('T')[0]);
+        curr.setDate(curr.getDate() + 1);
+      }
+    }
+    return set;
+  }, [blockedDates]);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -94,11 +127,12 @@ export default function AdminDashboard() {
   }
 
   // Reload grid when selectedDate or viewDate changes
+  // Uses refs to avoid stale closures while keeping stable effect dependencies
   React.useEffect(() => {
     if (activeTab === 'calendar') {
-      loadData(false);
+      loadDataRef.current(false);
     }
-  }, [selectedDate, viewDate]);
+  }, [selectedDate, viewDate, activeTab]);
 
   async function loadFinanceData(isBackground?: boolean | any) {
     const background = isBackground === true;
@@ -107,13 +141,13 @@ export default function AdminDashboard() {
     try {
       const [data, summary] = await Promise.all([
         getFinanceDetailedStats(financeDate.getMonth(), financeDate.getFullYear()),
-        getFinanceSummary(financeDate.getMonth() + 1, financeDate.getFullYear())
+        getFinanceSummary(financeDate.getMonth(), financeDate.getFullYear())
       ]);
       setFinanceData(data);
       setFinanceSummary(summary);
       
-      // Load MEI report (current year) in parallel
-      const monthPromises = Array.from({ length: 12 }, (_, i) => getFinanceSummary(i + 1, financeDate.getFullYear()));
+      // Load MEI report (current year) in parallel — months are 0-indexed
+      const monthPromises = Array.from({ length: 12 }, (_, i) => getFinanceSummary(i, financeDate.getFullYear()));
       const summaries = await Promise.all(monthPromises);
       
       const yearTotal = summaries.reduce((acc: number, s: any) => acc + (s.totalReceived || 0), 0);
@@ -133,9 +167,9 @@ export default function AdminDashboard() {
 
   React.useEffect(() => {
     if (activeTab === 'finance') {
-      loadFinanceData(false);
+      loadFinanceDataRef.current(false);
     } else {
-      loadData(false);
+      loadDataRef.current(false);
     }
   }, [activeTab, financeDate]);
 
@@ -550,23 +584,13 @@ export default function AdminDashboard() {
                       const date = new Date(year, month, day);
                       const isSelected = selectedDate.toDateString() === date.toDateString();
                       const isToday = new Date().toDateString() === date.toDateString();
+                      const dateKey = date.toISOString().split('T')[0];
                       
-                      // Check if day is blocked
-                      const block = blockedDates.find(b => {
-                        const startParts = b.start_date.split('T')[0].split('-').map(Number);
-                        const endParts = b.end_date.split('T')[0].split('-').map(Number);
-                        const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);
-                        const end = new Date(endParts[0], endParts[1] - 1, endParts[2]);
-                        
-                        const check = new Date(date);
-                        check.setHours(0,0,0,0);
-                        return check >= start && check <= end;
-                      });
-
-                      const hasBooking = bookings.some(b => {
-                        const bDate = new Date(b.booking_date);
-                        return bDate.getUTCDate() === day && bDate.getUTCMonth() === month && bDate.getUTCFullYear() === year;
-                      });
+                      // Check if day is fully blocked (mass blocking)
+                      const isFullyBlocked = fullyBlockedDates.has(dateKey);
+                      
+                      // Day-level booking counts
+                      const dayCounts = dayBookingCounts[dateKey] || { regular: 0, blocked: 0 };
 
                       cells.push(
                         <button 
@@ -575,7 +599,7 @@ export default function AdminDashboard() {
                           className={`h-12 lg:h-16 rounded-2xl flex flex-col items-center justify-center transition-all border relative ${
                             isSelected 
                               ? 'bg-[var(--color-admin-accent)] border-[var(--color-admin-accent)] text-white shadow-md z-10 scale-105' 
-                              : block
+                              : isFullyBlocked
                                 ? 'bg-red-50 border-red-200 text-red-600'
                                 : isToday
                                   ? 'bg-[var(--color-admin-bg)] border-[var(--color-admin-accent)]/30 text-[var(--color-admin-accent)]'
@@ -583,11 +607,16 @@ export default function AdminDashboard() {
                           }`}
                         >
                           <span className="text-[14px] font-bold">{day}</span>
-                          {block && !isSelected && (
-                            <div className="w-1.5 h-1.5 bg-red-400 rounded-full mt-1" />
-                          )}
-                          {hasBooking && !isSelected && !block && (
-                            <div className="w-1.5 h-1.5 bg-[var(--color-admin-accent)] rounded-full mt-1 shadow-[0_0_8px_var(--color-admin-accent)]" />
+                          {/* Dots: only for non-fully-blocked days */}
+                          {!isFullyBlocked && !isSelected && (dayCounts.regular > 0 || dayCounts.blocked > 0) && (
+                            <div className="flex gap-[2px] mt-1 justify-center flex-wrap px-1">
+                              {Array.from({ length: dayCounts.regular }, (_, i) => (
+                                <div key={`b-${i}`} className="w-[5px] h-[5px] bg-blue-500 rounded-full" />
+                              ))}
+                              {Array.from({ length: dayCounts.blocked }, (_, i) => (
+                                <div key={`r-${i}`} className="w-[5px] h-[5px] bg-red-400 rounded-full" />
+                              ))}
+                            </div>
                           )}
                         </button>
                       );
@@ -613,16 +642,16 @@ export default function AdminDashboard() {
                         <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Sincronizando grade...</p>
                       </div>
                     ) : (() => {
-                        const block = blockedDates.find(b => {
+                        const isFullyBlocked = fullyBlockedDates.has(selectedDate.toISOString().split('T')[0]);
+                        const block = isFullyBlocked ? blockedDates.find(b => {
                           const startParts = b.start_date.split('T')[0].split('-').map(Number);
                           const endParts = b.end_date.split('T')[0].split('-').map(Number);
                           const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);
                           const end = new Date(endParts[0], endParts[1] - 1, endParts[2]);
-                          
                           const check = new Date(selectedDate);
                           check.setHours(0,0,0,0);
                           return check >= start && check <= end;
-                        });
+                        }) : undefined;
 
                         if (block) {
                           return (

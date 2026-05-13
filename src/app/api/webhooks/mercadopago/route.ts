@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from "@supabase/supabase-js";
 import { mpClient } from '@/lib/utils/mercadopago';
 import { Payment } from 'mercadopago';
+import crypto from 'crypto';
 
 // Configuração do Supabase (Usando Service Role para poder dar update no banco)
 const getSupabaseAdmin = () => {
@@ -10,10 +11,68 @@ const getSupabaseAdmin = () => {
   return createClient(supabaseUrl, supabaseKey);
 };
 
+/**
+ * Verify Mercado Pago webhook signature.
+ * Uses x-signature header with HMAC-SHA256 of the request body + webhook secret.
+ * Falls back to x-request-id verification if secret is not configured.
+ */
+function verifySignature(req: NextRequest, body: string): boolean {
+  const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  
+  // If no secret configured, check for x-request-id as minimal validation
+  if (!webhookSecret) {
+    const requestId = req.headers.get('x-request-id');
+    console.warn('MERCADOPAGO_WEBHOOK_SECRET not set — using x-request-id as minimal validation');
+    return !!requestId; // At minimum, require the Mercado Pago request ID header
+  }
+
+  const signature = req.headers.get('x-signature');
+  if (!signature) {
+    console.error('Missing x-signature header in webhook request');
+    return false;
+  }
+
+  // Mercado Pago signature format: "ts=1234567890,v1=<hmac_sha256_hex>"
+  const parts = signature.split(',');
+  const tsPart = parts.find(p => p.startsWith('ts='));
+  const v1Part = parts.find(p => p.startsWith('v1='));
+
+  if (!tsPart || !v1Part) {
+    console.error('Invalid x-signature format');
+    return false;
+  }
+
+  const ts = tsPart.split('=')[1];
+  const v1 = v1Part.split('=')[1];
+
+  // The signed payload is: ts + "." + body
+  const signedPayload = `${ts}.${body}`;
+  const expectedSignature = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(signedPayload)
+    .digest('hex');
+
+  return crypto.timingSafeEqual(
+    Buffer.from(expectedSignature),
+    Buffer.from(v1)
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    console.log('📦 Webhook Mercado Pago recebido:', JSON.stringify(body));
+    // Clone the request to read the body for signature verification
+    const bodyText = await req.text();
+    
+    // Verify webhook authenticity
+    if (!verifySignature(req, bodyText)) {
+      console.error('Webhook signature verification failed');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = JSON.parse(bodyText);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📦 Webhook Mercado Pago recebido:', JSON.stringify(body));
+    }
 
     // Mercado Pago pode enviar notificações de diferentes formas dependendo da versão
     // 1. Notificações IPN (topic/id)
@@ -38,7 +97,9 @@ export async function POST(req: NextRequest) {
     const status = paymentData.status;
     const bookingId = paymentData.external_reference || paymentData.metadata?.booking_id;
 
-    console.log(`💰 Status do Pagamento ${paymentId}: ${status} para Reserva: ${bookingId}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`💰 Status do Pagamento ${paymentId}: ${status} para Reserva: ${bookingId}`);
+    }
 
     if (bookingId) {
       const supabase = getSupabaseAdmin();
@@ -57,14 +118,18 @@ export async function POST(req: NextRequest) {
           console.error("❌ Erro ao atualizar agendamento no banco:", error);
           return NextResponse.json({ error: "Database update failed" }, { status: 500 });
         }
-        console.log(`✅ Agendamento ${bookingId} confirmado com sucesso!`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`✅ Agendamento ${bookingId} confirmado com sucesso!`);
+        }
       } else if (status && ['rejected', 'cancelled', 'refunded', 'charged_back'].includes(status)) {
         // Marcar como cancelado se o pagamento falhou ou foi devolvido
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
           .eq('id', bookingId);
-        console.log(`⚠️ Agendamento ${bookingId} marcado como cancelado (Status: ${status})`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`⚠️ Agendamento ${bookingId} marcado como cancelado (Status: ${status})`);
+        }
       }
     }
 

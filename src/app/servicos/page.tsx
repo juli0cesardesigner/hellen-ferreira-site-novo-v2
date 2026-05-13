@@ -9,12 +9,16 @@ import { listActiveSessions } from "@/lib/actions/booking-actions";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
 // Mapeamento de Slugs para IDs do Banco (para esconder se inativo)
+// NOTA: newborn-menino e newborn-menina compartilham o mesmo serviço "Newborn" no banco.
+//       mensal-menino e mensal-menina compartilham "Mensal".
+//       Ambos são exibidos/ocultados juntos — se precisar de controle independente,
+//       crie serviços separados no banco Supabase.
 const SERVICE_ID_MAP: Record<string, string> = {
   "gestante": "be68f0ac-d486-4cad-8ea4-3eed090ffada",
-  "newborn-menino": "a232eb5e-1583-4fb7-82da-84008e37f1b4",
-  "newborn-menina": "a232eb5e-1583-4fb7-82da-84008e37f1b4",
-  "mensal-menino": "a67d857c-72ea-441a-9761-1e809bd1bf13",
-  "mensal-menina": "a67d857c-72ea-441a-9761-1e809bd1bf13",
+  "newborn-menino": "a232eb5e-1583-4fb7-82da-84008e37f1b4",   // → "Newborn"
+  "newborn-menina": "a232eb5e-1583-4fb7-82da-84008e37f1b4",   // → "Newborn"
+  "mensal-menino": "a67d857c-72ea-441a-9761-1e809bd1bf13",    // → "Mensal"
+  "mensal-menina": "a67d857c-72ea-441a-9761-1e809bd1bf13",    // → "Mensal"
   "smash": "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2",
   "revelacao": "50674a5b-ad94-442b-b4d1-328f4d7f59db",
   "familia": "70b4d4e6-72b5-4262-890c-cf0730e0db8e",

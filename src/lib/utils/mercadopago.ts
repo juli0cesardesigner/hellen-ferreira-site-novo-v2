@@ -1,9 +1,27 @@
 import { MercadoPagoConfig } from 'mercadopago';
 
-// Instanciar com uma string qualquer se não houver chave (apenas para evitar erro no build)
-const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN || '';
+// Lazy initialization: only create the client when actually needed,
+// and fail with a clear error if the token is missing.
+let _mpClient: MercadoPagoConfig | null = null;
 
-export const mpClient = new MercadoPagoConfig({ 
-  accessToken: accessToken,
-  options: { timeout: 5000 }
+function createMpClient(): MercadoPagoConfig {
+  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!accessToken) {
+    throw new Error(
+      'MERCADOPAGO_ACCESS_TOKEN is not configured. Payment processing is unavailable.'
+    );
+  }
+  return new MercadoPagoConfig({ 
+    accessToken,
+    options: { timeout: 5000 }
+  });
+}
+
+export const mpClient = new Proxy({} as MercadoPagoConfig, {
+  get(_, prop) {
+    if (!_mpClient) {
+      _mpClient = createMpClient();
+    }
+    return (_mpClient as any)[prop];
+  }
 });

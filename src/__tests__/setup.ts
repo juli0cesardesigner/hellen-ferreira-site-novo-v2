@@ -9,6 +9,9 @@ vi.mock("next/font/google", () => ({
   Lato: () => ({
     variable: "--font-sans",
   }),
+  Inter: () => ({
+    variable: "--font-admin",
+  }),
 }));
 
 // Mock do next/navigation (comum em testes de layout)

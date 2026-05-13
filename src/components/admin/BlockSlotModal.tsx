@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, ShieldAlert, Loader2, Save, Ban } from "lucide-react";
@@ -55,10 +55,6 @@ export function BlockSlotModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason.trim()) {
-      setError("Por favor, informe o motivo do bloqueio.");
-      return;
-    }
 
     setIsSubmitting(true);
     setError(null);
@@ -144,7 +140,7 @@ export function BlockSlotModal({
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !reason.trim()}
+                disabled={isSubmitting}
                 className="flex-[2] py-4 bg-red-600 text-white text-[13px] font-bold rounded-2xl transition-all disabled:opacity-30 flex items-center justify-center gap-3 shadow-lg shadow-red-900/20 active:scale-95"
               >
                 {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}

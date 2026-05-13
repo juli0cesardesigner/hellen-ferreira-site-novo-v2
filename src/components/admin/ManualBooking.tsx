@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, AlertCircle, Copy, Check, User, Mail, Phone, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database, Info } from "lucide-react";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 import { createManualBooking } from "@/lib/actions/admin-actions";
@@ -29,6 +29,8 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
   const [currentMonthDate, setCurrentMonthDate] = useState(initialDate || new Date());
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [isMonthLoading, setIsMonthLoading] = useState(false);
+  const slotsRequestIdRef = useRef(0);
+  const monthRequestIdRef = useRef(0);
   const [copied, setCopied] = useState(false);
   const [createdResult, setCreatedResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -65,13 +67,16 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
   useEffect(() => {
     if (formData.session_id) {
       async function loadMonthData() {
+        const reqId = ++monthRequestIdRef.current;
         setIsMonthLoading(true);
         const res = await getMonthAvailability(
           currentMonthDate.getFullYear(),
           currentMonthDate.getMonth(),
           formData.session_id,
-          true // isAdmin
+          true
         );
+        // Only apply if this is still the latest request
+        if (reqId !== monthRequestIdRef.current) return;
         setMonthAvailability(res);
         setIsMonthLoading(false);
       }
@@ -82,11 +87,15 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
   useEffect(() => {
     if (formData.session_id && formData.date) {
       async function loadSlots() {
+        const reqId = ++slotsRequestIdRef.current;
         setIsSlotsLoading(true);
         setAvailableSlots([]);
         const res = await getAvailableSlots(formData.date, formData.session_id, true);
+        // Only apply if this is still the latest request
+        if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          setAvailableSlots(res.slots.filter(s => s.available).map((s: any) => s.time.substring(0, 5)));
+          // Admin vê todos os slots do dia, disponíveis ou não
+          setAvailableSlots(res.slots.map((s: any) => s.time.substring(0, 5)));
         }
         setIsSlotsLoading(false);
       }
@@ -355,7 +364,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                     </label>
                     <InternalDatePicker
                       value={formData.date}
-                      onChange={(date) => setFormData({ ...formData, date })}
+                      onChange={(date) => setFormData(prev => ({ ...prev, date }))}
                       onMonthChange={(date) => setCurrentMonthDate(date)}
                       availableDates={monthAvailability}
                       placeholder={!formData.session_id ? "Selecione primeiro o serviço" : "Selecione o dia"}

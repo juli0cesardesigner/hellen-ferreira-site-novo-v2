@@ -75,7 +75,7 @@ export default function ExpensesConfig() {
   async function loadExpenses() {
     setIsLoading(true);
     try {
-      const data = await getExpenses(currentDate.getMonth() + 1, currentDate.getFullYear());
+      const data = await getExpenses(currentDate.getMonth(), currentDate.getFullYear());
       setExpenses(data);
     } catch (error) {
       console.error(error);

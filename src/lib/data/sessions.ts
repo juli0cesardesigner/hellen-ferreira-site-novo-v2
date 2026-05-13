@@ -353,6 +353,11 @@ export const SESSIONS_DATA: Record<string, Session> = {
   }
 };
 
+/**
+ * Static helpers — used as synchronous fallback for server components (metadata, middleware).
+ * Primary source of truth is the Supabase DB (see booking-actions.ts: fetchSessionDetails, fetchSessionBySlug).
+ * SESSIONS_DATA should be kept in sync with the DB via admin sync or manual updates.
+ */
 export function getSlugById(id: string): string | null {
   return SESSIONS_DATA[id]?.slug || null;
 }

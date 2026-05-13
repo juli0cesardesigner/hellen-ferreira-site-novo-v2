@@ -46,3 +46,6 @@ superpowers/
 next-env.d.ts
 
 .vercel
+
+# MCP config (may contain tokens)
+.vscode/mcp.json

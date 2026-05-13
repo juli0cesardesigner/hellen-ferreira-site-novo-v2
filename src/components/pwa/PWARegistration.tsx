@@ -9,7 +9,7 @@ export function PWARegistration() {
         navigator.serviceWorker
           .register("/sw.js")
           .then((registration) => {
-            console.log("SW registered:", registration);
+            // Service Worker registered successfully
             
             // Check for updates
             registration.addEventListener('updatefound', () => {
