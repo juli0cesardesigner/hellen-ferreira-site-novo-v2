@@ -89,14 +89,17 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
 
   useEffect(() => {
     if (formData.session_id && formData.date) {
+      console.log('[ManualBooking] useEffect slots disparou | date:', formData.date, '| ref.date:', latestFormDataRef.current.date, '| session_id:', formData.session_id);
       async function loadSlots() {
         const reqId = ++slotsRequestIdRef.current;
         const { date, session_id } = latestFormDataRef.current;
+        console.log('[ManualBooking] loadSlots iniciou | reqId:', reqId, '| date:', date, '| session_id:', session_id);
         setIsSlotsLoading(true);
         setAvailableSlots([]);
         const res = await getAvailableSlots(date, session_id, true);
+        console.log('[ManualBooking] loadSlots recebeu resposta | reqId:', reqId, '| current reqId:', slotsRequestIdRef.current, '| slots:', res.slots?.length);
         // Only apply if this is still the latest request
-        if (reqId !== slotsRequestIdRef.current) return;
+        if (reqId !== slotsRequestIdRef.current) { console.log('[ManualBooking] loadSlots DESCARTADA (reqId antigo)'); return; }
         if (Array.isArray(res.slots)) {
           setAvailableSlots(res.slots.map((s: any) => s.time.substring(0, 5)));
         }
@@ -367,7 +370,10 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                     </label>
                     <InternalDatePicker
                       value={formData.date}
-                      onChange={(date) => setFormData(prev => ({ ...prev, date, start_time: "" }))}
+                      onChange={(date) => {
+                        console.log('[ManualBooking] onChange recebeu:', date, '| formData.date atual:', formData.date);
+                        setFormData(prev => ({ ...prev, date, start_time: "" }));
+                      }}
                       onMonthChange={(date) => setCurrentMonthDate(date)}
                       availableDates={monthAvailability}
                       placeholder={!formData.session_id ? "Selecione primeiro o serviço" : "Selecione o dia"}

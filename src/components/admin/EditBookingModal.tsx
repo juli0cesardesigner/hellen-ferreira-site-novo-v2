@@ -47,13 +47,16 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
 
   useEffect(() => {
     if (sessionId && formData.booking_date) {
+      console.log('[EditBookingModal] useEffect slots | date:', formData.booking_date, '| ref.date:', latestBookingDateRef.current, '| sessionId:', sessionId);
       async function loadSlots() {
         const reqId = ++slotsRequestIdRef.current;
         const bookingDate = latestBookingDateRef.current;
+        console.log('[EditBookingModal] loadSlots iniciou | reqId:', reqId, '| date:', bookingDate);
         setIsSlotsLoading(true);
         setAvailableSlots([]);
         const res = await getAvailableSlots(bookingDate, sessionId, true);
-        if (reqId !== slotsRequestIdRef.current) return;
+        console.log('[EditBookingModal] loadSlots resposta | reqId:', reqId, '| current reqId:', slotsRequestIdRef.current, '| slots:', res.slots?.length);
+        if (reqId !== slotsRequestIdRef.current) { console.log('[EditBookingModal] loadSlots DESCARTADA'); return; }
         if (Array.isArray(res.slots)) {
           setAvailableSlots(res.slots);
         }

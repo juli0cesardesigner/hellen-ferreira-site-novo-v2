@@ -172,6 +172,7 @@ export function InternalDatePicker({ value, onChange, onMonthChange, availableDa
               ${isTodayDate && !isSelected ? "text-[var(--color-admin-accent)] bg-[var(--color-admin-accent)]/5" : ""}
             `}
             onClick={() => {
+              console.log('[DatePicker] onClick disparado:', dateStr);
               onChange(dateStr);
               setIsOpen(false);
             }}
