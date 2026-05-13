@@ -46,7 +46,7 @@ export function BlockSlotModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-[10vh] sm:pt-[15vh] overflow-y-auto overscroll-contain">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -59,7 +59,7 @@ export function BlockSlotModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)]"
+        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)] my-auto"
       >
         <div className="p-8 lg:p-10 space-y-8">
           <div className="flex items-center justify-between">
@@ -89,7 +89,7 @@ export function BlockSlotModal({
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Motivo do Bloqueio</label>
               <textarea
                 autoFocus
-                className="w-full bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] p-5 rounded-2xl text-[14px] font-medium text-[var(--color-admin-text)] outline-none focus:border-red-500/50 transition-all placeholder:text-slate-300 shadow-inner min-h-[120px] resize-none"
+                className="w-full bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] p-5 rounded-2xl text-[14px] font-medium text-[var(--color-admin-text)] outline-none focus:border-red-500/50 transition-all placeholder:text-slate-300 shadow-inner min-h-[100px] resize-none"
                 placeholder="Ex: Consultoria Externa, Manutenção, Particular..."
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
