@@ -50,7 +50,6 @@ function parseLocalDate(dateStr: string): Date {
 }
 
 export async function getAvailableSlots(dateStr: string, sessionId: string, isAdmin: boolean = false) {
-  console.log('[getAvailableSlots] SERVIDOR chamado | dateStr:', dateStr, '| sessionId:', sessionId, '| isAdmin:', isAdmin);
   try {
     const date = parseLocalDate(dateStr);
     const dayOfWeek = date.getDay();
@@ -196,7 +195,6 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       return { time: startTime, available: true };
     });
 
-    console.log('[getAvailableSlots] SERVIDOR resposta | dateStr:', dateStr, '| total slots:', availableSlots.length, '| available:', availableSlots.filter((s: any) => s.available).length);
     return { slots: availableSlots };
   } catch (error) {
     console.error("Erro ao buscar slots:", error);

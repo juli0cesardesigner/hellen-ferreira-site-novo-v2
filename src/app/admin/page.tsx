@@ -174,12 +174,9 @@ export default function AdminDashboard() {
   }, [activeTab, financeDate]);
 
   const loadDataRef = React.useRef(loadData);
+  loadDataRef.current = loadData; // Update during render so effects see latest
   const loadFinanceDataRef = React.useRef(loadFinanceData);
-
-  React.useEffect(() => {
-    loadDataRef.current = loadData;
-    loadFinanceDataRef.current = loadFinanceData;
-  }, [loadData, loadFinanceData]);
+  loadFinanceDataRef.current = loadFinanceData;
 
   React.useEffect(() => {
     const supabase = createClient();
