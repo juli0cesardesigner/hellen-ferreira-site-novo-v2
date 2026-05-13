@@ -24,52 +24,49 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 antialiased relative overflow-hidden admin-scope">
+    <div className="min-h-screen bg-[var(--color-admin-bg)] flex items-center justify-center p-6 antialiased">
       
-      {/* ─── CRT/Scanline Overlay ─── */}
-      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
-      <div className="absolute inset-0 pointer-events-none z-[100] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
-
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-[440px] space-y-10 relative z-10"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[440px]"
       >
-        <div className="text-center space-y-4">
-          <div className="inline-flex w-16 h-16 bg-white rounded-2xl items-center justify-center text-black mb-4 shadow-[0_0_40px_rgba(255,255,255,0.15)] transition-transform hover:rotate-12 duration-500">
-            <Shield size={32} strokeWidth={2.5} />
+        {/* ─── Header ─── */}
+        <div className="text-center space-y-4 mb-10">
+          <div className="inline-flex w-16 h-16 bg-[var(--color-admin-accent)] rounded-2xl items-center justify-center text-white shadow-lg shadow-[var(--color-admin-accent)]/20">
+            <Shield size={28} strokeWidth={2.5} />
           </div>
           <div className="space-y-1">
-            <h1 className="text-[28px] font-black tracking-tighter text-white uppercase">SYSTEM_ACCESS</h1>
-            <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">:: SECURE_GATEWAY_V2.0 ::</p>
+            <h1 className="text-[20px] font-bold text-[var(--color-admin-text)] tracking-tight">Admin</h1>
+            <p className="text-[11px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-[0.2em]">Acesso Restrito</p>
           </div>
         </div>
 
-        <div className="bg-zinc-950 p-10 lg:p-12 rounded-[2.5rem] border border-zinc-900 relative shadow-[0_30px_100px_rgba(0,0,0,0.8)]">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-30" />
+        {/* ─── Login Card ─── */}
+        <div className="bg-[var(--color-admin-surface)] p-8 lg:p-10 rounded-[2.5rem] border border-[var(--color-admin-border)] shadow-sm">
           
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">CREDENTIAL_ID</label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">E-mail</label>
               <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-white transition-colors duration-300">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors">
                   <Mail size={18} />
                 </div>
                 <input 
                   type="email" 
                   name="email" 
                   required
-                  placeholder="IDENTIFIER@CORE.SYS"
-                  className="w-full pl-14 pr-6 py-5 bg-black border-2 border-zinc-900 rounded-2xl text-[14px] font-black text-white outline-none focus:border-white transition-all duration-500 placeholder:text-zinc-800"
+                  placeholder="hellen@hellenferreira.com"
+                  className="w-full pl-14 pr-6 py-5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] ml-2">ACCESS_CIPHER</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Senha</label>
               <div className="relative group">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-700 group-focus-within:text-white transition-colors duration-300">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[var(--color-admin-accent)] transition-colors">
                   <Lock size={18} />
                 </div>
                 <input 
@@ -77,7 +74,7 @@ export default function AdminLoginPage() {
                   name="password" 
                   required
                   placeholder="••••••••"
-                  className="w-full pl-14 pr-6 py-5 bg-black border-2 border-zinc-900 rounded-2xl text-[14px] font-black text-white outline-none focus:border-white transition-all duration-500 placeholder:text-zinc-800"
+                  className="w-full pl-14 pr-6 py-5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl text-[14px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
                 />
               </div>
             </div>
@@ -86,34 +83,34 @@ export default function AdminLoginPage() {
               <motion.div 
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-[11px] font-black text-red-500 bg-red-500/10 p-5 rounded-2xl border border-red-500/20 flex items-center gap-4 uppercase tracking-tight"
+                className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3"
               >
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
-                AUTH_FAILURE: {error}
+                <Shield size={16} className="text-red-500 shrink-0 mt-0.5" />
+                <p className="text-[11px] font-bold text-red-600">{error}</p>
               </motion.div>
             )}
 
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-white hover:bg-zinc-200 text-black py-5 rounded-2xl font-black text-[13px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 shadow-[0_0_40px_rgba(255,255,255,0.1)] group"
+              className="w-full bg-[var(--color-admin-accent)] hover:bg-[var(--color-admin-accent-hover)] text-white py-5 rounded-2xl font-bold text-[13px] tracking-tight flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 shadow-sm"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin" size={20} strokeWidth={3} /> INITIALIZING...
+                  <Loader2 className="animate-spin" size={20} strokeWidth={2.5} /> Entrando...
                 </>
               ) : (
                 <>
-                  ESTABLISH_LINK <ArrowRight size={20} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />
+                  Entrar <ArrowRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
         </div>
 
-        <div className="text-center">
-          <p className="text-zinc-800 text-[9px] font-black uppercase tracking-[0.4em]">Proprietary_Software // encrypted_session_active</p>
-        </div>
+        <p className="text-center mt-8 text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-[0.2em] opacity-50">
+          Hellen Ferreira &mdash; Painel Administrativo
+        </p>
       </motion.div>
     </div>
   );
