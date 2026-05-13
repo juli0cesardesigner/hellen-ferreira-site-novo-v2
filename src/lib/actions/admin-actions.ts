@@ -854,6 +854,37 @@ export async function updateSiteSetting(key: string, value: string) {
     console.error("Erro ao atualizar configuração:", error);
     return { success: false, error: error.message };
   }
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function blockSlot(date: string, time: string, reason: string) {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  // Calculate end_time (30 min default)
+  const [hours, minutes] = time.split(':').map(Number);
+  const endDate = new Date();
+  endDate.setHours(hours, minutes + 30, 0);
+  const end_time = endDate.toTimeString().split(' ')[0];
+
+  const { error } = await admin.from('bookings').insert([{
+    customer_name: `BLOQUEIO: ${reason}`,
+    customer_email: 'admin@hellenferreira.com',
+    booking_date: date,
+    start_time: time,
+    end_time: end_time,
+    status: 'confirmed',
+    package_type: 'Bloqueio Manual',
+    total_amount: 0,
+    paid_amount: 0
+  }]);
+
+  if (error) {
+    console.error("Erro ao bloquear horário:", error);
+    return { success: false, error: error.message };
+  }
+
   revalidatePath('/admin');
   revalidatePath('/agendar');
   return { success: true };

@@ -20,13 +20,13 @@ const parseCurrencyBRL = (value: string): number => {
   return Number(digits) / 100;
 };
 
-export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void, onCreated: () => void }) {
+export function ManualBookingModal({ onClose, onCreated, initialDate, initialTime }: { onClose: () => void, onCreated: () => void, initialDate?: Date | null, initialTime?: string | null }) {
   const sessions = Object.values(SESSIONS_DATA);
   const [packages, setPackages] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
-  const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
+  const [currentMonthDate, setCurrentMonthDate] = useState(initialDate || new Date());
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [isMonthLoading, setIsMonthLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -38,8 +38,8 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
     client_name: "",
     client_email: "",
     client_phone: "",
-    date: new Date().toISOString().split('T')[0],
-    start_time: "",
+    date: initialDate ? initialDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    start_time: initialTime || "",
     package_id: "",
     total_amount: 0,
     paid_amount: 0,
@@ -334,8 +334,7 @@ export function ManualBookingModal({ onClose, onCreated }: { onClose: () => void
                             ...formData,
                             session_id: id,
                             package_id: firstPkg?.id || "",
-                            total_amount: firstPkg?.price_digital || 0,
-                            date: "" 
+                            total_amount: firstPkg?.price_digital || 0
                           });
                         }}
                         required

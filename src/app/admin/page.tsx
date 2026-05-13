@@ -14,9 +14,11 @@ import ExpensesConfig from "@/components/admin/ExpensesConfig";
 import { getDashboardData, getBookingsList, getAdminStats, getAllBookingsList, getFinanceDetailedStats, getDayMasterGrid, getBlockedDates, getExpenses, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
+import { BlockSlotModal } from "@/components/admin/BlockSlotModal";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
+import { Ban } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses';
@@ -38,6 +40,8 @@ export default function AdminDashboard() {
   const [daySlots, setDaySlots] = useState<any[]>([]);
   const [blockedDates, setBlockedDates] = useState<any[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isBlockSlotOpen, setIsBlockSlotOpen] = useState(false);
+  const [selectedTimeForAction, setSelectedTimeForAction] = useState<string | null>(null);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -328,17 +332,44 @@ export default function AdminDashboard() {
           <AnimatePresence>
             {isManualBookingOpen && (
               <ManualBookingModal 
-                onClose={() => setIsManualBookingOpen(false)} 
-                onCreated={loadData}
+                initialDate={selectedDate}
+                initialTime={selectedTimeForAction}
+                onClose={() => {
+                  setIsManualBookingOpen(false);
+                  setSelectedTimeForAction(null);
+                }} 
+                onCreated={() => {
+                  loadData(true);
+                  setNotification({ message: "Agendamento realizado com sucesso", type: 'success' });
+                  setTimeout(() => setNotification(null), 3000);
+                }} 
               />
             )}
+            
+            {isBlockSlotOpen && selectedTimeForAction && (
+              <BlockSlotModal
+                date={selectedDate}
+                time={selectedTimeForAction}
+                onClose={() => {
+                  setIsBlockSlotOpen(false);
+                  setSelectedTimeForAction(null);
+                }}
+                onCreated={() => {
+                  loadData(true);
+                  setNotification({ message: "Horário bloqueado com sucesso", type: 'success' });
+                  setTimeout(() => setNotification(null), 3000);
+                }}
+              />
+            )}
+
             {selectedBooking && (
               <EditBookingModal 
-                booking={selectedBooking}
-                onClose={() => setSelectedBooking(null)}
+                booking={selectedBooking} 
+                onClose={() => setSelectedBooking(null)} 
                 onUpdated={() => {
-                  loadData();
-                  showNotification("Reserva atualizada");
+                  loadData(true);
+                  setNotification({ message: "Agendamento atualizado", type: 'success' });
+                  setTimeout(() => setNotification(null), 3000);
                 }}
               />
             )}
@@ -618,41 +649,46 @@ export default function AdminDashboard() {
                               });
 
                               if (bookingAtSlot) {
-                                // ... (rest of booking logic stays same)
-                                const colors = getSessionColor(bookingAtSlot.sessions?.name, bookingAtSlot.sessions?.theme_color);
+                                const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
+                                const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') : '';
+                                
+                                const colors = isBlock 
+                                  ? { isCustom: true, styles: { color: '#ef4444' } }
+                                  : getSessionColor(bookingAtSlot.sessions?.name, bookingAtSlot.sessions?.theme_color);
+                                
                                 return (
                                   <div 
                                     key={slot.id} 
                                     onClick={() => setSelectedBooking(bookingAtSlot)}
-                                    className="group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border border-[var(--color-admin-border)] shadow-sm"
+                                    className={`group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border shadow-sm ${isBlock ? 'border-red-200 bg-red-50/30' : 'border-[var(--color-admin-border)]'}`}
                                   >
-                                    <div className="w-24 flex flex-col items-center justify-center border-r border-[var(--color-admin-border)] pr-2">
-                                      <span className="text-[16px] font-black text-[var(--color-admin-text)]">{slot.start_time.slice(0, 5)}</span>
-                                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Início</span>
+                                    <div className={`w-24 flex flex-col items-center justify-center border-r pr-2 ${isBlock ? 'border-red-100' : 'border-[var(--color-admin-border)]'}`}>
+                                      <span className={`text-[16px] font-black ${isBlock ? 'text-red-600' : 'text-[var(--color-admin-text)]'}`}>{slot.start_time.slice(0, 5)}</span>
+                                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{isBlock ? 'Bloqueio' : 'Início'}</span>
                                     </div>
                                     
                                     <div 
                                       className="flex-1 p-4 rounded-2xl flex items-center justify-between"
-                                      style={{ backgroundColor: colors.isCustom ? `${colors.styles?.color}15` : 'var(--color-admin-bg)' }}
+                                      style={{ backgroundColor: isBlock ? '#fee2e2' : (colors.isCustom ? `${colors.styles?.color}15` : 'var(--color-admin-bg)') }}
                                     >
                                       <div className="flex items-center gap-4">
                                         <div 
-                                          className="w-1.5 h-10 rounded-full" 
-                                          style={{ backgroundColor: colors.isCustom ? colors.styles?.color : 'var(--color-admin-accent)' }}
+                                          className={`w-1.5 h-10 rounded-full ${isBlock ? 'bg-red-500' : ''}`}
+                                          style={!isBlock ? { backgroundColor: colors.isCustom ? colors.styles?.color : 'var(--color-admin-accent)' } : {}}
                                         />
                                         <div>
-                                          <h4 className="text-[15px] font-bold text-[var(--color-admin-text)] tracking-tight">
-                                            {bookingAtSlot.customer_name || bookingAtSlot.client_name}
+                                          <h4 className={`text-[15px] font-bold tracking-tight ${isBlock ? 'text-red-900' : 'text-[var(--color-admin-text)]'}`}>
+                                            {isBlock ? 'HORÁRIO BLOQUEADO' : (bookingAtSlot.customer_name || bookingAtSlot.client_name)}
                                           </h4>
-                                          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                                            {bookingAtSlot.sessions?.name}
+                                          <p className={`text-[11px] font-bold uppercase tracking-wider ${isBlock ? 'text-red-500' : 'text-slate-500'}`}>
+                                            {isBlock ? blockReason : bookingAtSlot.sessions?.name}
                                           </p>
                                         </div>
                                       </div>
 
                                       <div className="text-right hidden sm:block">
-                                        <div className="text-[12px] font-bold text-[var(--color-admin-text)]">
-                                          {bookingAtSlot.status === 'confirmed' ? 'Confirmado' : bookingAtSlot.status === 'completed' ? 'Concluído' : 'Pendente'}
+                                        <div className={`text-[12px] font-bold ${isBlock ? 'text-red-600' : 'text-[var(--color-admin-text)]'}`}>
+                                          {isBlock ? 'Indisponível' : (bookingAtSlot.status === 'confirmed' ? 'Confirmado' : bookingAtSlot.status === 'completed' ? 'Concluído' : 'Pendente')}
                                         </div>
                                         <div className="text-[10px] font-medium text-slate-400 italic">ref: {bookingAtSlot.id.split('-')[0]}</div>
                                       </div>
@@ -664,19 +700,35 @@ export default function AdminDashboard() {
                               return (
                                 <div 
                                   key={slot.id} 
-                                  className="flex items-center gap-6 p-4 rounded-[1.5rem] border border-dashed border-[var(--color-admin-border)] opacity-60 hover:opacity-100 transition-all"
+                                  className="flex items-center gap-6 p-4 rounded-[1.5rem] border border-dashed border-[var(--color-admin-border)] opacity-60 hover:opacity-100 transition-all bg-white/50"
                                 >
                                    <div className="w-24 flex flex-col items-center justify-center border-r border-[var(--color-admin-border)] pr-2 border-dashed">
                                       <span className="text-[14px] font-bold text-slate-400">{slot.start_time.slice(0, 5)}</span>
                                     </div>
                                     <div className="flex-1 flex items-center justify-between">
                                       <span className="text-[12px] font-bold text-slate-300 uppercase tracking-[0.2em]">Horário Livre</span>
-                                      <button 
-                                        onClick={() => setIsManualBookingOpen(true)}
-                                        className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:bg-[var(--color-admin-accent)] hover:text-white transition-all shadow-sm"
-                                      >
-                                        <Plus size={16} />
-                                      </button>
+                                      <div className="flex items-center gap-2">
+                                        <button 
+                                          onClick={() => {
+                                            setSelectedTimeForAction(slot.start_time.slice(0, 5));
+                                            setIsBlockSlotOpen(true);
+                                          }}
+                                          title="Bloquear Horário"
+                                          className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                        >
+                                          <Ban size={16} />
+                                        </button>
+                                        <button 
+                                          onClick={() => {
+                                            setSelectedTimeForAction(slot.start_time.slice(0, 5));
+                                            setIsManualBookingOpen(true);
+                                          }}
+                                          title="Novo Agendamento"
+                                          className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:bg-[var(--color-admin-accent)] hover:text-white transition-all shadow-sm"
+                                        >
+                                          <Plus size={16} />
+                                        </button>
+                                      </div>
                                     </div>
                                 </div>
                               );
