@@ -1,6 +1,6 @@
-"use client";
+﻿"use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, ShieldAlert, Loader2, Save, Ban } from "lucide-react";
 import { motion } from "framer-motion";
 import { blockSlot } from "@/lib/actions/admin-actions";
@@ -19,6 +19,39 @@ export function BlockSlotModal({
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [topOffset, setTopOffset] = useState(16);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) {
+      setTopOffset(16);
+      return;
+    }
+
+    const updatePosition = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const vvOffset = vv.offsetTop || 0;
+        const vvHeight = vv.height;
+        if (vvOffset > 50) {
+          setTopOffset(Math.max(8, vvOffset + 16));
+        } else {
+          const modalHeight = rect.height || 400;
+          setTopOffset(Math.max(16, (vvHeight - modalHeight) / 2));
+        }
+      }
+    };
+
+    updatePosition();
+    vv.addEventListener('resize', updatePosition);
+    vv.addEventListener('scroll', updatePosition);
+
+    return () => {
+      vv.removeEventListener('resize', updatePosition);
+      vv.removeEventListener('scroll', updatePosition);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +79,11 @@ export function BlockSlotModal({
   };
 
   return (
-        <div className="fixed inset-0 z-[110] flex items-start justify-center p-4 pt-[10vh] sm:pt-[15vh] overflow-y-auto overscroll-contain">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-[110] flex justify-center overflow-y-auto overscroll-contain"
+      style={{ alignItems: 'flex-start', paddingTop: `${topOffset}px` }}
+    >
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -59,7 +96,7 @@ export function BlockSlotModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)] my-auto"
+        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)]"
       >
         <div className="p-8 lg:p-10 space-y-8">
           <div className="flex items-center justify-between">

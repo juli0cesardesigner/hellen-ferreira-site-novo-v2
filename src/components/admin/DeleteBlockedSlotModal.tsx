@@ -56,7 +56,7 @@ export function DeleteBlockedSlotModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)] my-auto"
+        className="relative bg-[var(--color-admin-bg)] w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--color-admin-border)]"
       >
         <div className="p-8 lg:p-10 space-y-8">
           {/* Header */}
