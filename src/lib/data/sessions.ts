@@ -37,26 +37,26 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "3d5af0a6-ebb2-4484-b9c5-c024c886baa5",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "O Sim no Cartório",
+        slug: "sim-no-cartorio",
         description: "Discreto e Intimista",
         tier_order: 1,
         price_digital: 400,
-        price_print: 475,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["30 Fotos editadas em alta resolução", "Cobertura completa da cerimônia no cartório", "Fotos com padrinhos e familiares", "Mini ensaio dos noivos no local", "Entrega via galeria online personalizada"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["Cobertura completa da cerimônia no cartório", "30 Fotos em alta resolução com tratamento artístico", "Galeria online privada para download"],
         is_active: true
       },
       {
         id: "2fd9d117-5b5a-4cf7-a596-10639aaced15",
-        name: "O Sim & Celebração",
-        slug: "celebracao",
+        name: "O Sim e a Celebração",
+        slug: "sim-e-celebracao",
         description: "Sessão completa e romântica",
         tier_order: 2,
-        price_digital: 560,
-        price_print: 635,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["50 Fotos editadas em alta resolução", "Cobertura da cerimônia no cartório", "Mini Ensaio Externo (até 1h)", "Fotos com convidados e família", "Galeria completa pronta para imprimir"],
+        price_digital: 500,
+        price_print: 0,
+        upgrade_label: "",
+        features: ["Cobertura completa da cerimônia no cartório", "Mini ensaio externo para o casal (até 1h)", "50 Fotos no total com tratamento artístico"],
         is_active: true
       }
     ]
@@ -72,14 +72,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "c669452f-7f1e-4b03-b9d7-b1259bd8839e",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Revelação",
+        slug: "revelacao",
         description: "Momentos de surpresa eterna",
         tier_order: 1,
         price_digital: 450,
         price_print: 525,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos editadas em alta resolução", "Sessão emocionante de revelação", "Entrega via galeria online"],
+        features: ["15 Fotos em alta resolução", "Sessão em estúdio ou externa", "Entrega via galeria online"],
         is_active: true
       }
     ]
@@ -95,14 +95,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "b5220708-4c6c-4e29-87ae-44d7f400eaa0",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Smash the Cake",
+        slug: "smash",
         description: "Primeiro aninho com festa",
         tier_order: 1,
         price_digital: 450,
         price_print: 500,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos editadas em alta resolução", "Sessão temática e divertida", "Entrega via galeria online"],
+        upgrade_label: "Digital + Impressão 15x20",
+        features: ["15 Fotos em alta resolução", "Cenário minimalista com bolo neutro", "Fotos com pais e irmãos inclusas", "Entrega via galeria online"],
         is_active: true
       }
     ]
@@ -118,26 +118,26 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "3ba22e7d-4fdf-4e1c-9116-dedff0fac862",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Retrato Essencial",
+        slug: "essencial",
         description: "Elegância e Autenticidade",
         tier_order: 1,
         price_digital: 450,
         price_print: 525,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos em alta resolução", "Sessão em estúdio", "Até 02 trocas de looks", "Arquivo Digital entregue via galeria"],
+        upgrade_label: "Digital + Impressões 15x21",
+        features: ["15 Fotos em alta resolução", "Foco em retratos impactantes em estúdio", "Troca de até 2 looks", "Arquivo Digital entregue via galeria"],
         is_active: true
       },
       {
         id: "43509cfc-0c51-446b-9d05-0b4fa21243ba",
-        name: "Retrato Celebração",
+        name: "Celebração",
         slug: "celebracao",
         description: "Sua história, seu legado",
         tier_order: 2,
         price_digital: 560,
-        price_print: 680,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "Sessão em estúdio or externa", "Até 04 trocas de looks", "Arquivo Digital entregue via galeria", "Consultoria completa de estilo"],
+        price_print: 685,
+        upgrade_label: "Digital + Impressões 15x21",
+        features: ["25 Fotos em alta resolução", "Estúdio ou Locação Externa", "Consultoria completa de estilo", "Arquivo Digital entregue via galeria"],
         is_active: true
       }
     ]
@@ -153,14 +153,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "456a321d-3c25-43e4-8055-1f8a946f29c6",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Família",
+        slug: "familia",
         description: "Momentos especiais juntos",
         tier_order: 1,
         price_digital: 400,
-        price_print: 475,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos editadas em alta resolução", "Sessão afetiva em família", "Entrega via galeria online"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["15 Fotos em alta resolução (tratadas)", "Fotos da família toda inclusas", "Retratos individuais da(s) criança(s)", "Sessão em estúdio ou externa", "Entrega via galeria online"],
         is_active: true
       }
     ]
@@ -176,26 +176,26 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "77ce2962-6bb0-442e-8fb2-d8e300da99fe",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Baby",
+        slug: "baby",
         description: "Foco exclusivo no bebê",
         tier_order: 1,
         price_digital: 450,
         price_print: 525,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos em alta resolução", "Sessão em estúdio", "Acessórios e cestas inclusos", "Tempo para amamentação/pausas", "Arquivo Digital via galeria"],
+        features: ["15 Fotos (somente o Baby)", "2 cenários neutros", "Acessórios e Roupas inclusos", "Tempo para amamentação/pausas", "Arquivo Digital via galeria"],
         is_active: true
       },
       {
         id: "cbaea88f-1476-4ab4-ab68-abd8552338eb",
-        name: "Pacote Família",
+        name: "Família",
         slug: "familia",
-        description: "O baby e as primeiras memórias",
+        description: "Baby + Família",
         tier_order: 2,
         price_digital: 560,
         price_print: 680,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "Fotos com pais e irmãos inclusas", "Cenários temáticos e atemporais", "Arquivo Digital via galeria"],
+        features: ["25 Fotos (Baby + Família)", "1 cenário neutro + Ensaio Free Style", "Acessórios e Roupas do Baby inclusos", "Arquivo Digital via galeria"],
         is_active: true
       }
     ]
@@ -211,14 +211,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "011b3835-0cd2-406a-b3a0-75e5a52b93d2",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Plano Mensal",
+        slug: "mensal",
         description: "Evolução registrada com delicadeza",
         tier_order: 1,
         price_digital: 150,
         price_print: 180,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["10 Fotos escolhidas em alta resolução", "Sessão temática mensal", "Acompanhamento do crescimento", "Figurino do estúdio", "Entrega digital mensal"],
+        features: ["10 Fotos em alta resolução", "1 cenário minimalista", "Acessórios e Roupas inclusos", "Participação de Pais e Irmãos: adicional R$50", "Entrega digital mensal"],
         is_active: true
       }
     ]
@@ -234,14 +234,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "f9a0b675-35b0-4465-a46c-a9d63e5a394a",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Ensaio Celebração",
+        slug: "celebracao",
         description: "Leve e memorável",
         tier_order: 1,
         price_digital: 650,
         price_print: 750,
         upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "2 trocas de roupa (acervo incluso)", "Estúdio ou Externa", "Entrega em formato digital"],
+        features: ["25 Fotos no Estúdio ou Externa", "2 trocas de roupa", "Adicional Look Extra - R$50", "Entrega em formato digital"],
         is_active: true
       },
       {
@@ -253,7 +253,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
         price_digital: 950,
         price_print: 1500,
         upgrade_label: "Digital + Álbum 20x20 + Caixa",
-        features: ["45 Fotos em alta resolução", "Figurino completo incluso", "Maquiagem profissional inclusa", "Álbum 20x20 (20 páginas) + Caixa inclusos", "Entrega via galeria exclusiva"],
+        features: ["45 Fotos no Estúdio ou Externa", "3 trocas de roupa", "Adicional Look Extra - R$50", "Álbum 20x20 (20 páginas) + Caixa inclusos", "Entrega via galeria exclusiva"],
         is_active: true
       }
     ]
@@ -269,14 +269,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "9a309759-78a4-47bd-bca2-e07dbdafb074",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Encontro no Estúdio",
+        slug: "encontro",
         description: "Leve e Intimista",
         tier_order: 1,
         price_digital: 350,
-        price_print: 475,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["30 Fotos digitais tratadas", "Sessão em estúdio", "Duração de até 01 hora", "Guia de poses e direção afetiva", "Entrega via galeria online"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["10 Fotos em alta resolução (tratadas)", "Direção focada na intimidade e detalhes", "Ambiente controlado e privativo", "Entrega via galeria online"],
         is_active: true
       },
       {
@@ -286,9 +286,9 @@ export const SESSIONS_DATA: Record<string, Session> = {
         description: "Um dia inesquecível",
         tier_order: 2,
         price_digital: 500,
-        price_print: 650,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["50 Fotos digitais tratadas", "Sessão em locação externa", "Cobertura de estilo Life Style", "Galeria completa personalizada", "Consultoria para o destino"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["20 Fotos em alta resolução (tratadas)", "Ensaio externo, sem taxas adicionais", "Mais tempo, mais variedade de fotos e momentos", "Consultoria para o destino"],
         is_active: true
       }
     ]
@@ -304,14 +304,14 @@ export const SESSIONS_DATA: Record<string, Session> = {
     session_packages: [
       {
         id: "5439e4e2-1a3b-4ea9-a977-6c8e10ec464d",
-        name: "Pacote Digital",
-        slug: "digital",
+        name: "Impacto",
+        slug: "impacto",
         description: "Retratos profissionais",
         tier_order: 1,
         price_digital: 450,
-        price_print: 525,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["15 Fotos em alta resolução", "Sessão exclusiva em estúdio", "Até 02 trocas de roupa", "Arquivo Digital de alta qualidade"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["15 Fotos em alta resolução", "Fotos em estúdio com tratamento premium", "Foco em retratos para perfil", "Até 2 trocas de roupa"],
         is_active: true
       },
       {
@@ -321,9 +321,9 @@ export const SESSIONS_DATA: Record<string, Session> = {
         description: "Apresentação de marca",
         tier_order: 2,
         price_digital: 560,
-        price_print: 680,
-        upgrade_label: "Digital + Impressões 15x20",
-        features: ["25 Fotos em alta resolução", "Realizado em estúdio or Empresa", "Até 03 trocas de roupa", "Guia de posicionamento e autoridade"],
+        price_print: 0,
+        upgrade_label: "",
+        features: ["25 Fotos em alta resolução", "Múltiplos fundos e cenários (estúdio ou sua empresa)", "Até 3 trocas de roupa", "Retratos e fotos de ação (você trabalhando)"],
         is_active: true
       }
     ]

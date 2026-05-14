@@ -160,10 +160,12 @@ export default function CivilPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
                     </div>
+                    {pkg1.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg1.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg1.price_print}</span>
                     </div>
+                    )}
                   </div>
                   
                   <Link 
@@ -226,10 +228,12 @@ export default function CivilPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
                     </div>
+                    {pkg2.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg2.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
                     </div>
+                    )}
                   </div>
                   
                   <Link 
@@ -245,7 +249,19 @@ export default function CivilPage() {
         </div>
       </section>
 
-      {/* 4. Experience Section */}
+      {/* Extras */}
+      <div className="mt-16 pt-12 border-t border-sand/20 max-w-[1100px] mx-auto px-4">
+        <div className="max-w-3xl mx-auto bg-white rounded-sm p-8 md:p-10 border border-sand/40">
+          <div className="flex justify-between items-center gap-4 group">
+            <span className="text-[11px] md:text-[13px] tracking-[0.15em] font-medium uppercase text-text-dark group-hover:text-blush transition-colors">Foto Extra</span>
+            <span className="flex-grow border-b border-dotted border-sand/60 mx-3" />
+            <span className="text-[11px] md:text-[13px] tracking-[0.15em] font-medium uppercase text-text-dark group-hover:text-blush transition-colors">Digital + Impressão</span>
+            <span className="ml-6 text-2xl md:text-3xl font-serif font-medium text-blush whitespace-nowrap group-hover:text-text-dark transition-colors">R$ 30</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Experience Section */}}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl text-center">
         <div className="container-custom max-w-[800px]">
           <h2 className="mb-16">O Registro do seu Início</h2>
@@ -270,39 +286,6 @@ export default function CivilPage() {
       </section>
 
       
-                  {/* 4. Portfolio Section */}
-      {galleryImages.length >= 5 && (
-        <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
-          <div className="container-custom">
-            <div className="text-center mb-16 space-y-4">
-              <h2 className="font-serif text-4xl text-text-dark">Portfólio</h2>
-              <div className="w-12 h-px bg-blush mx-auto opacity-30" />
-            </div>
-            
-            {/* Grade Bento Contínua e Simétrica */}
-            <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] md:auto-rows-[300px] grid-flow-row-dense gap-4">
-              {galleryImages.slice(0, galleryImages.length - (galleryImages.length % 5)).map((img, i) => {
-                const isLarge = i % 5 === 0;
-                return (
-                  <div 
-                    key={i} 
-                    className={`relative overflow-hidden rounded-sm group ${isLarge ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'}`}
-                  >
-                    <Image 
-                      src={img} 
-                      alt={`Portfólio ${i}`} 
-                      fill 
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover transform group-hover:scale-105 transition-transform duration-700" 
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
                         {/* 5. Fotos Extras e Álbuns */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-linen">
         <div className="container-custom max-w-5xl mx-auto text-center flex flex-col items-center">
@@ -396,19 +379,48 @@ export default function CivilPage() {
                 <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark">Caixa Personalizada</span>
                 <span className="font-serif italic text-2xl md:text-3xl font-medium text-text-dark">R$ 200</span>
               </div>
-              <div className="flex justify-between items-center py-6 border-b border-sand/20 group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
+              <div className="flex justify-between items-center py-6 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
                 <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark">Foto Digital <span className="font-light text-[11px] ml-2 tracking-normal lowercase text-text-light/70">(unidade)</span></span>
                 <span className="font-serif italic text-2xl md:text-3xl font-medium text-text-dark">R$ 25</span>
-              </div>
-              <div className="flex justify-between items-center py-6 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
-                <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark">Impressa + Digital <span className="font-light text-[11px] ml-2 tracking-normal lowercase text-text-light/70">(unidade)</span></span>
-                <span className="font-serif italic text-2xl md:text-3xl font-medium text-text-dark">R$ 30</span>
               </div>
             </div>
           </div>
 
         </div>
       </section>
+
+                  {/* 4. Portfolio Section */}
+      {galleryImages.length >= 5 && (
+        <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
+          <div className="container-custom">
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="font-serif text-4xl text-text-dark">Portfólio</h2>
+              <div className="w-12 h-px bg-blush mx-auto opacity-30" />
+            </div>
+            
+            {/* Grade Bento Contínua e Simétrica */}
+            <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] md:auto-rows-[300px] grid-flow-row-dense gap-4">
+              {galleryImages.slice(0, galleryImages.length - (galleryImages.length % 5)).map((img, i) => {
+                const isLarge = i % 5 === 0;
+                return (
+                  <div 
+                    key={i} 
+                    className={`relative overflow-hidden rounded-sm group ${isLarge ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1'}`}
+                  >
+                    <Image 
+                      src={img} 
+                      alt={`Portfólio ${i}`} 
+                      fill 
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transform group-hover:scale-105 transition-transform duration-700" 
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 7. Booking CTA Component */}
       <BookingCTA 

@@ -50,7 +50,7 @@ export function BookingCTA({ sessionName, sessionId }: BookingCTAProps) {
           })()}
           
           <p className="mt-6 text-[10px] text-text-light uppercase tracking-widest flex items-center justify-center gap-3">
-             <span className="w-8 h-[1px] bg-sand" /> Confirmação Automática via Stripe <span className="w-8 h-[1px] bg-sand" />
+             <span className="w-8 h-[1px] bg-sand" /> Confirmação Automática <span className="w-8 h-[1px] bg-sand" />
           </p>
         </motion.div>
       </div>
