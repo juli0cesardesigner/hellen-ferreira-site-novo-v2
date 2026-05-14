@@ -93,6 +93,8 @@ export default function BookingWizard({
           },
           customization: {
             paymentMethods: {
+              ticket: "all",
+              bankTransfer: "all",
               creditCard: "all",
               debitCard: "all",
             },
