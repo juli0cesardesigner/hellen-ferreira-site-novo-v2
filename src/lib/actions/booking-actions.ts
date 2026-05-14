@@ -531,7 +531,7 @@ export async function createBooking(data: {
     package_type: data.packageType,
     total_amount: packagePrice,
     paid_amount: amountToPay,
-    payment_preference_id: preferenceId || null,
+    payment_id: preferenceId || null,
   };
   
   console.log("📦 Payload do insert:", JSON.stringify(bookingPayload));
