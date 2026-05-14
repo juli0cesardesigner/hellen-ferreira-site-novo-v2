@@ -505,20 +505,42 @@ export async function createBooking(data: {
   }
 
   // 5. Salvar no Banco como 'awaiting_payment' (só depois da preferência criada)
-  const { data: booking, error } = await getSupabase().from('bookings').insert({
+  // Garantir que start_time tenha formato HH:mm:ss
+  const formattedStartTime = data.startTime.length === 5 ? `${data.startTime}:00` : data.startTime;
+  
+  console.log("📝 Inserindo booking no Supabase:", JSON.stringify({ 
+    session_id: data.sessionId, 
+    booking_date: data.bookingDate, 
+    start_time: formattedStartTime, 
+    end_time: endTimeStr,
+    preferenceId: preferenceId || null,
+    packagePrice,
+    amountToPay,
+    packageType: data.packageType
+  }));
+  
+  const bookingPayload = {
     session_id: data.sessionId,
     customer_name: data.clientName,
     customer_email: data.clientEmail,
     customer_phone: data.clientPhone,
     booking_date: data.bookingDate,
-    start_time: data.startTime,
+    start_time: formattedStartTime,
     end_time: endTimeStr,
     status: 'pending',
     package_type: data.packageType,
     total_amount: packagePrice,
     paid_amount: amountToPay,
-    payment_preference_id: preferenceId,
-  }).select().single();
+    payment_preference_id: preferenceId || null,
+  };
+  
+  console.log("📦 Payload do insert:", JSON.stringify(bookingPayload));
+  
+  const { data: booking, error } = await getSupabase()
+    .from('bookings')
+    .insert(bookingPayload)
+    .select()
+    .single();
 
   if (error) {
     console.error("Erro Supabase ao criar booking:", JSON.stringify(error, null, 2));
