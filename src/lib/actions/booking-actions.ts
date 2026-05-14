@@ -400,7 +400,8 @@ export async function createBooking(data: {
 
   // 2. Duração do banco (ou fallback)
   const durationSlots = dbSessionFull?.duration_slots || (session as any).duration_slots;
-  const cleanupSlots = Math.ceil((dbSessionFull?.cleanup_minutes ?? 15) / 30);
+  const cleanupMinutes = dbSessionFull?.cleanup_minutes ?? 15;
+  const cleanupSlots = Math.ceil(cleanupMinutes / 30);
   // O end_time cobre a duração da sessão + o cleanup (intervalo pós-sessão)
   // Isso faz com que o slot seguinte ao cleanup fique naturalmente ocupado
   const totalSlotsForEndTime = durationSlots + cleanupSlots;
@@ -414,22 +415,25 @@ export async function createBooking(data: {
   const timeCompare = data.startTime.length === 5 ? `${data.startTime}:00` : data.startTime;
   const masterIndex = masterGrid.indexOf(timeCompare);
   
-  let endTimeDate = new Date();
+  let endTimeStr: string;
   
   if (masterIndex !== -1 && masterGrid.length > 0) {
     // Pega o último slot consumido: duração da sessão + cleanup
     const lastSlotIndex = Math.min(masterIndex + totalSlotsForEndTime - 1, masterGrid.length - 1);
     const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
-    const parts = lastSlotStartTime.split(':');
-    endTimeDate.setHours(parseInt(parts[0]), parseInt(parts[1]) + 30, 0); // Adiciona 30 min no último horário
+    const [h, m] = lastSlotStartTime.split(':').map(Number);
+    const totalMinutes = h * 60 + m + 30; // Adiciona 30 min no último horário
+    const endH = Math.floor(totalMinutes / 60);
+    const endM = totalMinutes % 60;
+    endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
   } else {
-    // Fallback absoluto
-    const startParts = data.startTime.split(':');
-    endTimeDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0);
-    endTimeDate = new Date(endTimeDate.getTime() + (totalSlotsForEndTime * 30 * 60000));
+    // Fallback: calcula baseado no startTime + totalSlots
+    const [startH, startM] = data.startTime.split(':').map(Number);
+    const totalMinutes = startH * 60 + startM + totalSlotsForEndTime * 30;
+    const endH = Math.floor(totalMinutes / 60);
+    const endM = totalMinutes % 60;
+    endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
   }
-  
-  const endTime = endTimeDate.toTimeString().split(' ')[0];
 
   // 3. Determinar os valores baseados no Tier_Order
   const selectedPackage = session.session_packages
@@ -508,7 +512,7 @@ export async function createBooking(data: {
     customer_phone: data.clientPhone,
     booking_date: data.bookingDate,
     start_time: data.startTime,
-    end_time: endTime,
+    end_time: endTimeStr,
     status: 'pending',
     package_type: data.packageType,
     total_amount: packagePrice,
@@ -517,7 +521,8 @@ export async function createBooking(data: {
   }).select().single();
 
   if (error) {
-    console.error("Erro Supabase:", error);
+    console.error("Erro Supabase ao criar booking:", JSON.stringify(error, null, 2));
+    console.error("Dados enviados:", { session_id: data.sessionId, booking_date: data.bookingDate, start_time: data.startTime, end_time: endTimeStr });
     return { error: "Erro ao registrar agendamento." };
   }
 
