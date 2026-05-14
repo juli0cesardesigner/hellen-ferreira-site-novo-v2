@@ -8,11 +8,24 @@ import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
-import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
 export default function SmashPage() {
-  const session = SESSIONS_DATA["6d560dc9-e87d-45c1-8cbf-e26edc72a2f2"];
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
+  const [session, setSession] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadSession() {
+      try {
+        const { session: sessionData } = await fetchSessionDetails("6d560dc9-e87d-45c1-8cbf-e26edc72a2f2");
+        setSession(sessionData);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSession();
+  }, []);
 
   React.useEffect(() => {
     fetch("/api/gallery/smash-the-cake")
@@ -25,7 +38,13 @@ export default function SmashPage() {
       .catch(err => console.error("Erro ao carregar galeria Smash:", err));
   }, []);
 
-  const loading = false;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-pearl">
+        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!session) {
     return (

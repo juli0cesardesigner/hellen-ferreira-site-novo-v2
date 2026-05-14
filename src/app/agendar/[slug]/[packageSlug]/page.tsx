@@ -10,13 +10,13 @@ interface PageProps {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; packageSlug: string }> }): Promise<Metadata> {
   const { slug, packageSlug } = await params;
-  const session = getSessionBySlug(slug);
+  const { session } = await fetchSessionBySlug(slug);
 
   if (!session) {
     return { title: "Serviço não encontrado | Hellen Ferreira" };
   }
 
-  const pkg = getPackageBySlug(session, packageSlug);
+  const pkg = session.session_packages?.find((p: any) => p.slug === packageSlug);
   const packageName = pkg ? pkg.name : "";
 
   return {
@@ -31,13 +31,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function AgendarPackagePage({ params }: PageProps) {
   const { slug, packageSlug } = await params;
   
-  const session = getSessionBySlug(slug);
+  const { session } = await fetchSessionBySlug(slug);
   
   if (!session) {
     notFound();
   }
 
-  const pkg = getPackageBySlug(session, packageSlug);
+  const pkg = session.session_packages?.find((p: any) => p.slug === packageSlug);
   
   if (!pkg) {
     // Se o slug do pacote não existir, podemos ou dar 404 ou redirecionar para o padrão

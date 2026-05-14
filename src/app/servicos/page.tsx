@@ -6,7 +6,6 @@ import Link from "next/link";
 import { SERVICES_CONTENT } from "@/lib/services-content";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { listActiveSessions } from "@/lib/actions/booking-actions";
-import { SESSIONS_DATA } from "@/lib/data/sessions";
 
 // Mapeamento de Slugs para IDs do Banco (para esconder se inativo)
 // NOTA: newborn-menino e newborn-menina compartilham o mesmo serviço "Newborn" no banco.
@@ -29,10 +28,20 @@ const SERVICE_ID_MAP: Record<string, string> = {
 };
 
 export default function ServicesPage() {
-  const activeSessionIds = Object.values(SESSIONS_DATA)
-    .filter(s => s.is_active)
-    .map(s => s.id);
-  const loading = false;
+  const [activeSessionIds, setActiveSessionIds] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadSessions() {
+      try {
+        const sessions = await listActiveSessions();
+        setActiveSessionIds(sessions.map((s: any) => s.id));
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSessions();
+  }, []);
 
   const isActive = (slug: string) => {
     const id = SERVICE_ID_MAP[slug];

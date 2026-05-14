@@ -8,11 +8,24 @@ import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
-import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
 export default function RevelacaoPage() {
-  const session = SESSIONS_DATA["50674a5b-ad94-442b-b4d1-328f4d7f59db"];
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
+  const [session, setSession] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadSession() {
+      try {
+        const { session: sessionData } = await fetchSessionDetails("50674a5b-ad94-442b-b4d1-328f4d7f59db");
+        setSession(sessionData);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSession();
+  }, []);
 
   React.useEffect(() => {
     fetch("/api/gallery/revelacao")
@@ -25,7 +38,13 @@ export default function RevelacaoPage() {
       .catch(err => console.error("Erro ao carregar galeria Revelação:", err));
   }, []);
 
-  const loading = false;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-pearl">
+        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!session) {
     return (

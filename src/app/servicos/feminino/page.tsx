@@ -8,11 +8,24 @@ import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
-import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 
 export default function FemininoPage() {
-  const session = SESSIONS_DATA["7024263c-2f3e-4c7f-a66f-cf04e2bd069a"];
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
+  const [session, setSession] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadSession() {
+      try {
+        const { session: sessionData } = await fetchSessionDetails("7024263c-2f3e-4c7f-a66f-cf04e2bd069a");
+        setSession(sessionData);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSession();
+  }, []);
 
   React.useEffect(() => {
     fetch("/api/gallery/feminino")
@@ -25,6 +38,13 @@ export default function FemininoPage() {
       .catch(err => console.error("Erro ao carregar galeria Feminino:", err));
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-pearl">
+        <div className="w-8 h-8 border-s-2 border-sand rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!session) {
     return (

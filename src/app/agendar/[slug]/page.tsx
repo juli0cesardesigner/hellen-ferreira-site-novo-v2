@@ -2,7 +2,6 @@ import { fetchSessionBySlug } from "@/lib/actions/booking-actions";
 import { notFound, redirect } from "next/navigation";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { Metadata } from "next";
-import { getSessionBySlug } from "@/lib/data/sessions";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -32,7 +31,7 @@ export default async function AgendarSlugPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const { tier } = await searchParams;
   
-  const session = getSessionBySlug(slug);
+  const { session } = await fetchSessionBySlug(slug);
   
   if (!session) {
     notFound();
@@ -41,7 +40,7 @@ export default async function AgendarSlugPage({ params, searchParams }: PageProp
   // Se o tier for fornecido via query param, redirecionamos para a URL profissional
   if (tier) {
     const tierNum = parseInt(tier);
-    const pkg = session.session_packages.find(p => p.tier_order === tierNum);
+    const pkg = session.session_packages?.find((p: any) => p.tier_order === tierNum);
     if (pkg) {
       redirect(`/agendar/${slug}/${pkg.slug}`);
     }

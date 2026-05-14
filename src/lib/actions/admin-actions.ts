@@ -548,8 +548,7 @@ export async function createSession(data: any) {
   }
 
   revalidatePath('/admin');
-  revalidatePath('/agendar');
-  return { success: true };
+  revalidatePath('/agendar');  revalidatePath('/servicos');  return { success: true };
 }
 
 export async function updateSession(id: string, updates: any) {
@@ -855,6 +854,7 @@ export async function createSessionPackage(sessionId: string, data: {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
+  revalidatePath('/servicos');
   return { success: true };
 }
 
