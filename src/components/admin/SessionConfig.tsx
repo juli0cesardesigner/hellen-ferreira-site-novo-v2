@@ -53,6 +53,8 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   const [endDate, setEndDate] = useState("");
   const [fullPrice, setFullPrice] = useState(0);
   const [depositPrice, setDepositPrice] = useState(0);
+  const [setupMinutes, setSetupMinutes] = useState(15);
+  const [cleanupMinutes, setCleanupMinutes] = useState(15);
   const [packageManagerSession, setPackageManagerSession] = useState<{ id: string; name: string } | null>(null);
 
   // System Modal State
@@ -111,7 +113,9 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
       start_date: isPerpetual ? null : startDate,
       end_date: isPerpetual ? null : endDate,
       full_price: fullPrice,
-      deposit_price: depositPrice
+      deposit_price: depositPrice,
+      setup_minutes: setupMinutes,
+      cleanup_minutes: cleanupMinutes
     };
 
     let res;
@@ -238,6 +242,8 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                 setEndDate("");
                 setFullPrice(0);
                 setDepositPrice(0);
+                setSetupMinutes(15);
+                setCleanupMinutes(15);
                 setIsModalOpen(true); 
               }}
               className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
@@ -298,6 +304,8 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                         setEndDate(session.end_date || "");
                         setFullPrice(session.full_price || 0);
                         setDepositPrice(session.deposit_price || 0);
+                        setSetupMinutes(session.setup_minutes ?? 15);
+                        setCleanupMinutes(session.cleanup_minutes ?? 15);
                         setIsModalOpen(true); 
                       }}
                       className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)]/30 active:scale-90 shadow-sm"
@@ -317,6 +325,14 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
                     <span className="text-slate-400">Duração</span>
                     <span className="text-[var(--color-admin-text)]">{(session.duration_slots || 0) * 30} MIN</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Setup</span>
+                    <span className="text-[var(--color-admin-text)]">{(session.setup_minutes ?? 15)} MIN</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Intervalo</span>
+                    <span className="text-[var(--color-admin-text)]">{(session.cleanup_minutes ?? 15)} MIN</span>
                   </div>
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
                     <span className="text-slate-400">Disponibilidade</span>
@@ -468,6 +484,52 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                               className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-emerald-600 outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
                             />
                          </div>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* ─── Tempos Operacionais ─── */}
+                  <div className="p-8 bg-[var(--color-admin-surface)] border-2 border-[var(--color-admin-border)] rounded-[2rem] space-y-8">
+                    <div className="flex items-center gap-4 mb-2">
+                       <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center border border-amber-500/20">
+                          <Clock size={18} />
+                       </div>
+                       <div>
+                          <h4 className="text-[14px] font-bold text-[var(--color-admin-text)]">Tempos Operacionais</h4>
+                          <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium">Setup e intervalo entre sessões (cada slot = 30min)</p>
+                       </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-3">
+                         <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Setup (preparação)</label>
+                         <div className="relative group">
+                            <input 
+                              type="number"
+                              min={0}
+                              max={60}
+                              step={5}
+                              value={setupMinutes}
+                              onChange={(e) => setSetupMinutes(parseInt(e.target.value) || 0)}
+                              className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
+                            />
+                         </div>
+                         <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium ml-2">Tempo antes da sessão para preparar cenário</p>
+                       </div>
+                       <div className="space-y-3">
+                         <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Limpeza/Intervalo</label>
+                         <div className="relative group">
+                            <input 
+                              type="number"
+                              min={0}
+                              max={60}
+                              step={5}
+                              value={cleanupMinutes}
+                              onChange={(e) => setCleanupMinutes(parseInt(e.target.value) || 0)}
+                              className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-amber-600 outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
+                            />
+                         </div>
+                         <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium ml-2">Tempo após a sessão para limpeza/descanso</p>
                        </div>
                     </div>
                   </div>

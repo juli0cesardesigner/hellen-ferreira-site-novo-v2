@@ -57,7 +57,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // 0. Buscar detalhes da sessão no banco para ter as datas de disponibilidade reais
     const { data: dbSession } = await getSupabase()
       .from('sessions')
-      .select('is_active, is_perpetual, start_date, end_date, duration_slots')
+      .select('is_active, is_perpetual, start_date, end_date, duration_slots, setup_minutes, cleanup_minutes')
       .eq('id', sessionId)
       .single();
 
@@ -119,6 +119,12 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
 
     const duration = dbSession?.duration_slots || 1;
 
+    // Calcular slots totais ocupados incluindo setup e cleanup
+    // Cada slot = 30 minutos
+    const setupSlots = Math.ceil((dbSession?.setup_minutes ?? 15) / 30);
+    const cleanupSlots = Math.ceil((dbSession?.cleanup_minutes ?? 15) / 30);
+    const totalOccupiedSlots = duration + setupSlots + cleanupSlots;
+
     // 4.1 Master Grid: a grade absoluta de tempo da profissional no dia
     const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
     const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
@@ -173,13 +179,17 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       const masterIndex = masterGrid.indexOf(startTime);
       if (masterIndex === -1) return { time: startTime, available: false, reason: "Erro de grade" };
 
-      // Verifica se a profissional tem blocos suficientes no dia para a duração do ensaio
-      if (masterIndex + duration > masterGrid.length) {
+      // Ocupa slots: setup (início) + duração + cleanup (final)
+      // Visualmente: [setup][sessão][cleanup]
+      // O cliente só pode agendar no início do setup
+      
+      // Verifica se a profissional tem blocos suficientes no dia
+      if (masterIndex + totalOccupiedSlots > masterGrid.length) {
         return { time: startTime, available: false, reason: "Tempo insuficiente no fim do dia" };
       }
 
-      // Varre todos os blocos na grade mestra que este ensaio vai consumir
-      for (let i = 0; i < duration; i++) {
+      // Varre todos os blocos na grade mestra que esta sessão vai consumir
+      for (let i = 0; i < totalOccupiedSlots; i++) {
         const gridTime = masterGrid[masterIndex + i] as string;
         
         const isBooked = existingBookings?.some((b: any) => 
@@ -232,10 +242,13 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     // Also fetch duration_slots for this session to compute master-grid occupancy
     const { data: dbSession } = await getSupabase()
       .from('sessions')
-      .select('duration_slots')
+      .select('duration_slots, setup_minutes, cleanup_minutes')
       .eq('id', sessionId)
       .single();
     const durationSlots = dbSession?.duration_slots || 1;
+    const setupSlots = Math.ceil((dbSession?.setup_minutes ?? 15) / 30);
+    const cleanupSlots = Math.ceil((dbSession?.cleanup_minutes ?? 15) / 30);
+    const totalOccupiedSlots = durationSlots + setupSlots + cleanupSlots;
 
     const [globalRes, specificRes] = await Promise.all([
       getSupabase().from('schema_slots').select('*').is('session_id', null).order('start_time'),
@@ -324,13 +337,13 @@ export async function getMonthAvailability(year: number, month: number, sessionI
 
       // Day-level availability via master-grid occupancy check
       // A day is available if there's at least one starting slot that can accommodate
-      // a booking of duration=durationSlots without colliding with existing bookings.
+      // a booking of totalOccupiedSlots (setup + duration + cleanup) without colliding.
       const dayBookings = bookings?.filter((b: any) => b.booking_date === dateStr) || [];
       let hasAvailableSlot = false;
 
-      for (let gi = 0; gi <= dayGrid.length - durationSlots; gi++) {
+      for (let gi = 0; gi <= dayGrid.length - totalOccupiedSlots; gi++) {
         let slotAvailable = true;
-        for (let offset = 0; offset < durationSlots; offset++) {
+        for (let offset = 0; offset < totalOccupiedSlots; offset++) {
           const gridTime = dayGrid[gi + offset];
           const collides = dayBookings.some((b: any) =>
             gridTime >= b.start_time && gridTime < b.end_time
@@ -396,8 +409,12 @@ export async function createBooking(data: {
 
   // 2. Duração do banco (ou fallback)
   const durationSlots = dbSessionFull?.duration_slots || (session as any).duration_slots;
+  const setupSlots = Math.ceil((dbSessionFull?.setup_minutes ?? 15) / 30);
+  const cleanupSlots = Math.ceil((dbSessionFull?.cleanup_minutes ?? 15) / 30);
+  const totalOccupiedSlots = durationSlots + setupSlots + cleanupSlots;
 
   // 3. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
+  // O end_time cobre setup + duração + cleanup para bloquear toda a janela
   const dayOfWeek = parseLocalDate(data.bookingDate).getDay();
   const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
   const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
@@ -410,7 +427,8 @@ export async function createBooking(data: {
   
   if (masterIndex !== -1 && masterGrid.length > 0) {
     // Pega o último slot consumido baseado na grade mestra absoluta
-    const lastSlotIndex = Math.min(masterIndex + durationSlots - 1, masterGrid.length - 1);
+    // Usa totalOccupiedSlots para incluir setup + duração + cleanup
+    const lastSlotIndex = Math.min(masterIndex + totalOccupiedSlots - 1, masterGrid.length - 1);
     const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
     const parts = lastSlotStartTime.split(':');
     endTimeDate.setHours(parseInt(parts[0]), parseInt(parts[1]) + 30, 0); // Adiciona 30 min no último horário
@@ -418,7 +436,7 @@ export async function createBooking(data: {
     // Fallback absoluto
     const startParts = data.startTime.split(':');
     endTimeDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0);
-    endTimeDate = new Date(endTimeDate.getTime() + (durationSlots * 90 * 60000));
+    endTimeDate = new Date(endTimeDate.getTime() + (totalOccupiedSlots * 30 * 60000));
   }
   
   const endTime = endTimeDate.toTimeString().split(' ')[0];

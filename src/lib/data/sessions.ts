@@ -23,6 +23,8 @@ export interface Session {
   is_perpetual?: boolean;
   start_date?: string | null;
   end_date?: string | null;
+  setup_minutes?: number;   // Minutos de preparação antes da sessão
+  cleanup_minutes?: number; // Minutos de limpeza/intervalo após a sessão
 }
 
 export const SESSIONS_DATA: Record<string, Session> = {
