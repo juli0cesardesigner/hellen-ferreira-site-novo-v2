@@ -129,6 +129,8 @@ export default function BookingWizard({
             },
             onSubmit: async (paymentFormData: any) => {
               try {
+                const formData = paymentFormData.formData;
+                
                 if (paymentFormData.payment_method_id === 'pix' && !formData.cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
                   return;
@@ -138,8 +140,6 @@ export default function BookingWizard({
                   showToast("Erro interno: ID do agendamento ausente.", "error");
                   return;
                 }
-
-                const formData = paymentFormData.formData;
                 const res = await processPayment(formData, bookingId);
                 
                 if (res.success) {
