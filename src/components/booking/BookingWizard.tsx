@@ -95,7 +95,9 @@ export default function BookingWizard({
       const bricksBuilder = mp.bricks();
 
       const renderPaymentBrick = async (bricksBuilder: any) => {
-        const settings = {
+        try {
+          console.log("🔧 Iniciando renderização do Brick com preferenceId:", preferenceId);
+          const settings = {
           initialization: {
             amount: paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print),
             preferenceId: preferenceId,
@@ -111,7 +113,7 @@ export default function BookingWizard({
           customization: {
             paymentMethods: {
               creditCard: "all",
-              bankTransfer: "all",
+              pix: "all",
             },
             fields: {
               email: "hide",
@@ -157,7 +159,8 @@ export default function BookingWizard({
               }
             },
             onError: (error: any) => {
-              console.error("Erro no Brick:", error);
+              console.error("❌ Erro no Brick:", error);
+              showToast("Erro no formulário de pagamento. Tente novamente.", "error");
             },
           },
         };
@@ -171,9 +174,17 @@ export default function BookingWizard({
           "paymentBrick_container",
           settings
         );
+        console.log("✅ Brick renderizado com sucesso!");
+        } catch (error) {
+          console.error("❌ Erro ao renderizar Brick:", error);
+          throw error;
+        }
       };
 
-      renderPaymentBrick(bricksBuilder);
+      renderPaymentBrick(bricksBuilder).catch((err: any) => {
+        console.error("❌ Erro ao renderizar Brick:", err);
+        showToast("Erro ao carregar formulário de pagamento. Recarregue a página.", "error");
+      });
     }
     
     return () => {
