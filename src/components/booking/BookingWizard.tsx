@@ -38,6 +38,7 @@ export default function BookingWizard({
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
+  const [pixTimeLeft, setPixTimeLeft] = useState<number>(60 * 60); // 60 min em segundos
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
@@ -53,6 +54,22 @@ export default function BookingWizard({
     }
     loadSession();
   }, [sessionId]);
+
+  // Contador de expiração do Pix
+  useEffect(() => {
+    if (step === 'pix' && pixTimeLeft > 0) {
+      const interval = setInterval(() => {
+        setPixTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [step, pixTimeLeft]);
 
   // Carregar SDK do Mercado Pago
   useEffect(() => {
@@ -93,10 +110,9 @@ export default function BookingWizard({
           },
           customization: {
             paymentMethods: {
-              ticket: "all",
-              bankTransfer: "all",
               creditCard: "all",
               debitCard: "all",
+              bankTransfer: "all",
             },
             visual: {
               style: {
@@ -122,6 +138,7 @@ export default function BookingWizard({
                 if (res.success) {
                   if (formData.payment_method_id === 'pix') {
                     setPixData(res.pixData);
+                    setPixTimeLeft(60 * 60); // Reset contador
                     setStep('pix');
                   } else if (res.status === 'approved' || res.status === 'in_process') {
                     setStep('success');
@@ -610,6 +627,14 @@ export default function BookingWizard({
                   <div className="p-4 bg-blush/5 border border-blush/10 rounded-sm">
                     <p className="text-[10px] text-blush font-bold uppercase tracking-widest animate-pulse">Aguardando confirmação...</p>
                     <p className="text-[9px] text-[#8C8681] mt-2 uppercase tracking-widest">Assim que você pagar, esta tela atualizará automaticamente.</p>
+                    {pixTimeLeft > 0 && (
+                      <p className="text-[14px] font-bold text-amber-600 mt-3 font-mono">
+                        {Math.floor(pixTimeLeft / 60)}:{String(pixTimeLeft % 60).padStart(2, '0')}
+                      </p>
+                    )}
+                    {pixTimeLeft === 0 && (
+                      <p className="text-[11px] font-bold text-red-500 mt-3 uppercase tracking-wider">QR Code expirado. Gere um novo pagamento.</p>
+                    )}
                   </div>
                 </div>
 

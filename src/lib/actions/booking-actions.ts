@@ -110,12 +110,24 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // Filtra apenas os que restaram ativos após o merge
     const schemaSlots = Object.values(finalSlotsMap).filter((s: any) => s.is_active);
 
-    // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes)
+    // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes não expirados)
+    const currentTime = new Date();
     const { data: existingBookings } = await getSupabase()
       .from('bookings')
-      .select('start_time, end_time')
+      .select('start_time, end_time, status, expires_at')
       .eq('booking_date', dateStr)
       .in('status', ['confirmed', 'pending']);
+
+    // Filtrar bookings pendentes expirados (liberar o slot)
+    const activeBookings = (existingBookings || []).filter((b: any) => {
+      if (b.status === 'confirmed') return true;
+      if (b.status === 'pending') {
+        // Booking pendente sem expires_at: considera válido por 60 min
+        if (!b.expires_at) return true;
+        return new Date(b.expires_at) > currentTime;
+      }
+      return false;
+    });
 
     const duration = dbSession?.duration_slots || 1;
 
@@ -186,7 +198,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       for (let i = 0; i < duration; i++) {
         const gridTime = masterGrid[masterIndex + i] as string;
         
-        const isBooked = existingBookings?.some((b: any) => 
+        const isBooked = activeBookings?.some((b: any) => 
           gridTime >= b.start_time && gridTime < b.end_time
         );
         
@@ -274,14 +286,25 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     });
 
     // 3. Bookings no período
+    const currentTime = new Date();
     const { data: bookings } = await getSupabase()
       .from('bookings')
-      .select('booking_date, start_time, end_time')
+      .select('booking_date, start_time, end_time, status, expires_at')
       .gte('booking_date', startDate)
       .lte('booking_date', endDate)
       .in('status', ['confirmed', 'pending']);
 
-    // 0.1 Buscar antecedência mínima
+    // Filtrar bookings pendentes expirados
+    const activeBookings = (bookings || []).filter((b: any) => {
+      if (b.status === 'confirmed') return true;
+      if (b.status === 'pending') {
+        if (!b.expires_at) return true; // sem expiração: mantém
+        return new Date(b.expires_at) > currentTime;
+      }
+      return false;
+    });
+
+    // 0.3 Antecedência mínima e data atual de referência
     const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
     const minNoticeHours = parseInt(minNoticeHoursStr || '12');
     const now = new Date();
@@ -329,7 +352,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       // Day-level availability via master-grid occupancy check
       // A day is available if there's at least one starting slot that can accommodate
       // a booking of duration=durationSlots without colliding with existing bookings.
-      const dayBookings = bookings?.filter((b: any) => b.booking_date === dateStr) || [];
+      const dayBookings = activeBookings?.filter((b: any) => b.booking_date === dateStr) || [];
       let hasAvailableSlot = false;
 
       for (let gi = 0; gi <= dayGrid.length - durationSlots; gi++) {
@@ -532,6 +555,8 @@ export async function createBooking(data: {
     total_amount: packagePrice,
     paid_amount: amountToPay,
     payment_id: preferenceId || null,
+    // Expira em 60 minutos se o pagamento não for concluído
+    expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
   };
   
   console.log("📦 Payload do insert:", JSON.stringify(bookingPayload));
@@ -596,6 +621,15 @@ export async function processPayment(paymentData: any, bookingId: string) {
 
     // 2. Se for Pix, retornar os dados do QR Code
     if (paymentData.payment_method_id === 'pix') {
+      // Tempo de expiração do QR Code: 60 minutos
+      const pixExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      
+      // Atualizar o booking com a data de expiração
+      await getSupabase()
+        .from('bookings')
+        .update({ expires_at: pixExpiration })
+        .eq('id', bookingId);
+      
       if (process.env.NODE_ENV === 'development') {
         console.log("✅ Pagamento Pix criado com sucesso. Retornando QR Code.");
       }
@@ -606,6 +640,7 @@ export async function processPayment(paymentData: any, bookingId: string) {
         pixData: {
           qrCode: response.point_of_interaction?.transaction_data?.qr_code,
           qrCodeBase64: response.point_of_interaction?.transaction_data?.qr_code_base64,
+          expiresAt: pixExpiration,
         }
       };
     }
