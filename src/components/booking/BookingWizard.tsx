@@ -112,10 +112,11 @@ export default function BookingWizard({
           },
           customization: {
             paymentMethods: {
+              ticket: "all",
+              bankTransfer: "all",
               creditCard: "all",
-            },
-            fields: {
-              email: "hide",
+              debitCard: "all",
+              mercadoPago: "all",
             },
             visual: {
               style: {

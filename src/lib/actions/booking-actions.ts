@@ -504,6 +504,11 @@ export async function createBooking(data: {
             number: data.clientCpf?.replace(/\D/g, '')
           }
         },
+        payment_methods: {
+          excluded_payment_methods: [],
+          excluded_payment_types: [],
+          installments: 12,
+        },
         external_reference: tempRef,
         metadata: {
           booking_id: tempRef, // Will be updated below
