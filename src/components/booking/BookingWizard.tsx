@@ -38,7 +38,7 @@ export default function BookingWizard({
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [pixData, setPixData] = useState<any>(null);
-  const [pixTimeLeft, setPixTimeLeft] = useState<number>(60 * 60); // 60 min em segundos
+  const [pixTimeLeft, setPixTimeLeft] = useState<number>(30 * 60); // 30 min em segundos
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
@@ -111,8 +111,10 @@ export default function BookingWizard({
           customization: {
             paymentMethods: {
               creditCard: "all",
-              debitCard: "all",
               bankTransfer: "all",
+            },
+            fields: {
+              email: "hide",
             },
             visual: {
               style: {
@@ -138,7 +140,7 @@ export default function BookingWizard({
                 if (res.success) {
                   if (formData.payment_method_id === 'pix') {
                     setPixData(res.pixData);
-                    setPixTimeLeft(60 * 60); // Reset contador
+                    setPixTimeLeft(30 * 60); // Reset contador (30 min)
                     setStep('pix');
                   } else if (res.status === 'approved' || res.status === 'in_process') {
                     setStep('success');

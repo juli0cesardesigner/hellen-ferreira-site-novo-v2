@@ -555,8 +555,8 @@ export async function createBooking(data: {
     total_amount: packagePrice,
     paid_amount: amountToPay,
     payment_id: preferenceId || null,
-    // Expira em 60 minutos se o pagamento não for concluído
-    expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    // Expira em 30 minutos se o pagamento não for concluído
+    expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   };
   
   console.log("📦 Payload do insert:", JSON.stringify(bookingPayload));
@@ -621,8 +621,8 @@ export async function processPayment(paymentData: any, bookingId: string) {
 
     // 2. Se for Pix, retornar os dados do QR Code
     if (paymentData.payment_method_id === 'pix') {
-      // Tempo de expiração do QR Code: 60 minutos
-      const pixExpiration = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      // Tempo de expiração do QR Code: 30 minutos
+      const pixExpiration = new Date(Date.now() + 30 * 60 * 1000).toISOString();
       
       // Atualizar o booking com a data de expiração
       await getSupabase()
