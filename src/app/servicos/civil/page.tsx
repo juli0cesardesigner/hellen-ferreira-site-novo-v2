@@ -280,7 +280,7 @@ export default function CivilPage() {
         </div>
       </div>
 
-      {/* 4. Experience Section */}}
+      {/* 4. Experience Section */}
       <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl text-center">
         <div className="container-custom max-w-[800px]">
           <h2 className="mb-16">O Registro do seu Início</h2>
