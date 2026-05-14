@@ -113,7 +113,6 @@ export default function BookingWizard({
           customization: {
             paymentMethods: {
               creditCard: "all",
-              pix: "all",
             },
             fields: {
               email: "hide",
@@ -130,6 +129,10 @@ export default function BookingWizard({
             },
             onSubmit: async (paymentFormData: any) => {
               try {
+                if (paymentFormData.payment_method_id === 'pix' && !formData.cpf) {
+                  showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
+                  return;
+                }
                 if (!bookingId) {
                   console.error("❌ Erro: bookingId está ausente no submit.");
                   showToast("Erro interno: ID do agendamento ausente.", "error");
@@ -479,7 +482,7 @@ export default function BookingWizard({
                     </div>
                   </div>
                   <div className="space-y-2">
-                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF (Necessário para Pix)</label>
+                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF (Opcional - Obrigatório apenas para PIX)</label>
                      <input 
                       type="text" placeholder="000.000.000-00"
                       className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
@@ -489,7 +492,7 @@ export default function BookingWizard({
                 </div>
 
                 <button 
-                  disabled={!formData.name || !formData.whatsapp || formData.cpf.length < 14}
+                  disabled={!formData.name || !formData.whatsapp}
                   onClick={() => setStep('payment')}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
