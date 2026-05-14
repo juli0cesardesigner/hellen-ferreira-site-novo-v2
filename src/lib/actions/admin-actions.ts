@@ -805,6 +805,103 @@ export async function getAllSessionSettings() {
   return settingsMap;
 }
 
+export async function listSessionPackages(sessionId: string) {
+  await validateAdmin();
+  const { data, error } = await getAdminClient()
+    .from('session_packages')
+    .select('*')
+    .eq('session_id', sessionId)
+    .order('tier_order', { ascending: true });
+
+  if (error) {
+    console.error("Erro ao listar pacotes:", error);
+    return { packages: [] };
+  }
+
+  return { packages: data };
+}
+
+export async function createSessionPackage(sessionId: string, data: {
+  name: string;
+  slug: string;
+  description?: string;
+  tier_order: number;
+  price_digital: number;
+  price_print: number;
+  upgrade_label?: string;
+  features?: string[];
+  is_active?: boolean;
+}) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('session_packages')
+    .insert([{
+      session_id: sessionId,
+      name: data.name,
+      slug: data.slug,
+      description: data.description || null,
+      tier_order: data.tier_order,
+      price_digital: data.price_digital,
+      price_print: data.price_print,
+      upgrade_label: data.upgrade_label || "",
+      features: data.features || [],
+      is_active: data.is_active ?? true,
+    }]);
+
+  if (error) {
+    console.error("Erro ao criar pacote:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function updateSessionPackage(id: string, updates: {
+  name?: string;
+  slug?: string;
+  description?: string;
+  tier_order?: number;
+  price_digital?: number;
+  price_print?: number;
+  upgrade_label?: string;
+  features?: string[];
+  is_active?: boolean;
+}) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('session_packages')
+    .update(updates)
+    .eq('id', id);
+
+  if (error) {
+    console.error("Erro ao atualizar pacote:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function deleteSessionPackage(id: string) {
+  await validateAdmin();
+  const { error } = await getAdminClient()
+    .from('session_packages')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("Erro ao deletar pacote:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
 export async function updateSessionColor(id: string, theme_color: string) {
   await validateAdmin();
   const { error } = await getAdminClient().from('sessions').update({ theme_color }).eq('id', id);

@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
+import { PackageManager } from "@/components/admin/PackageManager";
 
 // Componentes Oficiais
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -52,6 +53,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   const [endDate, setEndDate] = useState("");
   const [fullPrice, setFullPrice] = useState(0);
   const [depositPrice, setDepositPrice] = useState(0);
+  const [packageManagerSession, setPackageManagerSession] = useState<{ id: string; name: string } | null>(null);
 
   // System Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -75,9 +77,9 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   // Notify parent of editing state
   useEffect(() => {
     if (onEditingChange) {
-      onEditingChange(isModalOpen || !!viewingMatrix);
+      onEditingChange(isModalOpen || !!viewingMatrix || !!packageManagerSession);
     }
-  }, [isModalOpen, viewingMatrix, onEditingChange]);
+  }, [isModalOpen, viewingMatrix, packageManagerSession, onEditingChange]);
 
   useEffect(() => {
     loadSessions();
@@ -274,6 +276,13 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                   </h3>
                   <div className="flex gap-2">
                     <button 
+                      onClick={() => { setPackageManagerSession({ id: session.id, name: session.name }); }}
+                      className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-emerald-500 hover:border-emerald-500/30 active:scale-90 shadow-sm"
+                      title="Gerenciar Preços dos Pacotes"
+                    >
+                      <Database size={14} />
+                    </button>
+                    <button 
                       onClick={() => { setViewingMatrix(session); loadMatrix(session.id); }}
                       className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)]/30 active:scale-90 shadow-sm"
                       title="Ver Matriz de Horários"
@@ -285,7 +294,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                         setEditingSession(session); 
                         setSelectedColor(session.theme_color || "#7986CB");
                         setIsPerpetual(session.is_perpetual ?? true);
-                        setStartDate(session.start_date || "");
                         setStartDate(session.start_date || "");
                         setEndDate(session.end_date || "");
                         setFullPrice(session.full_price || 0);
@@ -329,6 +337,19 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
             );
           })}
         </div>
+      )}
+
+      {/* Package Manager Modal */}
+      {packageManagerSession && (
+        <PackageManager
+          sessionId={packageManagerSession.id}
+          sessionName={packageManagerSession.name}
+          isOpen={!!packageManagerSession}
+          onClose={() => setPackageManagerSession(null)}
+          onUpdated={() => {
+            setPackageManagerSession(null);
+          }}
+        />
       )}
 
       <AnimatePresence>
