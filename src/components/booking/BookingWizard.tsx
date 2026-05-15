@@ -145,11 +145,8 @@ export default function BookingWizard({
           },
           customization: {
             paymentMethods: {
-              ticket: "all",
-              bankTransfer: "all",
-              creditCard: "all",
-              debitCard: "all",
-              mercadoPago: "all",
+              bankTransfer: "all", // Pix
+              creditCard: "all",   // Cartão de Crédito
             },
             visual: {
               style: {
