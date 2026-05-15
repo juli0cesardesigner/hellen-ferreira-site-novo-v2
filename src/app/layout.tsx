@@ -30,6 +30,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.hellenferreira.com'),
   title: "Hellen Ferreira Fotografia | Newborn, Gestante e Família",
   description: "Registrando os capítulos mais preciosos da sua história com sensibilidade e arte.",
   manifest: "/manifest.json",
@@ -38,8 +39,28 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "AGENDA",
   },
-  formatDetection: {
-    telephone: false,
+  openGraph: {
+    title: "Hellen Ferreira Fotografia | Newborn, Gestante e Família",
+    description: "Registrando os capítulos mais preciosos da sua história com sensibilidade e arte.",
+    url: 'https://www.hellenferreira.com',
+    siteName: 'Hellen Ferreira Fotografia',
+    locale: 'pt_BR',
+    type: 'website',
+
+    images: [
+      {
+        url: '/content/home/hero/hero-4.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Hellen Ferreira Fotografia',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Hellen Ferreira Fotografia",
+    description: "Registrando os capítulos mais preciosos da sua história com sensibilidade e arte.",
+    images: ['/content/home/hero/hero-4.webp'],
   },
   icons: {
     icon: [
@@ -51,6 +72,8 @@ export const metadata: Metadata = {
     ],
   },
 };
+
+
 
 import { GoogleAnalytics } from '@next/third-parties/google';
 import FacebookPixel from "@/components/analytics/FacebookPixel";
