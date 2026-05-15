@@ -109,15 +109,24 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // Filtra apenas os que restaram ativos após o merge
     const schemaSlots = Object.values(finalSlotsMap).filter((s: SlotDefinition) => s.is_active);
 
-    // 3. Pegar agendamentos existentes na data (apenas confirmados, pendentes não bloqueiam mais a agenda)
+    // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes não expirados)
+    const currentTime = new Date();
     const { data: existingBookings } = await getSupabase()
       .from('bookings')
-      .select('start_time, end_time, status')
+      .select('start_time, end_time, status, expires_at')
       .eq('booking_date', dateStr)
-      .eq('status', 'confirmed');
+      .in('status', ['confirmed', 'pending']);
 
-    // Agora apenas bookings confirmados bloqueiam horário
-    const activeBookings = existingBookings || [];
+    // Filtrar bookings pendentes expirados (liberar o slot)
+    const activeBookings = (existingBookings || []).filter((b) => {
+      if (b.status === 'confirmed') return true;
+      if (b.status === 'pending') {
+        // Booking pendente sem expires_at: considera válido por 30 min (tempo do checkout/pix)
+        if (!b.expires_at) return true;
+        return new Date(b.expires_at as string) > currentTime;
+      }
+      return false;
+    });
 
     const duration = dbSession?.duration_slots || 1;
 

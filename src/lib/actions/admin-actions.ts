@@ -167,6 +167,7 @@ export async function getBookingsList() {
       )
     `)
     .gte('booking_date', today)
+    .neq('status', 'pending')
     .order('booking_date', { ascending: true })
     .limit(50);
 
@@ -191,7 +192,8 @@ export async function getAllBookingsList(filter: 'all' | 'past' | 'future' = 'al
         name,
         theme_color
       )
-    `);
+    `)
+    .neq('status', 'pending');
 
   if (filter === 'past') {
     query = query.lt('booking_date', today).order('booking_date', { ascending: false });
@@ -238,7 +240,8 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
     .from('bookings')
     .select('status, total_amount, paid_amount')
     .gte('booking_date', startTargetMonth)
-    .lte('booking_date', endTargetMonth);
+    .lte('booking_date', endTargetMonth)
+    .neq('status', 'pending');
 
   const pBookings = admin
     .from('bookings')
@@ -251,6 +254,7 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
     `)
     .gte('booking_date', startTargetMonth)
     .lte('booking_date', endTargetMonth)
+    .neq('status', 'pending')
     .order('booking_date', { ascending: true })
     .limit(300);
 
