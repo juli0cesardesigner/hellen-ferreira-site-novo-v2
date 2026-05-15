@@ -596,12 +596,12 @@ export default function AdminDashboard() {
                     
                     const cells = [];
                     for (let i = 0; i < firstDay; i++) {
-                      cells.push(<div key={`empty-${i}`} className="h-12 lg:h-16" />);
+                      cells.push(<div key={`empty-${i}`} className="aspect-square" />);
                     }
                     
                     for (let day = 1; day <= daysInMonth; day++) {
                       const date = new Date(year, month, day);
-                      const isSelected = selectedDate.toDateString() === date.toDateString();
+                      const isSelected = selectedDate?.toDateString() === date.toDateString();
                       const isToday = new Date().toDateString() === date.toDateString();
                       const dateKey = date.toISOString().split('T')[0];
                       
@@ -615,7 +615,7 @@ export default function AdminDashboard() {
                         <button 
                           key={day}
                           onClick={() => setSelectedDate(date)}
-                          className={`h-12 lg:h-16 rounded-2xl flex flex-col items-center justify-center transition-all border relative ${
+                          className={`aspect-square rounded-xl lg:rounded-2xl flex flex-col items-center justify-center transition-all border relative ${
                             isSelected 
                               ? 'bg-[var(--color-admin-accent)] border-[var(--color-admin-accent)] text-white shadow-md z-10 scale-105' 
                               : isFullyBlocked
