@@ -38,8 +38,25 @@ export default function AdminDashboard() {
     setActiveTab(tab);
   };
 
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewDate, setViewDate] = useState<Date>(new Date());
+  // Use a stable date for initial render to avoid hydration mismatch
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [viewDate, setViewDate] = useState<Date>(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    // Update to exact current time only after mounting if necessary
+    // But for a calendar, start of day is usually fine
+  }, []);
+
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
   const [isYearSelectorOpen, setIsYearSelectorOpen] = useState(false);
   const [stats, setStats] = useState({ totalRevenue: 0 }); // eslint-disable-line @typescript-eslint/no-unused-vars
