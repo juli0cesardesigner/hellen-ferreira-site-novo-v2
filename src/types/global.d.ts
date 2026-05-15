@@ -2,7 +2,7 @@
 
 interface FacebookPixel {
   (action: 'track', event: string, params?: Record<string, unknown>): void;
-  (action: 'init', pixelId: string): void;
+  (action: 'init', pixelId: string, params?: Record<string, unknown>): void;
   callMethod?: (...args: unknown[]) => void;
   queue: unknown[];
   loaded: boolean;
