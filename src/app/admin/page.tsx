@@ -2,22 +2,23 @@
 
 import React, { useState, useMemo } from "react";
 import { 
-  LayoutDashboard, Clock, Calendar, Plus, Settings, ShieldCheck, RefreshCw, Database, 
+  Clock, Calendar, Plus, Settings, ShieldCheck, RefreshCw, Database, 
   ChevronRight, ChevronLeft, LogOut, Loader2, BarChart, Receipt, TrendingDown, 
-  ThumbsUp, TrendingUp, Info, Trash2, Save, CalendarClock, User, Phone, CheckCircle2, AlertCircle
+  ThumbsUp, TrendingUp, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { MassBlockingSection } from "@/components/admin/MassBlocking";
 import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 import ExpensesConfig from "@/components/admin/ExpensesConfig";
 
-import { getDashboardData, getBookingsList, getAdminStats, getAllBookingsList, getFinanceDetailedStats, getDayMasterGrid, getBlockedDates, getExpenses, getFinanceSummary } from "@/lib/actions/admin-actions";
+import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
 import { ManualBookingModal } from "@/components/admin/ManualBooking";
 import { BlockSlotModal } from "@/components/admin/BlockSlotModal";
 import { DeleteBlockedSlotModal } from "@/components/admin/DeleteBlockedSlotModal";
 import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
+import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
 import { Ban } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -30,17 +31,17 @@ export default function AdminDashboard() {
   const [viewDate, setViewDate] = useState<Date>(new Date());
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
   const [isYearSelectorOpen, setIsYearSelectorOpen] = useState(false);
-  const [stats, setStats] = useState({ totalRevenue: 0 });
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [stats, setStats] = useState({ totalRevenue: 0 }); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isManualBookingOpen, setIsManualBookingOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
-  const [selectedBlockedSlot, setSelectedBlockedSlot] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBlockedSlot, setSelectedBlockedSlot] = useState<Booking | SlotDefinition | null>(null);
   const [isSectionEditing, setIsSectionEditing] = useState(false);
   const [isMonthListExpanded, setIsMonthListExpanded] = useState(true);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
-  const [daySlots, setDaySlots] = useState<any[]>([]);
-  const [blockedDates, setBlockedDates] = useState<any[]>([]);
+  const [daySlots, setDaySlots] = useState<SlotDefinition[]>([]);
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBlockSlotOpen, setIsBlockSlotOpen] = useState(false);
   const [selectedTimeForAction, setSelectedTimeForAction] = useState<string | null>(null);
@@ -88,7 +89,12 @@ export default function AdminDashboard() {
   
   // Finance states
   const [financeDate, setFinanceDate] = useState(new Date());
-  const [financeData, setFinanceData] = useState<{ totalGross: number, totalReceived: number, byCategory: any, bookings: any[] }>({ 
+  const [financeData, setFinanceData] = useState<{ 
+    totalGross: number, 
+    totalReceived: number, 
+    byCategory: Record<string, { totalGross: number, totalReceived: number, count: number, color?: string }>, 
+    bookings: Booking[] 
+  }>({ 
     totalGross: 0, 
     totalReceived: 0, 
     byCategory: {}, 
@@ -96,7 +102,7 @@ export default function AdminDashboard() {
   });
   const [isFinanceLoading, setIsFinanceLoading] = useState(false);
   const [financeSummary, setFinanceSummary] = useState({ totalGross: 0, totalReceived: 0, totalExpenses: 0, netProfit: 0 });
-  const [meiReport, setMeiReport] = useState<{ totalYear: number, monthByMonth: any[] }>({ totalYear: 0, monthByMonth: [] });
+  const [meiReport, setMeiReport] = useState<{ totalYear: number, monthByMonth: { month: number, received: number }[] }>({ totalYear: 0, monthByMonth: [] });
 
   // Consider as editing if any modal is open or if the section reports editing
   const isEditing = isManualBookingOpen || !!selectedBooking || !!selectedBlockedSlot || isSectionEditing;
@@ -106,7 +112,7 @@ export default function AdminDashboard() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  async function loadData(isBackground?: boolean | any) {
+  async function loadData(isBackground?: boolean) {
     const background = isBackground === true;
     if (background) setIsSyncing(true);
     else setIsLoading(true);
@@ -134,7 +140,7 @@ export default function AdminDashboard() {
     }
   }, [selectedDate, viewDate, activeTab]);
 
-  async function loadFinanceData(isBackground?: boolean | any) {
+  async function loadFinanceData(isBackground?: boolean) {
     const background = isBackground === true;
     if (background) setIsSyncing(true);
     else setIsFinanceLoading(true);
@@ -150,8 +156,11 @@ export default function AdminDashboard() {
       const monthPromises = Array.from({ length: 12 }, (_, i) => getFinanceSummary(i, financeDate.getFullYear()));
       const summaries = await Promise.all(monthPromises);
       
-      const yearTotal = summaries.reduce((acc: number, s: any) => acc + (s.totalReceived || 0), 0);
-      const monthByMonth = summaries.map((s, i) => ({ month: i + 1, income: s.totalReceived || 0 }));
+      const yearTotal = summaries.reduce((acc: number, s) => acc + (s.totalReceived || 0), 0);
+      const monthByMonth = summaries.map((s, i) => ({ 
+        month: i + 1, 
+        received: s.totalReceived || 0 
+      }));
       
       setMeiReport({ totalYear: yearTotal, monthByMonth });
 
@@ -397,7 +406,7 @@ export default function AdminDashboard() {
 
                         {selectedBlockedSlot && (
               <DeleteBlockedSlotModal
-                booking={selectedBlockedSlot}
+                booking={selectedBlockedSlot as Booking}
                 onClose={() => setSelectedBlockedSlot(null)}
                 onUpdated={() => {
                   loadData(true);
@@ -672,7 +681,7 @@ export default function AdminDashboard() {
                             <div className="py-20 text-center border-2 border-dashed border-[var(--color-admin-border)] rounded-[2rem]">
                               <Clock className="mx-auto text-slate-300 mb-4" size={32} />
                               <p className="text-[14px] font-bold text-slate-500 tracking-tight">Nenhum horário configurado para este dia da semana.</p>
-                              <p className="text-[12px] text-slate-400 mt-2">Acesse a aba "Horários" para definir a grade master.</p>
+                              <p className="text-[12px] text-slate-400 mt-2">Acesse a aba &quot;Horários&quot; para definir a grade master.</p>
                             </div>
                           );
                         }
@@ -688,20 +697,18 @@ export default function AdminDashboard() {
                                 return isSameDate && b.start_time.slice(0, 5) === slot.start_time.slice(0, 5);
                               });
 
-                              if (bookingAtSlot) {
-                              const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
-                              const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') 
-: '';
-                                  
-                                const colors = isBlock 
-                                  ? { isCustom: true, styles: { color: '#ef4444' } }
-                                 : getSessionColor(bookingAtSlot.sessions?.name, 
-bookingAtSlot.sessions?.theme_color);
-                                  
-                                return (
-                                  <div 
-                                    key={slot.id} 
-                                   onClick={() => isBlock ? setSelectedBlockedSlot(bookingAtSlot) : setSelectedBooking(bookingAtSlot)}
+                                if (bookingAtSlot) {
+                                  const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
+                                  const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') : '';
+                                    
+                                  const colors = isBlock 
+                                    ? { isCustom: true, styles: { color: '#ef4444' } }
+                                    : getSessionColor(bookingAtSlot.sessions?.name || 'Outros', bookingAtSlot.sessions?.theme_color);
+                                    
+                                  return (
+                                    <div 
+                                      key={slot.id} 
+                                      onClick={() => isBlock ? setSelectedBlockedSlot(bookingAtSlot) : setSelectedBooking(bookingAtSlot)}
                                     className={`group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border shadow-sm ${isBlock ? 'border-red-200 bg-red-50/30' : 'border-[var(--color-admin-border)]'}`}
                                   >
                                     <div className={`w-24 flex flex-col items-center justify-center border-r pr-2 ${isBlock ? 'border-red-100' : 'border-[var(--color-admin-border)]'}`}>
@@ -720,7 +727,7 @@ bookingAtSlot.sessions?.theme_color);
                                         />
                                         <div>
                                           <h4 className={`text-[15px] font-bold tracking-tight ${isBlock ? 'text-red-900' : 'text-[var(--color-admin-text)]'}`}>
-                                            {isBlock ? 'HORÁRIO BLOQUEADO' : (bookingAtSlot.customer_name || bookingAtSlot.client_name)}
+                                            {isBlock ? 'HORÁRIO BLOQUEADO' : bookingAtSlot.customer_name}
                                           </h4>
                                           <p className={`text-[11px] font-bold uppercase tracking-wider ${isBlock ? 'text-red-500' : 'text-slate-500'}`}>
                                             {isBlock ? blockReason : bookingAtSlot.sessions?.name}
@@ -911,7 +918,7 @@ bookingAtSlot.sessions?.theme_color);
 
               {/* Grid de Categorias */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {Object.entries(financeData.byCategory).map(([name, data]: [string, any]) => {
+                    {Object.entries(financeData.byCategory).map(([name, data]: [string, { totalGross: number, totalReceived: number, count: number, color?: string }]) => {
                        const colors = getSessionColor(name, data.color);
                        return (
                         <div 
@@ -1000,7 +1007,7 @@ bookingAtSlot.sessions?.theme_color);
   );
 }
 
-function BookingList({ bookings, onEdit, isLoading }: { bookings: any[], onEdit: (b: any) => void, isLoading: boolean }) {
+function BookingList({ bookings, onEdit, isLoading }: { bookings: Booking[], onEdit: (b: Booking) => void, isLoading: boolean }) {
   if (isLoading) {
     return (
       <div className="py-48 flex flex-col items-center justify-center gap-8">
@@ -1026,7 +1033,7 @@ function BookingList({ bookings, onEdit, isLoading }: { bookings: any[], onEdit:
   }
 
   // Agrupar por data
-  const grouped = bookings.reduce((acc: Record<string, any[]>, b) => {
+  const grouped = bookings.reduce((acc: Record<string, Booking[]>, b) => {
     const date = b.booking_date;
     if (!acc[date]) acc[date] = [];
     acc[date].push(b);
@@ -1070,7 +1077,7 @@ function BookingList({ bookings, onEdit, isLoading }: { bookings: any[], onEdit:
                     <div className="flex items-center gap-6 lg:gap-10 flex-1 min-w-0">
                       <div className="flex flex-col flex-1 min-w-0">
                         <h4 className="text-[14px] lg:text-[16px] font-bold text-[var(--color-admin-text)] tracking-tight truncate group-hover:text-[var(--color-admin-accent)] transition-colors">
-                          {booking.customer_name || booking.client_name}
+                          {booking.customer_name}
                         </h4>
                         <div className="flex items-center gap-2 mt-1.5">
                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
@@ -1135,7 +1142,7 @@ function SidebarNavItem({ active, onClick, icon, label, disabled }: { active: bo
       } ${disabled ? 'opacity-30 pointer-events-none' : ''}`}
     >
       <div className={`${active ? 'text-white' : 'text-slate-400'} transition-colors`}>
-        {React.cloneElement(icon as React.ReactElement<any>, { strokeWidth: active ? 2.5 : 2 })}
+        {React.cloneElement(icon as React.ReactElement<{ strokeWidth?: number }>, { strokeWidth: active ? 2.5 : 2 })}
       </div>
       <span className="relative z-10">{label}</span>
       {active && <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full animate-pulse" />}
@@ -1152,7 +1159,7 @@ function BottomNavItem({ active, onClick, icon, disabled }: { active: boolean, o
         active ? 'text-[var(--color-admin-accent)]' : 'text-slate-400'
       } ${disabled ? 'opacity-20 pointer-events-none' : ''}`}
     >
-      {React.cloneElement(icon as React.ReactElement<any>, { size: 24, strokeWidth: active ? 2.5 : 2 })}
+      {React.cloneElement(icon as React.ReactElement<{ size?: number, strokeWidth?: number }>, { size: 24, strokeWidth: active ? 2.5 : 2 })}
       {active && <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_10px_var(--color-admin-accent)]" />}
     </button>
   );
@@ -1162,7 +1169,7 @@ function StatMetric({ label, value, icon, isPositive, trend }: { label: string, 
   return (
     <div className="w-full bg-[var(--color-admin-surface)] p-6 lg:p-8 border border-[var(--color-admin-border)] rounded-2xl lg:rounded-[2.5rem] flex flex-col justify-between h-40 lg:h-48 transition-all shadow-sm relative overflow-hidden group">
       <div className="absolute -right-8 -top-8 p-12 opacity-5 rotate-12 group-hover:opacity-10 group-hover:rotate-0 transition-all duration-1000">
-         {React.cloneElement(icon as React.ReactElement<any>, { size: 100, strokeWidth: 1 })}
+         {React.cloneElement(icon as React.ReactElement<{ size?: number, strokeWidth?: number }>, { size: 100, strokeWidth: 1 })}
       </div>
 
       <div className="flex justify-between items-start relative z-10">

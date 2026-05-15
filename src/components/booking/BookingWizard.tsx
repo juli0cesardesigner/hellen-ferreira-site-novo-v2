@@ -2,12 +2,44 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, Clock, User, CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 
+import { SessionWithPackages, Package } from "@/types/database";
+
 type Step = 'schedule' | 'details' | 'payment' | 'checkout' | 'pix' | 'success';
+
+interface MercadoPagoBrickSettings {
+  initialization: {
+    amount: number;
+    preferenceId: string;
+    payer: {
+      email: string;
+      entityType: string;
+      identification: {
+        type: string;
+        number: string;
+      };
+    };
+  };
+  customization: {
+    paymentMethods: Record<string, string>;
+    visual: {
+      style: {
+        theme: string;
+      };
+    };
+  };
+  callbacks: {
+    onReady: () => void;
+    onSubmit: (paymentFormData: { formData: Record<string, unknown>; payment_method_id: string }) => Promise<void>;
+    onError: (error: unknown) => void;
+  };
+}
+
+
 
 interface BookingWizardProps {
   initialSessionId?: string;
@@ -21,30 +53,30 @@ export default function BookingWizard({
   const { showToast } = useToast();
 
   const [step, setStep] = useState<Step>('schedule');
-  const [sessionId, setSessionId] = useState<string>(initialSessionId);
-  const [session, setSession] = useState<any>(null);
-  const [selectedTier, setSelectedTier] = useState<number>(initialTier);
+  const [sessionId] = useState<string>(initialSessionId);
+  const [session, setSession] = useState<SessionWithPackages | null>(null);
+  const [selectedTier] = useState<number>(initialTier);
   
   // Estados para a Agenda Mensal
   const [currentMonthDate, setCurrentMonthDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
-  const [selectedDateSlots, setSelectedDateSlots] = useState<any[]>([]);
+  const [selectedDateSlots, setSelectedDateSlots] = useState<{ time: string; available: boolean; reason?: string }[]>([]);
   
   const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "", cpf: "" });
   const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
-  const [pixData, setPixData] = useState<any>(null);
+  const [pixData, setPixData] = useState<{ qrCode?: string; qrCodeBase64?: string; expiresAt?: string } | null>(null);
   const [pixTimeLeft, setPixTimeLeft] = useState<number>(30 * 60); // 30 min em segundos
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
 
   // Determinar o pacote ativo baseado no Tier selecionado
-  const activePackage = session?.session_packages?.find((p: any) => p.tier_order === selectedTier) || session?.session_packages?.[0];
+  const activePackage = session?.session_packages?.find((p: Package) => p.tier_order === selectedTier) || session?.session_packages?.[0];
 
   // Carregar Detalhes da Sessão
   useEffect(() => {
@@ -91,15 +123,16 @@ export default function BookingWizard({
       const container = document.getElementById("paymentBrick_container");
       if (container) container.innerHTML = "";
 
-      const mp = new (window as any).MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
+      if (!window.MercadoPago) return;
+      const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
       const bricksBuilder = mp.bricks();
 
-      const renderPaymentBrick = async (bricksBuilder: any) => {
+      const renderPaymentBrick = async (bricksBuilder: { create: (type: string, id: string, settings: MercadoPagoBrickSettings) => Promise<void | { unmount: () => void }> }) => {
         try {
           console.log("🔧 Iniciando renderização do Brick com preferenceId:", preferenceId);
-          const settings = {
+          const settings: MercadoPagoBrickSettings = {
           initialization: {
-            amount: paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print),
+            amount: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
             preferenceId: preferenceId,
             payer: {
               email: formData.email,
@@ -128,11 +161,12 @@ export default function BookingWizard({
             onReady: () => {
               setIsLoading(false);
             },
-            onSubmit: async (paymentFormData: any) => {
+            onSubmit: async (paymentFormData: { formData: Record<string, unknown>; payment_method_id: string }) => {
               try {
                 const formData = paymentFormData.formData;
+                const cpf = (formData as { cpf?: string }).cpf;
                 
-                if (paymentFormData.payment_method_id === 'pix' && !formData.cpf) {
+                if (paymentFormData.payment_method_id === 'pix' && !cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
                   return;
                 }
@@ -145,7 +179,7 @@ export default function BookingWizard({
                 
                 if (res.success) {
                   if (formData.payment_method_id === 'pix') {
-                    setPixData(res.pixData);
+                    setPixData(res.pixData || null);
                     setPixTimeLeft(30 * 60); // Reset contador (30 min)
                     setStep('pix');
                   } else if (res.status === 'approved' || res.status === 'in_process') {
@@ -162,7 +196,7 @@ export default function BookingWizard({
                 showToast("Erro ao processar o pagamento. Tente novamente.", "error");
               }
             },
-            onError: (error: any) => {
+            onError: (error: unknown) => {
               console.error("❌ Erro no Brick:", error);
               showToast("Erro no formulário de pagamento. Tente novamente.", "error");
             },
@@ -185,7 +219,7 @@ export default function BookingWizard({
         }
       };
 
-      renderPaymentBrick(bricksBuilder).catch((err: any) => {
+      renderPaymentBrick(bricksBuilder).catch((err: unknown) => {
         console.error("❌ Erro ao renderizar Brick:", err);
         showToast("Erro ao carregar formulário de pagamento. Recarregue a página.", "error");
       });
@@ -196,7 +230,12 @@ export default function BookingWizard({
         window.paymentBrickController.unmount();
       }
     };
-  }, [step, preferenceId, mpLoaded, bookingId]);
+  }, [
+    step, preferenceId, mpLoaded, bookingId, 
+    paymentType, packageType, session?.deposit_price, 
+    activePackage?.price_digital, activePackage?.price_print, 
+    formData.email, formData.cpf, showToast
+  ]);
 
   // Carregar disponibilidade do mês
   useEffect(() => {
@@ -219,7 +258,9 @@ export default function BookingWizard({
       async function loadSlots() {
         setIsSlotsLoading(true);
         const res = await getAvailableSlots(selectedDate, sessionId);
-        setSelectedDateSlots(res.slots || []);
+        if (Array.isArray(res.slots)) {
+          setSelectedDateSlots(res.slots as { time: string; available: boolean; reason?: string }[]);
+        }
         setIsSlotsLoading(false);
       }
       loadSlots();
@@ -331,7 +372,7 @@ export default function BookingWizard({
                   </button>
                   <h3 className="text-2xl font-serif italic text-[#2C2A29]">
                     {session?.name || "Carregando..."} 
-                    {session?.session_packages?.length > 1 && (
+                    {(session?.session_packages?.length ?? 0) > 1 && (
                       <span className="text-blush text-lg ml-2">
                         — {activePackage?.name}
                       </span>
@@ -625,6 +666,7 @@ export default function BookingWizard({
 
                 <div className="bg-white p-6 rounded-lg border border-[#E6DFD3] shadow-inner inline-block mx-auto">
                   {pixData?.qrCodeBase64 && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img 
                       src={`data:image/png;base64,${pixData.qrCodeBase64}`} 
                       alt="QR Code Pix" 

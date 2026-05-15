@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { X, Save, Trash2, Loader2, CalendarClock, Database, User, ShieldAlert, CreditCard, ChevronRight, Check, Clock } from "lucide-react";
+import { X, Save, Trash2, Loader2, Database, User, CreditCard, ChevronRight, Clock, CalendarClock } from "lucide-react";
 import { updateBooking, deleteBooking } from "@/lib/actions/admin-actions";
 import { getAvailableSlots } from "@/lib/actions/booking-actions";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
+import { Booking } from "@/types/database";
 
 const formatCurrencyBRL = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -20,11 +21,11 @@ const parseCurrencyBRL = (value: string): number => {
   return Number(digits) / 100;
 };
 
-export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any, onClose: () => void, onUpdated: () => void }) {
+export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Booking, onClose: () => void, onUpdated: () => void }) {
   const [formData, setFormData] = useState({
-    customer_name: booking.customer_name || booking.client_name || "",
-    customer_email: booking.customer_email || booking.client_email || "",
-    customer_phone: booking.customer_phone || booking.client_phone || "",
+    customer_name: booking.customer_name || "",
+    customer_email: booking.customer_email || "",
+    customer_phone: booking.customer_phone || "",
     booking_date: booking.booking_date || "",
     start_time: booking.start_time?.slice(0, 5) || "",
     status: booking.status || "pending",
@@ -55,7 +56,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
         const res = await getAvailableSlots(bookingDate, sessionId, true);
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          setAvailableSlots(res.slots);
+          setAvailableSlots(res.slots as { time: string, available: boolean }[]);
         }
         setIsSlotsLoading(false);
       }
@@ -105,12 +106,13 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
           message: "Não foi possível remover o agendancemento: " + res.error
         });
       }
-    } catch (error: any) {
-      console.error("Critical error deleting booking:", error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Critical error deleting booking:", err);
       setErrorConfig({
         isOpen: true,
         title: "Erro Crítico",
-        message: "Ocorreu um erro inesperado na conexão: " + (error.message || "Erro desconhecido")
+        message: "Ocorreu um erro inesperado na conexão: " + (err.message || "Erro desconhecido")
       });
     } finally {
       setIsDeleting(false);
@@ -264,7 +266,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: any
                    <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">Estado do Registro</label>
                   <div className="relative">
                      <select 
-                       value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} 
+                       value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value as 'confirmed' | 'pending' | 'cancelled' | 'completed'})} 
                        className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-3.5 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-wider outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
                      >
                         <option value="pending">Pendente</option>

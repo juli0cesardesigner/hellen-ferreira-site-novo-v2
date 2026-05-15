@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Plus, Trash2, Receipt, CalendarDays, Loader2, Save, X, 
+  Plus, Trash2, Receipt, Loader2, Save, X, 
   TrendingDown, ChevronLeft, ChevronRight,
-  ThumbsUp, ThumbsDown
+  ThumbsUp
 } from "lucide-react";
 import { 
   getExpenses, createExpense, updateExpenseStatus, deleteExpense, updateExpense 
@@ -17,8 +17,20 @@ import { ptBR } from "date-fns/locale";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 
+interface Expense {
+  id: string;
+  description: string;
+  amount: number;
+  due_date: string;
+  type: string;
+  status: string;
+  group_id?: string;
+  total_installments?: number;
+  installment_number?: number;
+}
+
 export default function ExpensesConfig() {
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +65,6 @@ export default function ExpensesConfig() {
   const [type, setType] = useState("fixed");
   const [status, setStatus] = useState("pending");
   const [installments, setInstallments] = useState("1");
-  const [editingExpense, setEditingExpense] = useState<any>(null); // Mantendo para compatibilidade se necessário
 
   // Função Auxiliar para Máscara de Moeda (Zero Slop)
   const formatCurrencyBRL = (value: number) => {
@@ -69,19 +80,24 @@ export default function ExpensesConfig() {
   };
 
   useEffect(() => {
+    async function loadExpenses() {
+      setIsLoading(true);
+      try {
+        const data = await getExpenses(currentDate.getMonth(), currentDate.getFullYear());
+        setExpenses(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
     loadExpenses();
   }, [currentDate]);
 
   async function loadExpenses() {
-    setIsLoading(true);
-    try {
-      const data = await getExpenses(currentDate.getMonth(), currentDate.getFullYear());
-      setExpenses(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Keep this version for manual calls if needed
+    const data = await getExpenses(currentDate.getMonth(), currentDate.getFullYear());
+    setExpenses(data);
   }
 
   async function performSave(updateFuture: boolean) {
@@ -92,8 +108,8 @@ export default function ExpensesConfig() {
         description,
         amount: parseFloat(amount),
         due_date: dueDate,
-        type,
-        status
+        type: type as 'fixed' | 'variable' | 'installment',
+        status: status as 'paid' | 'pending'
       }, updateFuture);
       setIsModalOpen(false);
       resetForm();
@@ -132,8 +148,8 @@ export default function ExpensesConfig() {
           description,
           amount: parseFloat(amount),
           due_date: dueDate,
-          type,
-          status,
+          type: type as 'fixed' | 'variable' | 'installment',
+          status: status as 'paid' | 'pending',
           installments: parseInt(installments)
         });
         setIsModalOpen(false);
@@ -147,7 +163,7 @@ export default function ExpensesConfig() {
     }
   }
 
-  function handleEdit(expense: any) {
+  function handleEdit(expense: Expense) {
     setEditingId(expense.id);
     setDescription(expense.description);
     setAmount(expense.amount.toString());
@@ -222,7 +238,7 @@ export default function ExpensesConfig() {
     setEditingId(null);
   }
 
-  const totalMonthly = expenses.reduce((acc: number, e: any) => acc + Number(e.amount), 0);
+  const totalMonthly = expenses.reduce((acc: number, e: Expense) => acc + Number(e.amount), 0);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
@@ -503,7 +519,7 @@ export default function ExpensesConfig() {
           confirmConfig.onCancel();
           setConfirmConfig(prev => ({ ...prev, isOpen: false }));
         }}
-        variant={confirmConfig.variant as any}
+        variant={confirmConfig.variant}
       />
     </div>
   );

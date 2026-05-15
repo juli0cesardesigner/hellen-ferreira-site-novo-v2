@@ -25,11 +25,14 @@ export function InternalDatePicker({ value, onChange, onMonthChange, availableDa
   const triggerRef = useRef<HTMLDivElement>(null);
 
   // Sync currentMonth with value prop when it changes externally
-  useEffect(() => {
+  // Using render-time sync to avoid cascading renders warning
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) {
       setCurrentMonth(parseISO(value));
     }
-  }, [value]);
+  }
 
   // Close on outside click
   useEffect(() => {
@@ -150,7 +153,6 @@ export function InternalDatePicker({ value, onChange, onMonthChange, availableDa
     while (day <= endDate) {
       for (let i = 0; i < 7; i++) {
         formattedDate = format(day, "d");
-        const cloneDay = day;
         const dateStr = format(day, "yyyy-MM-dd");
         const isSelected = selectedDate && isSameDay(day, selectedDate);
         const isCurrentMonth = isSameMonth(day, monthStart);

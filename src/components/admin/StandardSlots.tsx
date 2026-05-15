@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Search, Filter, ShieldCheck, Globe, Lock, Database, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Clock, Loader2, Save, X, Filter, Globe, Database, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { listSchemaSlots, addSchemaSlot, deleteSchemaSlot, getSiteSetting, updateSiteSetting } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { SlotDefinition } from "@/types/database";
 
 export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
   const sessions = Object.values(SESSIONS_DATA);
   const [selectedSession, setSelectedSession] = useState<string>("");
-  const [slots, setSlots] = useState<any[]>([]);
+  const [slots, setSlots] = useState<SlotDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -46,15 +47,23 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
     }
   }, [addingToDay, confirmConfig, onEditingChange]);
 
-  useEffect(() => {
-    loadSlots();
-    loadNoticeHours();
-  }, [selectedSession]);
-
-  async function loadNoticeHours() {
+  const loadNoticeHours = React.useCallback(async () => {
     const val = await getSiteSetting('min_booking_notice_hours');
     if (val) setMinNoticeHours(val);
-  }
+  }, []);
+
+  const loadSlots = React.useCallback(async () => {
+    setIsLoading(true);
+    const res = await listSchemaSlots(selectedSession || null);
+    setSlots((res.slots || []) as SlotDefinition[]);
+    setIsLoading(false);
+  }, [selectedSession]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSlots();
+    loadNoticeHours();
+  }, [loadSlots, loadNoticeHours]);
 
   const handleUpdateNotice = async () => {
     setIsUpdatingNotice(true);
@@ -71,12 +80,6 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
     setIsUpdatingNotice(false);
   };
 
-  async function loadSlots() {
-    setIsLoading(true);
-    const res = await listSchemaSlots(selectedSession || null);
-    setSlots(res.slots || []);
-    setIsLoading(false);
-  }
 
   const handleAddSlot = async (dayOfWeek: number) => {
     if (!newSlotTime) return;
@@ -98,7 +101,7 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
     setIsSaving(false);
   };
 
-  const handleToggleSlot = async (slot: any, dayOfWeek: number) => {
+  const handleToggleSlot = async (slot: SlotDefinition, dayOfWeek: number) => {
     const isGlobal = slot.source === 'global';
     
     if (selectedSession && isGlobal) {

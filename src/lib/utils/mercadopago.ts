@@ -22,6 +22,6 @@ export const mpClient = new Proxy({} as MercadoPagoConfig, {
     if (!_mpClient) {
       _mpClient = createMpClient();
     }
-    return (_mpClient as any)[prop];
+    return (_mpClient as unknown as Record<string, unknown>)[prop as string];
   }
 });

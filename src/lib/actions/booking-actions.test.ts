@@ -41,7 +41,6 @@ describe("parseLocalDate (internal helper)", () => {
     // In Brazil (UTC-3), that's May 12 21:00 → getDay() = 2 (Tuesday)
     // parseLocalDate should give getDay() = 3 (Wednesday)
     const localDate = parseLocalDate("2026-05-13");
-    const utcDate = new Date("2026-05-13");
     
     // In Brazil (UTC-3), these will differ
     // The local parse should preserve the intended day
@@ -60,7 +59,7 @@ describe("Availability calculation logic", () => {
       { day_of_week: 4, is_active: true },
     ];
 
-    slots.forEach((s: any) => {
+    slots.forEach((s: { day_of_week: number; is_active: boolean }) => {
       if (s.is_active) {
         activeSlotsCount[s.day_of_week] = (activeSlotsCount[s.day_of_week] || 0) + 1;
       }
@@ -77,7 +76,7 @@ describe("Availability calculation logic", () => {
     const dateStr = "2026-05-13";
     
     const isBlocked = blockedDays.some(
-      (b: any) => dateStr >= b.start_date && dateStr <= b.end_date
+      (b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date
     );
     
     expect(isBlocked).toBe(true);
@@ -90,7 +89,7 @@ describe("Availability calculation logic", () => {
     const dateStr = "2026-05-13";
     
     const isBlocked = blockedDays.some(
-      (b: any) => dateStr >= b.start_date && dateStr <= b.end_date
+      (b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date
     );
     
     expect(isBlocked).toBe(false);

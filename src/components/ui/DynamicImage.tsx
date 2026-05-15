@@ -61,8 +61,9 @@ export function DynamicImage({
         const preferredOrientation = isDesktop ? 'horizontal' : 'vertical';
 
         // Get already used images on this page view to avoid duplicates
-        if (!(window as any)._dynamic_images_used) (window as any)._dynamic_images_used = {};
-        const globalUsed = (window as any)._dynamic_images_used;
+        const win = window as Window & { _dynamic_images_used?: Record<string, string[]> };
+        if (!win._dynamic_images_used) win._dynamic_images_used = {};
+        const globalUsed = win._dynamic_images_used;
         if (!globalUsed[category]) globalUsed[category] = [] as string[];
         const usedOnPage: string[] = globalUsed[category];
 
@@ -115,7 +116,7 @@ export function DynamicImage({
     };
 
     fetchAndFindImage();
-  }, [category, alt]);
+  }, [category, alt, id]);
 
   if (!currentImage) return <div className={`bg-sand/10 w-full h-full ${className}`} />;
 

@@ -14,10 +14,10 @@ declare global {
     fbq?: FacebookPixel;
     _fbq?: FacebookPixel;
     // Mercado Pago SDK
-    MercadoPago?: new (publicKey: string) => {
+    MercadoPago?: new (key: string | undefined) => { 
       bricks: () => {
-        create: (type: string, containerId: string, settings: Record<string, unknown>) => Promise<void>;
-      };
+        create: (brickName: string, containerId: string, settings: any) => Promise<any>;
+      }
     };
     // Dynamic images deduplication
     _dynamic_images_used?: Record<string, string[]>;

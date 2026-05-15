@@ -53,9 +53,7 @@ export function BlockSlotModal({
     };
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
@@ -67,7 +65,7 @@ export function BlockSlotModal({
       } else {
         setError(res.error || "Erro ao bloquear horário.");
       }
-    } catch (e) {
+    } catch (_) {
       setError("Erro interno ao processar bloqueio.");
     } finally {
       setIsSubmitting(false);
@@ -110,7 +108,7 @@ export function BlockSlotModal({
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
             {error && (
               <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
                 <ShieldAlert size={18} className="text-red-500 shrink-0 mt-0.5" />
@@ -132,7 +130,7 @@ export function BlockSlotModal({
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => onClose()}
                 className="flex-1 py-4 text-[13px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
                 disabled={isSubmitting}
               >

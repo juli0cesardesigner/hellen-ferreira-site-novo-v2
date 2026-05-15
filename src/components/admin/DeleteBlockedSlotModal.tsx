@@ -5,12 +5,14 @@ import { X, Ban, Loader2, Trash2, ShieldAlert, CalendarClock } from "lucide-reac
 import { motion } from "framer-motion";
 import { deleteBooking } from "@/lib/actions/admin-actions";
 
+import { Booking } from "@/types/database";
+
 export function DeleteBlockedSlotModal({
   booking,
   onClose,
   onUpdated
 }: {
-  booking: any,
+  booking: Booking,
   onClose: () => void,
   onUpdated: () => void
 }) {
@@ -35,8 +37,9 @@ export function DeleteBlockedSlotModal({
       } else {
         setError(res.error || "Erro ao remover bloqueio.");
       }
-    } catch (e: any) {
-      setError(e.message || "Erro interno ao processar exclusão.");
+    } catch (e) {
+      const error = e as Error;
+      setError(error.message || "Erro interno ao processar exclusão.");
     } finally {
       setIsDeleting(false);
     }
@@ -100,7 +103,7 @@ export function DeleteBlockedSlotModal({
                 <div>
                   <p className="text-[13px] font-bold text-slate-600">Detalhes</p>
                   <p className="text-[12px] font-medium text-slate-500 mt-1">
-                    Ref: {booking.id?.split('-')[0]} | Criado em: {new Date(booking.created_at || booking.createdAt || '').toLocaleDateString('pt-BR')}
+                    Ref: {booking.id?.split('-')[0]} | Criado em: {new Date(booking.created_at || (booking as any).createdAt || '').toLocaleDateString('pt-BR')}
                   </p>
                 </div>
               </div>

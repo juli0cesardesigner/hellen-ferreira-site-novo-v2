@@ -3,16 +3,16 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Calendar, Heart, Check, Image as ImageIcon, PauseCircle } from "lucide-react";
+import { Check, PauseCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
-import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
+import { SessionWithPackages } from "@/types/database";
 
 export default function MensalMeninoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
-  const [session, setSession] = React.useState<any>(null);
+  const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -33,7 +33,7 @@ export default function MensalMeninoPage() {
       .then(res => res.json())
       .then(data => {
         if (data.images) {
-          setGalleryImages(data.images.map((img: any) => img.path || img));
+          setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
       .catch(err => console.error("Erro ao carregar galeria Mensal:", err));

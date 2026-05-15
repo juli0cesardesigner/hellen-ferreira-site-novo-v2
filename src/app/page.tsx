@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/Button";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { SITE_CONFIG } from "@/lib/constants";
 import { HOME_CONTENT } from "@/lib/home-content";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
@@ -24,7 +22,7 @@ export default function Home() {
       .then(async data => {
         if (data.images && data.images.length > 0) {
           // Normalize: entries may be strings (legacy) or {path, width, height, orientation}
-          const entries: { path: string; orientation?: string }[] = data.images.map((img: any) =>
+          const entries: { path: string; orientation?: string }[] = data.images.map((img: string | { path: string; orientation?: string }) =>
             typeof img === 'string' ? { path: img } : img
           );
           const isDesktop = window.innerWidth >= 768;
@@ -81,13 +79,12 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 2 }}
-            className="absolute inset-0 z-0 w-full h-full"
+            className="absolute inset-0 z-0 w-full h-full overflow-hidden"
           >
             <motion.div
               animate={{ 
-                scale: [1, 1.1],
-                x: [0, -20],
-                y: [0, -10]
+                scale: [1, 1.05],
+                opacity: [0.8, 1]
               }}
               transition={{ 
                 duration: 10,
@@ -95,7 +92,7 @@ export default function Home() {
                 repeatType: "reverse",
                 ease: "linear"
               }}
-              className="w-full h-full"
+              className="relative w-full h-full"
             >
               <Image
                 src={heroSlides[heroIndex] || heroSlides[0]}
@@ -224,7 +221,8 @@ export default function Home() {
                 src={HOME_CONTENT.about.image} 
                 alt="Hellen Ferreira" 
                 fill 
-                className="object-cover transition-transform duration-[3s] group-hover:scale-110" 
+                className="object-cover transition-transform duration-[3s] group-hover:scale-105" 
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
           </motion.div>

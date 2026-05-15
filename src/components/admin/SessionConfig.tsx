@@ -3,16 +3,17 @@
 import React, { useState, useEffect } from "react";
 import { 
   Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Edit2, 
-  Palette, Settings, ShieldCheck, Camera, Info, Database, 
-  Briefcase, CalendarClock, Globe, ArrowRight, ChevronLeft, ChevronRight 
+  Palette, Settings, Database, 
+  Briefcase, CalendarClock, Globe
 } from "lucide-react";
 import { 
   listSessions, createSession, updateSession, deleteSession,
-  listSchemaSlots, addSchemaSlot, deleteSchemaSlot, syncSessionColors
+  listSchemaSlots, addSchemaSlot, syncSessionColors
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
 import { PackageManager } from "@/components/admin/PackageManager";
+import { Session, SlotDefinition } from "@/types/database";
 
 // Componentes Oficiais
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -39,13 +40,13 @@ const parseCurrencyBRL = (value: string): number => {
 };
 
 export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editingSession, setEditingSession] = useState<any>(null);
-  const [viewingMatrix, setViewingMatrix] = useState<any>(null);
-  const [matrixSlots, setMatrixSlots] = useState<any[]>([]);
+  const [editingSession, setEditingSession] = useState<Session | null>(null);
+  const [viewingMatrix, setViewingMatrix] = useState<Session | null>(null);
+  const [matrixSlots, setMatrixSlots] = useState<SlotDefinition[]>([]);
   const [isMatrixLoading, setIsMatrixLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#3b82f6");
   const [isPerpetual, setIsPerpetual] = useState(true);
@@ -83,23 +84,24 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
     }
   }, [isModalOpen, viewingMatrix, packageManagerSession, onEditingChange]);
 
-  useEffect(() => {
-    loadSessions();
-  }, []);
-
-  async function loadSessions() {
+  const loadSessions = React.useCallback(async () => {
     setIsLoading(true);
     const data = await listSessions();
     setSessions(data.sessions || []);
     setIsLoading(false);
-  }
+  }, []);
 
-  async function loadMatrix(sessionId: string) {
+  const loadMatrix = React.useCallback(async (sessionId: string) => {
     setIsMatrixLoading(true);
     const res = await listSchemaSlots(sessionId);
-    setMatrixSlots(res.slots || []);
+    setMatrixSlots((res.slots || []) as SlotDefinition[]);
     setIsMatrixLoading(false);
-  }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSessions();
+  }, [loadSessions]);
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -115,7 +117,9 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
       full_price: fullPrice,
       deposit_price: depositPrice,
       setup_minutes: setupMinutes,
-      cleanup_minutes: cleanupMinutes
+      cleanup_minutes: cleanupMinutes,
+      is_active: true,
+      slug: (formData.get("name") as string).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
     };
 
     let res;
@@ -195,7 +199,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
     });
   };
 
-  const handleToggleSlot = async (slot: any) => {
+  const handleToggleSlot = async (slot: SlotDefinition) => {
     if (!viewingMatrix) return;
     setIsSaving(true);
     await addSchemaSlot(slot.day_of_week, slot.start_time, viewingMatrix.id, !slot.is_active);

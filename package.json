@@ -6,7 +6,7 @@
     "dev": "node scripts/generate-gallery-index.js && next dev",
     "build": "node scripts/generate-gallery-index.js && next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "next lint",
     "test": "vitest"
   },
   "dependencies": {

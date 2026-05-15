@@ -2,7 +2,7 @@ import { fetchSessionBySlug } from "@/lib/actions/booking-actions";
 import { notFound } from "next/navigation";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { Metadata } from "next";
-import { getSessionBySlug, getPackageBySlug } from "@/lib/data/sessions";
+import { Package } from "@/types/database";
 
 interface PageProps {
   params: Promise<{ slug: string; packageSlug: string }>;
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: "Serviço não encontrado | Hellen Ferreira" };
   }
 
-  const pkg = session.session_packages?.find((p: any) => p.slug === packageSlug);
+  const pkg = session.session_packages?.find((p: Package) => p.slug === packageSlug);
   const packageName = pkg ? pkg.name : "";
 
   return {
@@ -37,7 +37,7 @@ export default async function AgendarPackagePage({ params }: PageProps) {
     notFound();
   }
 
-  const pkg = session.session_packages?.find((p: any) => p.slug === packageSlug);
+  const pkg = session.session_packages?.find((p: Package) => p.slug === packageSlug);
   
   if (!pkg) {
     // Se o slug do pacote não existir, podemos ou dar 404 ou redirecionar para o padrão

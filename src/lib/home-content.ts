@@ -1,5 +1,3 @@
-import { SITE_CONFIG } from "./constants";
-
 export const HOME_CONTENT = {
   hero: {
     tagline: "Registrando os capítulos mais preciosos da sua história.",

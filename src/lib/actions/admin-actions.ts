@@ -7,11 +7,13 @@ import { createClient } from "@/lib/supabase/server";
 // so revalidatePath does NOT trigger client re-renders. It is kept for SSR cache hygiene.
 import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
-import { redirect } from "next/navigation";
 import crypto from "crypto";
 
+import { Session, SlotDefinition, Booking, Expense } from "@/types/database";
+import { SupabaseClient } from "@supabase/supabase-js";
+
 // Lazy initialization of Supabase client with Service Role for internal admin operations
-let supabaseAdmin: any = null;
+let supabaseAdmin: SupabaseClient | null = null;
 
 function getAdminClient() {
   if (supabaseAdmin) return supabaseAdmin;
@@ -67,14 +69,14 @@ export async function getAdminStats() {
   const admin = getAdminClient();
 
   // Sessões de Hoje
-  const { count: todayCount } = await admin
+  await admin
     .from('bookings')
     .select('*', { count: 'exact', head: true })
     .eq('booking_date', today)
     .neq('status', 'cancelled');
-
+ 
   // Sessões da Semana
-  const { count: weekCount } = await admin
+  await admin
     .from('bookings')
     .select('*', { count: 'exact', head: true })
     .gte('booking_date', today)
@@ -88,7 +90,7 @@ export async function getAdminStats() {
     .gte('booking_date', firstDayOfMonth)
     .lte('booking_date', lastDayOfMonth);
 
-  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: any) => {
+  const totalRevenue = monthlyRevenueData?.reduce((acc: number, curr: { status: string; total_amount: number; paid_amount: number }) => {
     // Regra 2026: Bruto é sempre o valor total do contrato (exceto cancelados se necessário, mas aqui mantemos o potencial)
     if (curr.status === 'cancelled') return acc;
     return acc + (Number(curr.total_amount) || 0);
@@ -128,7 +130,7 @@ export async function getFinanceDetailedStats(month: number, year: number) {
   let totalGross = 0;
   let totalReceived = 0;
 
-  bookings?.forEach((booking: any) => {
+  bookings?.forEach((booking: Booking & { sessions?: { name: string; theme_color?: string } }) => {
     const sessionName = booking.sessions?.name || 'Outros';
     const gross = booking.status !== 'cancelled' ? (Number(booking.total_amount) || 0) : 0;
     const received = Number(booking.paid_amount) || 0;
@@ -266,17 +268,17 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
 
   const [resStats, resBookings, resGrid, resBlocks] = await Promise.all([pStats, pBookings, pGrid, pBlocks]);
 
-  const totalRevenue = resStats.data?.reduce((acc: number, curr: any) => {
+  const totalRevenue = resStats.data?.reduce((acc: number, curr: { status: string; total_amount: number; paid_amount: number }) => {
     if (curr.status === 'cancelled') return acc;
     return acc + (Number(curr.total_amount) || 0);
   }, 0) || 0;
 
-  const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: any) => [s.start_time, s])).values());
+  const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: SlotDefinition) => [s.start_time, s])).values());
 
   return {
     stats: { totalRevenue },
     bookings: { bookings: resBookings.data || [] },
-    grid: { slots: uniqueSlots as any[] },
+    grid: { slots: uniqueSlots as SlotDefinition[] },
     blocks: { blocks: resBlocks.data || [] }
   };
 }
@@ -319,22 +321,24 @@ export async function getExpenses(month: number, year: number) {
   return data;
 }
 
-export async function createExpense(expense: any) {
+export async function createExpense(expense: Omit<Expense, 'id' | 'created_at'> & { type: string; installments?: number; status?: string }) {
   await validateAdmin();
   const admin = getAdminClient();
   const groupId = crypto.randomUUID();
   const baseDate = new Date(expense.due_date + 'T12:00:00');
   
-  if (expense.type === 'installment' && expense.installments > 1) {
+  const numInstallments = expense.installments ?? 1;
+  
+  if (expense.type === 'installment' && numInstallments > 1) {
     const batch = [];
-    const parcelAmount = Number((expense.amount / expense.installments).toFixed(2));
+    const parcelAmount = Number((expense.amount / numInstallments).toFixed(2));
     
-    for (let i = 0; i < expense.installments; i++) {
+    for (let i = 0; i < numInstallments; i++) {
       const dueDate = new Date(baseDate);
       dueDate.setMonth(baseDate.getMonth() + i);
       
       batch.push({
-        description: `${expense.description} (${i + 1}/${expense.installments})`,
+        description: `${expense.description} (${i + 1}/${numInstallments})`,
         amount: parcelAmount,
         due_date: dueDate.toISOString().split('T')[0],
         type: 'installment',
@@ -380,7 +384,7 @@ export async function createExpense(expense: any) {
   return { success: true };
 }
 
-export async function updateExpense(id: string, updates: any, updateFuture: boolean = false) {
+export async function updateExpense(id: string, updates: Partial<Expense> & { description?: string; amount?: number }, updateFuture: boolean = false) {
   await validateAdmin();
   const admin = getAdminClient();
 
@@ -464,17 +468,17 @@ export async function getFinanceSummary(month: number, year: number) {
     .gte('due_date', startDate)
     .lte('due_date', endDate);
 
-  const totalGross = bookings?.reduce((acc: number, b: any) => {
+  const totalGross = bookings?.reduce((acc: number, b: { status: string; total_amount: number }) => {
     if (b.status === 'cancelled') return acc;
     return acc + (Number(b.total_amount) || 0);
   }, 0) || 0;
 
-  const totalReceived = bookings?.reduce((acc: number, b: any) => {
+  const totalReceived = bookings?.reduce((acc: number, b: { status: string; paid_amount: number }) => {
     if (b.status === 'cancelled') return acc;
     return acc + (Number(b.paid_amount) || 0);
   }, 0) || 0;
 
-  const totalExpenses = expenses?.reduce((acc: number, e: any) => acc + (Number(e.amount) || 0), 0) || 0;
+  const totalExpenses = expenses?.reduce((acc: number, e: { amount: number }) => acc + (Number(e.amount) || 0), 0) || 0;
 
   return {
     totalGross,
@@ -536,7 +540,7 @@ export async function listSessions() {
   return { sessions: data };
 }
 
-export async function createSession(data: any) {
+export async function createSession(data: Omit<Session, 'id'>) {
   await validateAdmin();
   const { error } = await getAdminClient()
     .from('sessions')
@@ -553,7 +557,7 @@ export async function createSession(data: any) {
   return { success: true };
 }
 
-export async function updateSession(id: string, updates: any) {
+export async function updateSession(id: string, updates: Partial<Session>) {
   await validateAdmin();
   const { error } = await getAdminClient()
     .from('sessions')
@@ -600,7 +604,7 @@ export async function listSchemaSlots(sessionId: string | null) {
     .order('start_time');
 
   if (!sessionId || sessionId === "") {
-    return { slots: globalSlots?.map((s: any) => ({ ...s, source: 'global' })) || [] };
+    return { slots: globalSlots?.map((s: SlotDefinition) => ({ ...s, source: 'global' })) || [] };
   }
 
   // 2. Buscar Específicos
@@ -611,24 +615,24 @@ export async function listSchemaSlots(sessionId: string | null) {
     .order('start_time');
 
   // 3. Mesclar
-  const finalMap: Record<string, any> = {};
+  const finalMap: Record<string, SlotDefinition & { source: string; is_override?: boolean }> = {};
   
-  globalSlots?.forEach((gs: any) => {
+  globalSlots?.forEach((gs: SlotDefinition) => {
     const key = `${gs.day_of_week}-${gs.start_time}`;
     finalMap[key] = { ...gs, source: 'global' };
   });
 
-  specificSlots?.forEach((ss: any) => {
+  specificSlots?.forEach((ss: SlotDefinition) => {
     const key = `${ss.day_of_week}-${ss.start_time}`;
     const isGlobalOverride = !!finalMap[key];
     finalMap[key] = { 
       ...ss, 
-      source: isGlobalOverride ? 'global' : 'specific',
+      source: isGlobalOverride ? 'global' : 'session',
       is_override: isGlobalOverride 
     };
   });
 
-  const merged = Object.values(finalMap).sort((a: any, b: any) => {
+  const merged = Object.values(finalMap).sort((a, b) => {
     if (a.day_of_week !== b.day_of_week) return a.day_of_week - b.day_of_week;
     return a.start_time.localeCompare(b.start_time);
   });
@@ -698,7 +702,7 @@ export async function createManualBooking(data: {
   // 2. Calcular End Time
   const dayOfWeek = new Date(data.booking_date).getUTCDay();
   const { data: allDaySlots } = await admin.from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
-  const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
+  const masterGrid = Array.from(new Set(allDaySlots?.map((s: { start_time: string }) => s.start_time) || [])).sort();
   
   const timeCompare = data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time;
   const masterIndex = masterGrid.indexOf(timeCompare);
@@ -750,7 +754,7 @@ export async function createManualBooking(data: {
   };
 }
 
-export async function updateBooking(id: string, updates: any) {
+export async function updateBooking(id: string, updates: Partial<Booking>) {
   await validateAdmin();
   const { error } = await getAdminClient().from('bookings').update(updates).eq('id', id);
   if (error) {
@@ -798,7 +802,7 @@ export async function getAllSessionSettings() {
   await validateAdmin();
   const { data } = await getAdminClient().from('sessions').select('id, duration_slots, theme_color');
   const settingsMap: Record<string, { duration: number, color: string }> = {};
-  data?.forEach((d: any) => { 
+  data?.forEach((d: { id: string; duration_slots: number; theme_color: string }) => { 
     settingsMap[d.id] = { 
       duration: d.duration_slots, 
       color: d.theme_color || 'zinc' 
@@ -941,8 +945,8 @@ export async function getDayMasterGrid(dayOfWeek: number) {
   }
 
   // Remove duplicates by time (caso existam por erro de configuração)
-  const uniqueSlots = Array.from(new Map(data?.map((s: any) => [s.start_time, s])).values());
-  return { slots: uniqueSlots as any[] };
+  const uniqueSlots = Array.from(new Map(data?.map((s: SlotDefinition) => [s.start_time, s])).values());
+  return { slots: uniqueSlots };
 }
 
 export async function getSiteSetting(key: string) {

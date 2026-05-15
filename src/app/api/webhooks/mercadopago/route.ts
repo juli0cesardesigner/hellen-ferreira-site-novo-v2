@@ -134,8 +134,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
-  } catch (err: any) {
-    console.error(`❌ Erro no Webhook Mercado Pago: ${err.message}`);
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+  } catch (err) {
+    const error = err as Error;
+    console.error(`❌ Erro no Webhook Mercado Pago: ${error.message}`);
+    return NextResponse.json({ error: `Webhook Error: ${error.message}` }, { status: 400 });
   }
 }

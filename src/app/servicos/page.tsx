@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { SERVICES_CONTENT } from "@/lib/services-content";
 import { DynamicImage } from "@/components/ui/DynamicImage";
@@ -35,7 +34,7 @@ export default function ServicesPage() {
     async function loadSessions() {
       try {
         const sessions = await listActiveSessions();
-        setActiveSessionIds(sessions.map((s: any) => s.id));
+        setActiveSessionIds(sessions.map((s: { id: string }) => s.id));
       } finally {
         setLoading(false);
       }

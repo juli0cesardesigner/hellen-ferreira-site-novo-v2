@@ -3,16 +3,16 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, Camera, Heart, Check, Star, PauseCircle } from "lucide-react";
+import { Check, PauseCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
-import { SITE_CONFIG } from "@/lib/constants";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
+import { SessionWithPackages, Package } from "@/types/database";
 
 export default function FemininoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
-  const [session, setSession] = React.useState<any>(null);
+  const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -32,7 +32,7 @@ export default function FemininoPage() {
       .then(res => res.json())
       .then(data => {
         if (data.images) {
-          setGalleryImages(data.images.map((img: any) => img.path || img));
+          setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
       .catch(err => console.error("Erro ao carregar galeria Feminino:", err));
@@ -65,7 +65,7 @@ export default function FemininoPage() {
   }
 
   const getPackage = (tier: number) => {
-    return session?.session_packages?.find((p: any) => p.tier_order === tier);
+    return session?.session_packages?.find((p: Package) => p.tier_order === tier);
   };
 
   const pkg1 = getPackage(1);

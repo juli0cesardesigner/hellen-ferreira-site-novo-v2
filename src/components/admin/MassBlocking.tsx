@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Lock, Calendar, CalendarX, AlertCircle, ShieldOff, Info, ShieldCheck } from "lucide-react";
+import { Trash2, Loader2, Lock, CalendarX, ShieldOff, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getBlockedDates, addBlockedDate, removeBlockedDate } from "@/lib/actions/admin-actions";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
+import { BlockedDate } from "@/types/database";
 
 export function MassBlockingSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
-  const [blocks, setBlocks] = useState<any[]>([]);
+  const [blocks, setBlocks] = useState<BlockedDate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -184,12 +185,12 @@ export function MassBlockingSection({ onEditingChange }: { onEditingChange?: (ed
                         <div className="flex items-center gap-2 flex-wrap">
                           <h5 className="text-[14px] lg:text-[15px] font-bold text-slate-800 tracking-tight leading-none flex items-center gap-2">
                             {(() => {
-                              const [y, m, d] = block.start_date.split('T')[0].split('-').map(Number);
+                              const [, m, d] = block.start_date.split('T')[0].split('-').map(Number);
                               return `${d.toString().padStart(2, '0')}/${m.toString().padStart(2, '0')}`;
                             })()} 
                             <span className="text-slate-300 font-medium">→</span>
                             {(() => {
-                              const [y, m, d] = block.end_date.split('T')[0].split('-').map(Number);
+                              const [, m, d] = block.end_date.split('T')[0].split('-').map(Number);
                               return `${d.toString().padStart(2, '0')}/${m.toString().padStart(2, '0')}`;
                             })()}
                           </h5>

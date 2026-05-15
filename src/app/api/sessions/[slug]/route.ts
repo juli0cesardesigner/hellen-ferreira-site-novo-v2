@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
+import { Package } from "@/types/database";
 
 export async function GET(
   _request: Request,
@@ -35,7 +36,7 @@ export async function GET(
     // Sort packages by tier_order
     if (session.session_packages) {
       session.session_packages.sort(
-        (a: any, b: any) => a.tier_order - b.tier_order
+        (a: Package, b: Package) => a.tier_order - b.tier_order
       );
     }
 

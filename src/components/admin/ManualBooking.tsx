@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, AlertCircle, Copy, Check, User, Mail, Phone, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database, Info } from "lucide-react";
+import { Plus, Clock, Loader2, Save, X, Copy, Check, User, CreditCard, Gift, ShieldAlert, Zap, ChevronRight, Database, Info } from "lucide-react";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 import { createManualBooking } from "@/lib/actions/admin-actions";
 import { getAvailableSlots, getMonthAvailability } from "@/lib/actions/booking-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
+
 
 const formatCurrencyBRL = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -22,7 +23,6 @@ const parseCurrencyBRL = (value: string): number => {
 
 export function ManualBookingModal({ onClose, onCreated, initialDate, initialTime }: { onClose: () => void, onCreated: () => void, initialDate?: Date | null, initialTime?: string | null }) {
   const sessions = Object.values(SESSIONS_DATA);
-  const [packages, setPackages] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [monthAvailability, setMonthAvailability] = useState<Record<string, boolean>>({});
@@ -32,7 +32,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
   const slotsRequestIdRef = useRef(0);
   const monthRequestIdRef = useRef(0);
   const [copied, setCopied] = useState(false);
-  const [createdResult, setCreatedResult] = useState<any>(null);
+  const [createdResult, setCreatedResult] = useState<{ success: boolean, status?: string, bookingId?: string, paymentUrl?: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -48,15 +48,18 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
     status: 'confirmed' as 'confirmed' | 'pending',
     isGift: false
   });
-
+  
+  const packages = formData.session_id ? SESSIONS_DATA[formData.session_id]?.session_packages || [] : [];
+  
   const latestFormDataRef = useRef(formData);
-  latestFormDataRef.current = formData;
+
+  useEffect(() => {
+    latestFormDataRef.current = formData;
+  }, [formData]);
 
   useEffect(() => {
     if (formData.session_id) {
-      const session = SESSIONS_DATA[formData.session_id];
-      const pkgs = session?.session_packages || [];
-      setPackages(pkgs);
+      const pkgs = SESSIONS_DATA[formData.session_id]?.session_packages || [];
       if (pkgs.length > 0 && !formData.package_id) {
         setFormData(prev => ({
           ...prev,
@@ -98,7 +101,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
         // Only apply if this is still the latest request
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          setAvailableSlots(res.slots.map((s: any) => s.time.substring(0, 5)));
+          setAvailableSlots((res.slots as any[]).filter(s => !!s.time).map(s => s.time.substring(0, 5)));
         }
         setIsSlotsLoading(false);
       }
@@ -210,7 +213,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                 </div>
                 <div className="flex flex-col sm:row gap-3">
                    <input readOnly value={createdResult.paymentUrl} className="flex-1 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] p-4 rounded-xl text-[11px] text-blue-400 outline-none shadow-inner" />
-                  <button type="button" onClick={() => copyToClipboard(createdResult.paymentUrl)} className="px-8 py-4 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-95 group">
+                  <button type="button" onClick={() => copyToClipboard(createdResult.paymentUrl || "")} className="px-8 py-4 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-900/30 active:scale-95 group">
                     {copied ? <Check size={18} /> : <Copy size={18} />}
                      <span className="text-[11px] font-bold tracking-tight">Copiar link</span>
                   </button>
@@ -313,7 +316,7 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                         <div className="relative">
                            <select 
                                className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-5 py-3.5 rounded-xl text-[12px] font-bold text-[var(--color-admin-text)] tracking-tight outline-none focus:border-[var(--color-admin-accent)] appearance-none shadow-inner cursor-pointer"
-                               value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value as any})}
+                               value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value as 'confirmed' | 'pending'})}
                            >
                                <option value="confirmed">Confirmado</option>
                                <option value="pending">Pendente</option>

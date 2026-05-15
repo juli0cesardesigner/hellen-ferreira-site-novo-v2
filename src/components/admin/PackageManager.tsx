@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, Trash2, Save, X, Loader2, Package, DollarSign, 
-  Image, Printer, List, CheckCircle 
+  Image as ImageIcon, Printer, List, CheckCircle 
 } from "lucide-react";
 import { 
   listSessionPackages, 
@@ -90,18 +90,19 @@ export function PackageManager({ sessionId, sessionName, isOpen, onClose, onUpda
     setConfirmConfig(null);
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      loadPackages();
-    }
-  }, [isOpen, sessionId]);
-
-  async function loadPackages() {
+  const loadPackages = React.useCallback(async () => {
     setIsLoading(true);
     const res = await listSessionPackages(sessionId);
     setPackages(res.packages || []);
     setIsLoading(false);
-  }
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadPackages();
+    }
+  }, [isOpen, loadPackages]);
 
   function resetForm() {
     setFormName("");
@@ -302,7 +303,7 @@ export function PackageManager({ sessionId, sessionName, isOpen, onClose, onUpda
                       <Package className="mx-auto text-slate-300 mb-4" size={48} />
                       <h4 className="text-[16px] font-bold text-slate-500 mb-2">Nenhum pacote cadastrado</h4>
                       <p className="text-[12px] text-slate-400 max-w-xs mx-auto">
-                        Clique em "Novo Pacote" para adicionar opções de preços para este serviço.
+                        Clique em &quot;Novo Pacote&quot; para adicionar opções de preços para este serviço.
                       </p>
                     </div>
                   ) : (
@@ -344,7 +345,7 @@ export function PackageManager({ sessionId, sessionName, isOpen, onClose, onUpda
 
                               <div className="flex flex-wrap gap-6 pt-2">
                                 <div className="flex items-center gap-2">
-                                  <Image size={14} className="text-blue-500" />
+                                  <ImageIcon size={14} className="text-blue-500" />
                                   <div>
                                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Digital</span>
                                     <span className="text-[16px] font-black text-[var(--color-admin-text)]">
@@ -524,7 +525,7 @@ export function PackageManager({ sessionId, sessionName, isOpen, onClose, onUpda
                     {/* Upgrade Label */}
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider ml-1">
-                        Label de Upgrade (ex: "Digital + Impressões 15x20")
+                        Label de Upgrade (ex: &quot;Digital + Impressões 15x20&quot;)
                       </label>
                       <input 
                         value={formUpgradeLabel}

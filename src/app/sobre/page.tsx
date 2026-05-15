@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone, MapPin, MessageCircle, Instagram, Heart, Coffee, Sparkles } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Instagram, Heart, Coffee, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { SITE_CONFIG } from "@/lib/constants";
 

@@ -1,0 +1,560 @@
+﻿
+> site-hellen-ferreira@0.1.0 lint
+> eslint
+
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\public\sw.js
+  9:7  warning  'OFFLINE_PAGES' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\scripts\generate-gallery-index.js
+  1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\scripts\optimize-gallery.js
+   1:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   3:15  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  61:3   error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\admin\page.tsx
+     5:3    warning  'LayoutDashboard' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+     7:25   warning  'Info' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+     7:31   warning  'Trash2' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+     7:39   warning  'Save' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+     7:45   warning  'CalendarClock' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+     7:60   warning  'User' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+     7:66   warning  'Phone' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    14:28   warning  'getBookingsList' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+    14:45   warning  'getAdminStats' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+    14:60   warning  'getAllBookingsList' is defined but never used                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+    14:105  warning  'getDayMasterGrid' is defined but never used                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+    14:123  warning  'getBlockedDates' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+    14:140  warning  'getExpenses' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    33:10   warning  'stats' is assigned a value but never used                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+    34:44   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    37:58   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    38:66   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    42:44   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    43:52   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    91:107  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    91:122  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    99:81   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   109:52   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   137:59   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   153:59   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   215:13   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   321:17   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   675:91   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+   675:100  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+   914:89   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1003:67   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1003:86   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1029:56   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1138:56   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1155:54   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  1165:57   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\agendar\[slug]\[packageSlug]\page.tsx
+   5:10  warning  'getSessionBySlug' is defined but never used  @typescript-eslint/no-unused-vars
+   5:28  warning  'getPackageBySlug' is defined but never used  @typescript-eslint/no-unused-vars
+  19:50  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  40:50  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\agendar\[slug]\page.tsx
+  43:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\api\sessions\[slug]\route.ts
+  38:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\api\webhooks\mercadopago\route.ts
+  137:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\page.tsx
+   4:10  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
+   8:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  27:91  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\casal\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Camera' is defined but never used        @typescript-eslint/no-unused-vars
+   6:28  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:42  warning  'Users' is defined but never used         @typescript-eslint/no-unused-vars
+   6:49  warning  'Coffee' is defined but never used        @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\civil\page.tsx
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\corporativo\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\familia\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Camera' is defined but never used        @typescript-eslint/no-unused-vars
+   6:28  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\feminino\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Camera' is defined but never used        @typescript-eslint/no-unused-vars
+   6:28  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:42  warning  'Star' is defined but never used          @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\gestante\page.tsx
+  14:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\mensal-menina\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+   6:30  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:53  warning  'ImageIcon' is defined but never used     @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\mensal-menino\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+   6:30  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:53  warning  'ImageIcon' is defined but never used     @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\newborn-menina\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
+   6:33  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:56  warning  'ImageIcon' is defined but never used     @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\newborn-menino\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'ShieldCheck' is defined but never used   @typescript-eslint/no-unused-vars
+   6:33  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:56  warning  'ImageIcon' is defined but never used     @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  69:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\page.tsx
+   4:8   warning  'Image' is defined but never used         @typescript-eslint/no-unused-vars
+  38:46  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\revelacao\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Camera' is defined but never used        @typescript-eslint/no-unused-vars
+   6:28  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\servicos\smash\page.tsx
+   6:10  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+   6:20  warning  'Cake' is defined but never used          @typescript-eslint/no-unused-vars
+   6:26  warning  'Heart' is defined but never used         @typescript-eslint/no-unused-vars
+   6:40  warning  'Bath' is defined but never used          @typescript-eslint/no-unused-vars
+   9:10  warning  'SITE_CONFIG' is defined but never used   @typescript-eslint/no-unused-vars
+  15:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\app\sobre\page.tsx
+  6:16  warning  'Phone' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\BlockSlotModal.tsx
+  70:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\DeleteBlockedSlotModal.tsx
+  13:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\EditBookingModal.tsx
+    4:67   warning  'ShieldAlert' is defined but never used      @typescript-eslint/no-unused-vars
+    4:80   warning  'CreditCard' is defined but never used       @typescript-eslint/no-unused-vars
+    4:106  warning  'Check' is defined but never used            @typescript-eslint/no-unused-vars
+    7:18   warning  'AnimatePresence' is defined but never used  @typescript-eslint/no-unused-vars
+   23:78   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  108:21   error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\ExpensesConfig.tsx
+    5:26  warning  'CalendarDays' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+    7:13  warning  'ThumbsDown' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+   21:44  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   56:10  warning  'editingExpense' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+   56:26  warning  'setEditingExpense' is assigned a value but never used                                                           @typescript-eslint/no-unused-vars
+   56:56  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+   73:6   warning  React Hook useEffect has a missing dependency: 'loadExpenses'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  150:32  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+  225:57  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+  506:43  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\ManualBooking.tsx
+    4:16   warning  'Trash2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+    4:31   warning  'CalendarDays' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+    4:63   warning  'AlertCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+    4:95   warning  'Mail' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    4:101  warning  'Phone' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   25:44   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+   35:54   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+   53:3    error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\ManualBooking.tsx:53:3
+  51 |
+  52 |   const latestFormDataRef = useRef(formData);
+> 53 |   latestFormDataRef.current = formData;
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot update ref during render
+  54 |
+  55 |   useEffect(() => {
+  56 |     if (formData.session_id) {  react-hooks/refs
+  101:47   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  316:125  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\MassBlocking.tsx
+    4:10   warning  'Plus' is defined but never used          @typescript-eslint/no-unused-vars
+    4:24   warning  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+    4:31   warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+    4:54   warning  'Save' is defined but never used          @typescript-eslint/no-unused-vars
+    4:60   warning  'X' is defined but never used             @typescript-eslint/no-unused-vars
+    4:69   warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+    4:90   warning  'AlertCircle' is defined but never used   @typescript-eslint/no-unused-vars
+    4:114  warning  'Info' is defined but never used          @typescript-eslint/no-unused-vars
+   14:40   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  187:38   warning  'y' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  192:38   warning  'y' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\PackageManager.tsx
+   95:7   error    Error: Cannot access variable before it is declared
+
+`loadPackages` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\PackageManager.tsx:95:7
+  93 |   useEffect(() => {
+  94 |     if (isOpen) {
+> 95 |       loadPackages();
+     |       ^^^^^^^^^^^^ `loadPackages` accessed before it is declared
+  96 |     }
+  97 |   }, [isOpen, sessionId]);
+  98 |
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\PackageManager.tsx:99:3
+   97 |   }, [isOpen, sessionId]);
+   98 |
+>  99 |   async function loadPackages() {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 100 |     setIsLoading(true);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 101 |     const res = await listSessionPackages(sessionId);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 102 |     setPackages(res.packages || []);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 103 |     setIsLoading(false);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 104 |   }
+      | ^^^^ `loadPackages` is declared here
+  105 |
+  106 |   function resetForm() {
+  107 |     setFormName("");  react-hooks/immutability
+   97:6   warning  React Hook useEffect has a missing dependency: 'loadPackages'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+  305:35  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+  305:47  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+  347:35  warning  Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         jsx-a11y/alt-text
+  527:47  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+  527:74  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\SessionConfig.tsx
+    6:22  warning  'ShieldCheck' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    6:35  warning  'Camera' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+    6:43  warning  'Info' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    7:36  warning  'ArrowRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    7:48  warning  'ChevronLeft' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    7:61  warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   11:35  warning  'deleteSchemaSlot' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   42:44  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   46:56  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   47:54  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   48:50  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   87:5   error    Error: Cannot access variable before it is declared
+
+`loadSessions` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\SessionConfig.tsx:87:5
+  85 |
+  86 |   useEffect(() => {
+> 87 |     loadSessions();
+     |     ^^^^^^^^^^^^ `loadSessions` accessed before it is declared
+  88 |   }, []);
+  89 |
+  90 |   async function loadSessions() {
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\SessionConfig.tsx:90:3
+  88 |   }, []);
+  89 |
+> 90 |   async function loadSessions() {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 91 |     setIsLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 92 |     const data = await listSessions();
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 93 |     setSessions(data.sessions || []);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 94 |     setIsLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 95 |   }
+     | ^^^^ `loadSessions` is declared here
+  96 |
+  97 |   async function loadMatrix(sessionId: string) {
+  98 |     setIsMatrixLoading(true);  react-hooks/immutability
+  198:41  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\StandardSlots.tsx
+    4:31  warning  'CalendarDays' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+    4:63  warning  'Search' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    4:79  warning  'ShieldCheck' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+    4:99  warning  'Lock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   13:38  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+   50:5   error    Error: Cannot access variable before it is declared
+
+`loadSlots` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\StandardSlots.tsx:50:5
+  48 |
+  49 |   useEffect(() => {
+> 50 |     loadSlots();
+     |     ^^^^^^^^^ `loadSlots` accessed before it is declared
+  51 |     loadNoticeHours();
+  52 |   }, [selectedSession]);
+  53 |
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\StandardSlots.tsx:74:3
+  72 |   };
+  73 |
+> 74 |   async function loadSlots() {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 75 |     setIsLoading(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 76 |     const res = await listSchemaSlots(selectedSession || null);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 77 |     setSlots(res.slots || []);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 78 |     setIsLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+> 79 |   }
+     | ^^^^ `loadSlots` is declared here
+  80 |
+  81 |   const handleAddSlot = async (dayOfWeek: number) => {
+  82 |     if (!newSlotTime) return;                                                   react-hooks/immutability
+   51:5   error    Error: Cannot access variable before it is declared
+
+`loadNoticeHours` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\StandardSlots.tsx:51:5
+  49 |   useEffect(() => {
+  50 |     loadSlots();
+> 51 |     loadNoticeHours();
+     |     ^^^^^^^^^^^^^^^ `loadNoticeHours` accessed before it is declared
+  52 |   }, [selectedSession]);
+  53 |
+  54 |   async function loadNoticeHours() {
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\admin\StandardSlots.tsx:54:3
+  52 |   }, [selectedSession]);
+  53 |
+> 54 |   async function loadNoticeHours() {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 55 |     const val = await getSiteSetting('min_booking_notice_hours');
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 56 |     if (val) setMinNoticeHours(val);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 57 |   }
+     | ^^^^ `loadNoticeHours` is declared here
+  58 |
+  59 |   const handleUpdateNotice = async () => {
+  60 |     setIsUpdatingNotice(true);  react-hooks/immutability
+   52:6   warning  React Hook useEffect has a missing dependency: 'loadSlots'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/exhaustive-deps
+  101:41  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\analytics\FacebookPixel.tsx
+  39:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\booking\BookingCTA.tsx
+  5:20  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\booking\BookingWizard.tsx
+    5:22  warning  'CalendarIcon' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    5:36  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    5:43  warning  'User' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   24:21  warning  'setSessionId' is assigned a value but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   25:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   26:24  warning  'setSelectedTier' is assigned a value but never used                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   33:62  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   40:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   47:61  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   94:33  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   97:56  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  131:47  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  165:30  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  188:53  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  199:6   warning  React Hook useEffect has missing dependencies: 'activePackage?.price_digital', 'activePackage?.price_print', 'formData.cpf', 'formData.email', 'packageType', 'paymentType', 'session?.deposit_price', and 'showToast'. Either include them or remove the dependency array               react-hooks/exhaustive-deps
+  628:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\layout\Footer.tsx
+  14:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\layout\Navbar.tsx
+  7:10  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\ConfirmModal.tsx
+  5:10  warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\DynamicImage.tsx
+   64:25  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+   64:63  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+   65:39  error    Unexpected any. Specify a different type                                                               @typescript-eslint/no-explicit-any
+  118:6   warning  React Hook useEffect has a missing dependency: 'id'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\InternalDatePicker.tsx
+   30:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\InternalDatePicker.tsx:30:7
+  28 |   useEffect(() => {
+  29 |     if (value) {
+> 30 |       setCurrentMonth(parseISO(value));
+     |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |     }
+  32 |   }, [value]);
+  33 |  react-hooks/set-state-in-effect
+  153:15  warning  'cloneDay' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\Portal.tsx
+  10:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\components\ui\Portal.tsx:10:5
+   8 |
+   9 |   useEffect(() => {
+> 10 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  11 |     return () => setMounted(false);
+  12 |   }, []);
+  13 |  react-hooks/set-state-in-effect
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\actions\admin-actions.ts
+   10:10  warning  'redirect' is defined but never used             @typescript-eslint/no-unused-vars
+   14:20  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   70:18  warning  'todayCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   77:18  warning  'weekCount' is assigned a value but never used   @typescript-eslint/no-unused-vars
+   91:71  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  131:31  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  269:66  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  274:64  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  279:35  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  292:40  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  322:46  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  383:58  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  467:56  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  472:59  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  477:59  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  539:43  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  556:58  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  603:42  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  614:34  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  616:29  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  621:31  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  631:51  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  631:59  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  701:62  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  753:58  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  801:21  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  944:56  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  945:34  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\actions\booking-actions.test.ts
+  44:11  warning  'utcDate' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  63:23  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  80:11  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  93:11  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\actions\booking-actions.ts
+    6:10  warning  'revalidatePath' is defined but never used  @typescript-eslint/no-unused-vars
+   11:21  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   33:12  warning  'e' is defined but never used               @typescript-eslint/no-unused-vars
+  100:41  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  102:30  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  106:32  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  111:65  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  122:64  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  136:64  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  159:22  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  164:49  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  201:51  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  265:41  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  267:30  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  272:32  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  279:46  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  298:56  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  323:47  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  339:73  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  340:59  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  355:54  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  362:49  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  425:70  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  435:62  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  463:18  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  464:16  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  527:21  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  591:51  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  660:19  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  695:41  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  695:49  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  719:12  warning  'e' is defined but never used               @typescript-eslint/no-unused-vars
+  748:41  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  748:49  error    Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\home-content.ts
+  1:10  warning  'SITE_CONFIG' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\supabase\middleware.ts
+  18:48  warning  'options' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\Hellen\Site Novo - VSCODE\hellen-ferreira-site-novo-v2\src\lib\utils\mercadopago.ts
+  25:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 302 problems (170 errors, 132 warnings)
+

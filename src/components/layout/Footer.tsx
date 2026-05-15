@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export function Footer() {
@@ -11,9 +12,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-24 items-start">
           <div className="space-y-6">
             <Link href="/" className="inline-block transition-opacity hover:opacity-80">
-              <img 
+              <Image 
                 src="/brand/logo.svg" 
                 alt="Hellen Ferreira" 
+                width={150}
+                height={48}
                 className="h-12 w-auto"
               />
             </Link>

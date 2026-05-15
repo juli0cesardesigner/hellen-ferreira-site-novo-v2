@@ -2,13 +2,12 @@
 
 // Mercado Pago Payment Integration - Active for Pix and Credit Card
 
-import { createClient } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { type Session, type SlotDefinition, type Booking, type Package } from "@/types/database";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
-import crypto from "crypto";
 
 // Lazy initialization of Supabase client to prevent crashes if env vars are missing during build/init
-let supabaseClient: any = null;
+let supabaseClient: SupabaseClient | null = null;
 
 function getSupabase() {
   if (supabaseClient) return supabaseClient;
@@ -30,7 +29,7 @@ export async function getSiteSetting(key: string) {
     const { data, error } = await getSupabase().from('site_settings').select('value').eq('key', key).single();
     if (error) return null;
     return data.value;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -97,18 +96,18 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
 
     // Criar um mapa de slots finais baseados no merge
     // Slots específicos (Overrides) prevalecem sobre os Globais
-    const finalSlotsMap: Record<string, any> = {};
+    const finalSlotsMap: Record<string, SlotDefinition> = {};
 
-    globalSlots.forEach((gs: any) => {
+    globalSlots.forEach((gs: SlotDefinition) => {
       finalSlotsMap[gs.start_time] = gs;
     });
 
-    specificSlots.forEach((ss: any) => {
+    specificSlots.forEach((ss: SlotDefinition) => {
       finalSlotsMap[ss.start_time] = ss;
     });
 
     // Filtra apenas os que restaram ativos após o merge
-    const schemaSlots = Object.values(finalSlotsMap).filter((s: any) => s.is_active);
+    const schemaSlots = Object.values(finalSlotsMap).filter((s: SlotDefinition) => s.is_active);
 
     // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes não expirados)
     const currentTime = new Date();
@@ -119,12 +118,12 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       .in('status', ['confirmed', 'pending']);
 
     // Filtrar bookings pendentes expirados (liberar o slot)
-    const activeBookings = (existingBookings || []).filter((b: any) => {
+    const activeBookings = (existingBookings || []).filter((b) => {
       if (b.status === 'confirmed') return true;
       if (b.status === 'pending') {
         // Booking pendente sem expires_at: considera válido por 60 min
         if (!b.expires_at) return true;
-        return new Date(b.expires_at) > currentTime;
+        return new Date(b.expires_at as string) > currentTime;
       }
       return false;
     });
@@ -133,7 +132,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
 
     // 4.1 Master Grid: a grade absoluta de tempo da profissional no dia
     const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
-    const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
+    const masterGrid = Array.from(new Set(allDaySlots?.map((s: { start_time: string }) => s.start_time) || [])).sort();
 
     // Para admin: usa a grade mestre completa, sem depender de schemaSlots
     if (isAdmin) {
@@ -156,13 +155,14 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // 5. Para admin: usar a grade mestre completa, não apenas os slots do serviço
     // Isso permite que o admin agende em QUALQUER horário livre do dia,
     // mesmo que não esteja no schema específico do serviço.
-    const baseSlots: any[] = isAdmin
+    const baseSlots: Partial<SlotDefinition>[] = isAdmin
       ? masterGrid.map((time) => ({ start_time: time, is_active: true }))
       : schemaSlots;
 
     // 5. Lógica de Disponibilidade Real
-    const availableSlots = baseSlots.map((slot: any) => {
+    const availableSlots = baseSlots.map((slot) => {
       const startTime = slot.start_time;
+      if (!startTime) return { time: '', available: false };
       
       // Verificar antecedência mínima
       // Combinamos a data com o horário do slot. 
@@ -198,7 +198,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       for (let i = 0; i < duration; i++) {
         const gridTime = masterGrid[masterIndex + i] as string;
         
-        const isBooked = activeBookings?.some((b: any) => 
+        const isBooked = activeBookings?.some((b) => 
           gridTime >= b.start_time && gridTime < b.end_time
         );
         
@@ -262,21 +262,21 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     const specificSlots = specificRes.data || [];
 
     // Build merged slot map keyed by day_of_week-start_time
-    const finalSlotsMap: Record<string, any> = {};
+    const finalSlotsMap: Record<string, SlotDefinition> = {};
 
-    globalSlots.forEach((gs: any) => {
+    globalSlots.forEach((gs: SlotDefinition) => {
       const key = `${gs.day_of_week}-${gs.start_time}`;
       finalSlotsMap[key] = gs;
     });
 
-    specificSlots.forEach((ss: any) => {
+    specificSlots.forEach((ss: SlotDefinition) => {
       const key = `${ss.day_of_week}-${ss.start_time}`;
       finalSlotsMap[key] = ss;
     });
 
     // Build per-day master grids (sorted start_time arrays for each day_of_week)
     const masterGridByDay: Record<number, string[]> = {};
-    Object.values(finalSlotsMap).forEach((s: any) => {
+    Object.values(finalSlotsMap).forEach((s: SlotDefinition) => {
       if (!s.is_active) return;
       if (!masterGridByDay[s.day_of_week]) masterGridByDay[s.day_of_week] = [];
       masterGridByDay[s.day_of_week].push(s.start_time);
@@ -295,11 +295,11 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       .in('status', ['confirmed', 'pending']);
 
     // Filtrar bookings pendentes expirados
-    const activeBookings = (bookings || []).filter((b: any) => {
+    const activeBookings = (bookings || []).filter((b) => {
       if (b.status === 'confirmed') return true;
       if (b.status === 'pending') {
         if (!b.expires_at) return true; // sem expiração: mantém
-        return new Date(b.expires_at) > currentTime;
+        return new Date(b.expires_at as string) > currentTime;
       }
       return false;
     });
@@ -320,7 +320,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       const dayOfWeek = date.getDay(); // Local day-of-week, consistent with getAvailableSlots
 
       // Check if day is blocked
-      const isBlocked = blockedDays?.some((b: any) => dateStr >= b.start_date && dateStr <= b.end_date);
+      const isBlocked = blockedDays?.some((b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date);
 
       // Check session date restriction
       const isWithinRange = session.is_perpetual || (
@@ -336,8 +336,8 @@ export async function getMonthAvailability(year: number, month: number, sessionI
 
       // Check notice period for the day
       if (!isAdmin && dateStr <= minBookingTime.toISOString().split('T')[0]) {
-        const slotsForThisDay = Object.values(finalSlotsMap).filter((s: any) => s.day_of_week === dayOfWeek && s.is_active);
-        const hasAnyFutureSlot = slotsForThisDay.some((s: any) => {
+        const slotsForThisDay = Object.values(finalSlotsMap).filter((s: SlotDefinition) => s.day_of_week === dayOfWeek && s.is_active);
+        const hasAnyFutureSlot = slotsForThisDay.some((s: SlotDefinition) => {
           const [h, m, sec] = s.start_time.split(':').map(Number);
           const slotDate = new Date(year, month, day, h, m, sec || 0);
           return slotDate >= minBookingTime;
@@ -359,7 +359,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
         let slotAvailable = true;
         for (let offset = 0; offset < durationSlots; offset++) {
           const gridTime = dayGrid[gi + offset];
-          const collides = dayBookings.some((b: any) =>
+          const collides = dayBookings.some((b) =>
             gridTime >= b.start_time && gridTime < b.end_time
           );
           if (collides) {
@@ -422,7 +422,7 @@ export async function createBooking(data: {
   if (!session.is_active) return { error: "Este serviço está temporariamente pausado." };
 
   // 2. Duração do banco (ou fallback)
-  const durationSlots = dbSessionFull?.duration_slots || (session as any).duration_slots;
+  const durationSlots = dbSessionFull?.duration_slots || (session as unknown as Session).duration_slots;
   const cleanupMinutes = dbSessionFull?.cleanup_minutes ?? 15;
   const cleanupSlots = Math.ceil(cleanupMinutes / 30);
   // O end_time cobre a duração da sessão + o cleanup (intervalo pós-sessão)
@@ -432,7 +432,7 @@ export async function createBooking(data: {
   // 3. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
   const dayOfWeek = parseLocalDate(data.bookingDate).getDay();
   const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
-  const masterGrid = Array.from(new Set(allDaySlots?.map((s: any) => s.start_time) || [])).sort();
+  const masterGrid = Array.from(new Set(allDaySlots?.map((s: { start_time: string }) => s.start_time) || [])).sort();
   
   // start_time do front geralmente vem como '15:30' ou '15:30:00'
   const timeCompare = data.startTime.length === 5 ? `${data.startTime}:00` : data.startTime;
@@ -460,8 +460,8 @@ export async function createBooking(data: {
 
   // 3. Determinar os valores baseados no Tier_Order
   const selectedPackage = session.session_packages
-    ?.filter((p: any) => p.is_active)
-    ?.find((p: any) => p.tier_order === tier);
+    ?.filter((p: Package) => p.is_active)
+    ?.find((p: Package) => p.tier_order === tier);
     
   if (!selectedPackage) return { error: "Pacote não encontrado ou inativo." };
 
@@ -524,7 +524,7 @@ export async function createBooking(data: {
     });
 
     preferenceId = response.id ?? null;
-  } catch (mpError: any) {
+  } catch (mpError: unknown) {
     console.error("Erro ao criar preferência Mercado Pago:", mpError);
     return { 
       success: false, 
@@ -588,7 +588,7 @@ export async function createBooking(data: {
 /**
  * Processa o pagamento real vindo do Brick (Transparent Checkout)
  */
-export async function processPayment(paymentData: any, bookingId: string) {
+export async function processPayment(paymentData: Record<string, unknown>, bookingId: string) {
   if (process.env.NODE_ENV === 'development') {
     console.log("🚀 processPayment iniciado para bookingId:", bookingId);
   }
@@ -602,17 +602,17 @@ export async function processPayment(paymentData: any, bookingId: string) {
     const response = await payment.create({
       body: {
         transaction_amount: Number(paymentData.transaction_amount),
-        token: paymentData.token,
-        description: paymentData.description || "Agendamento de Sessão Fotográfica",
+        token: paymentData.token as string,
+        description: (paymentData.description as string) || "Agendamento de Sessão Fotográfica",
         installments: Number(paymentData.installments),
-        payment_method_id: paymentData.payment_method_id,
-        issuer_id: paymentData.issuer_id,
+        payment_method_id: paymentData.payment_method_id as string,
+        issuer_id: Number(paymentData.issuer_id),
         payer: {
-          email: paymentData.payer?.email,
-          ...(paymentData.payer?.identification ? {
+          email: (paymentData.payer as { email?: string })?.email,
+          ...((paymentData.payer as { identification?: { type: string; number: string } })?.identification ? {
             identification: {
-              type: paymentData.payer.identification.type,
-              number: paymentData.payer.identification.number,
+              type: (paymentData.payer as { identification: { type: string } }).identification.type,
+              number: (paymentData.payer as { identification: { number: string } }).identification.number,
             }
           } : {}),
         },
@@ -657,11 +657,11 @@ export async function processPayment(paymentData: any, bookingId: string) {
       paymentId: response.id,
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Erro ao processar pagamento:", error);
     return {
       success: false,
-      error: error.message || "Erro ao processar pagamento."
+      error: (error as Error).message || "Erro ao processar pagamento."
     };
   }
 }
@@ -692,7 +692,7 @@ export async function fetchSessionDetails(id: string) {
 
     // Ordenar pacotes por tier_order
     if (session.session_packages) {
-      session.session_packages.sort((a: any, b: any) => a.tier_order - b.tier_order);
+      session.session_packages.sort((a: { tier_order: number }, b: { tier_order: number }) => a.tier_order - b.tier_order);
     }
 
     return { session };
@@ -716,7 +716,7 @@ export async function listActiveSessions() {
     if (!error && sessions && sessions.length > 0) {
       return sessions;
     }
-  } catch (e) {
+  } catch {
     // Fallback to static data
   }
 
@@ -745,7 +745,7 @@ export async function fetchSessionBySlug(slug: string) {
 
     // Ordenar pacotes por tier_order
     if (session.session_packages) {
-      session.session_packages.sort((a: any, b: any) => a.tier_order - b.tier_order);
+      session.session_packages.sort((a: { tier_order: number }, b: { tier_order: number }) => a.tier_order - b.tier_order);
     }
 
     return { session };
