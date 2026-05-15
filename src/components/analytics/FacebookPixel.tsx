@@ -6,19 +6,43 @@ import { useEffect } from 'react'
 
 export const FB_PIXEL_ID = '653557265355207'
 
+/**
+ * Utilitário para disparar eventos do Facebook Pixel
+ */
+export const fbEvent = (name: string, options = {}) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    console.log(`[FB Pixel] Event: ${name}`, options);
+    window.fbq('track', name, options)
+  } else {
+    console.warn(`[FB Pixel] FAILED: ${name} (fbq not found)`);
+  }
+}
+
+/**
+ * Utilitário para inicializar o Pixel com dados do usuário (Advanced Matching)
+ */
+export const fbInit = (userData = {}) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    console.log(`[FB Pixel] Init with Advanced Matching:`, userData);
+    window.fbq('init', FB_PIXEL_ID, userData)
+  }
+}
+
 export default function FacebookPixel() {
   const pathname = usePathname()
 
-  // Desabilita o pixel nas rotas de admin para não sujar as métricas
+  useEffect(() => {
+    // Não dispara PageView se estiver em rotas de admin
+    if (pathname?.startsWith('/admin')) return;
+    
+    console.log(`[FB Pixel] Tracking PageView: ${pathname}`);
+    fbEvent('PageView')
+  }, [pathname])
+
+  // Retorna nulo para rotas de admin mas APÓS os hooks para seguir as regras do React
   if (pathname?.startsWith('/admin')) {
     return null;
   }
-
-  useEffect(() => {
-    if (typeof window.fbq !== 'undefined') {
-      window.fbq('track', 'PageView')
-    }
-  }, [pathname])
 
   return (
     <>

@@ -6,6 +6,7 @@ import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRig
 import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
+import { fbEvent, fbInit } from "@/components/analytics/FacebookPixel";
 
 import { SessionWithPackages, Package } from "@/types/database";
 
@@ -38,8 +39,6 @@ interface MercadoPagoBrickSettings {
     onError: (error: unknown) => void;
   };
 }
-
-
 
 interface BookingWizardProps {
   initialSessionId?: string;
@@ -104,6 +103,33 @@ export default function BookingWizard({
     }
   }, [step, pixTimeLeft]);
 
+  // Tracking de Mudança de Passos
+  useEffect(() => {
+    if (step === 'details') {
+      fbEvent('InitiateCheckout', {
+        content_name: session?.name,
+        content_ids: [sessionId],
+        content_type: 'product'
+      });
+    }
+    if (step === 'checkout') {
+      fbEvent('AddPaymentInfo', {
+        content_name: session?.name,
+        value: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
+        currency: 'BRL'
+      });
+    }
+    if (step === 'success') {
+      fbEvent('Purchase', {
+        content_name: session?.name,
+        content_ids: [sessionId],
+        content_type: 'product',
+        value: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
+        currency: 'BRL'
+      });
+    }
+  }, [step, session?.name, sessionId, paymentType, packageType, activePackage, session?.deposit_price]);
+
   // Carregar SDK do Mercado Pago
   useEffect(() => {
     const script = document.createElement('script');
@@ -128,7 +154,7 @@ export default function BookingWizard({
       const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
       const bricksBuilder = mp.bricks();
 
-      const renderPaymentBrick = async (bricksBuilder: { create: (type: string, id: string, settings: MercadoPagoBrickSettings) => Promise<void | { unmount: () => void }> }) => {
+      const renderPaymentBrick = async (bricksBuilder: any) => {
         try {
           console.log("🔧 Iniciando renderização do Brick com preferenceId:", preferenceId);
           const settings: MercadoPagoBrickSettings = {
@@ -161,8 +187,8 @@ export default function BookingWizard({
             },
             onSubmit: async (paymentFormData: { formData: Record<string, unknown>; payment_method_id: string }) => {
               try {
-                const formData = paymentFormData.formData;
-                const cpf = (formData as { cpf?: string }).cpf;
+                const formDataSubmit = paymentFormData.formData;
+                const cpf = (formDataSubmit as { cpf?: string }).cpf;
                 
                 if (paymentFormData.payment_method_id === 'pix' && !cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
@@ -173,10 +199,10 @@ export default function BookingWizard({
                   showToast("Erro interno: ID do agendamento ausente.", "error");
                   return;
                 }
-                const res = await processPayment(formData, bookingId);
+                const res = await processPayment(formDataSubmit, bookingId);
                 
                 if (res.success) {
-                  if (formData.payment_method_id === 'pix') {
+                  if (paymentFormData.payment_method_id === 'pix') {
                     setPixData(res.pixData || null);
                     setPixTimeLeft(30 * 60); // Reset contador (30 min)
                     setStep('pix');
@@ -294,6 +320,21 @@ export default function BookingWizard({
 
   const handleFinalize = async () => {
     setIsLoading(true);
+
+    // Advanced Matching: Inicializa o Pixel com os dados do cliente para melhorar a otimização
+    fbInit({
+      em: formData.email.toLowerCase().trim(),
+      ph: formData.whatsapp.replace(/\D/g, ''),
+      fn: formData.name.split(' ')[0].toLowerCase().trim(),
+      external_id: formData.cpf.replace(/\D/g, '')
+    });
+
+    // Tracking de Lead
+    fbEvent('Lead', {
+      content_name: session?.name,
+      content_category: 'Booking'
+    });
+
     const res = await createBooking({
       sessionId,
       clientName: formData.name,

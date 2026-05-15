@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { getSlugById } from "@/lib/data/sessions";
+import { fbEvent } from "@/components/analytics/FacebookPixel";
 
 interface BookingCTAProps {
   sessionName: string;
@@ -13,6 +14,14 @@ interface BookingCTAProps {
 }
 
 export function BookingCTA({ sessionName, sessionId }: BookingCTAProps) {
+  React.useEffect(() => {
+    fbEvent('ViewContent', {
+      content_name: sessionName,
+      content_ids: [sessionId],
+      content_type: 'product'
+    });
+  }, [sessionName, sessionId]);
+
   return (
     <section className="py-20 bg-linen/20">
       <div className="container-custom max-w-4xl text-center space-y-8">
