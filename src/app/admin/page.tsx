@@ -22,11 +22,22 @@ import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
 import { Ban } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AdminBottomNav } from "@/components/layout/BottomNav";
+
 
 type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
+
+  const handleTabChange = (tab: TabType) => {
+    if (tab === 'calendar') {
+      setSelectedDate(new Date());
+      setViewDate(new Date());
+    }
+    setActiveTab(tab);
+  };
+
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewDate, setViewDate] = useState<Date>(new Date());
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
@@ -226,7 +237,7 @@ export default function AdminDashboard() {
           <div className="min-w-0">
             <h2 className="font-bold text-[14px] text-[var(--color-admin-text)] tracking-tight leading-none truncate">Hellen Ferreira</h2>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 opacity-60">
-              {greeting} mamãe
+              {greeting}
             </p>
           </div>
         </div>
@@ -237,25 +248,21 @@ export default function AdminDashboard() {
           <SidebarNavItem 
             active={activeTab === 'calendar'} 
             disabled={isEditing}
-            onClick={() => {
-              setActiveTab('calendar');
-              setSelectedDate(new Date());
-              setViewDate(new Date());
-            }} 
+            onClick={() => handleTabChange('calendar')} 
             icon={<Calendar size={20} />} 
             label="Agenda" 
           />
           <SidebarNavItem 
             active={activeTab === 'blocks'} 
             disabled={isEditing}
-            onClick={() => setActiveTab('blocks')} 
+            onClick={() => handleTabChange('blocks')} 
             icon={<ShieldCheck size={20} />} 
             label="Bloqueios" 
           />
           <SidebarNavItem 
             active={activeTab === 'slots'} 
             disabled={isEditing}
-            onClick={() => setActiveTab('slots')} 
+            onClick={() => handleTabChange('slots')} 
             icon={<Clock size={20} />} 
             label="Horários" 
           />
@@ -265,14 +272,14 @@ export default function AdminDashboard() {
           <SidebarNavItem 
             active={activeTab === 'finance'} 
             disabled={isEditing}
-            onClick={() => setActiveTab('finance')} 
+            onClick={() => handleTabChange('finance')} 
             icon={<BarChart size={20} />} 
             label="Faturamento" 
           />
           <SidebarNavItem 
             active={activeTab === 'expenses'} 
             disabled={isEditing}
-            onClick={() => setActiveTab('expenses')} 
+            onClick={() => handleTabChange('expenses')} 
             icon={<Receipt size={20} />} 
             label="Saídas" 
           />
@@ -282,7 +289,7 @@ export default function AdminDashboard() {
           <SidebarNavItem 
             active={activeTab === 'sessions'} 
             disabled={isEditing}
-            onClick={() => setActiveTab('sessions')} 
+            onClick={() => handleTabChange('sessions')} 
             icon={<Settings size={20} />} 
             label="Serviços" 
           />
@@ -300,24 +307,13 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      {/* ─── Bottom Nav Mobile ─── */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-admin-surface)]/90 backdrop-blur-xl border-t border-[var(--color-admin-border)] px-4 pt-2 pb-safe-bottom flex items-center justify-between z-50 shadow-lg">
-        <BottomNavItem 
-          active={activeTab === 'calendar'} 
-          disabled={isEditing}
-          onClick={() => {
-            setActiveTab('calendar');
-            setSelectedDate(new Date());
-            setViewDate(new Date());
-          }} 
-          icon={<Calendar />} 
-        />
-        <BottomNavItem active={activeTab === 'blocks'} disabled={isEditing} onClick={() => setActiveTab('blocks')} icon={<ShieldCheck />} />
-        <BottomNavItem active={activeTab === 'slots'} disabled={isEditing} onClick={() => setActiveTab('slots')} icon={<Clock />} />
-        <BottomNavItem active={activeTab === 'finance'} disabled={isEditing} onClick={() => setActiveTab('finance')} icon={<BarChart />} />
-        <BottomNavItem active={activeTab === 'expenses'} disabled={isEditing} onClick={() => setActiveTab('expenses')} icon={<Receipt />} />
-        <BottomNavItem active={activeTab === 'sessions'} disabled={isEditing} onClick={() => setActiveTab('sessions')} icon={<Settings />} />
-      </div>
+      {/* ─── Magic Bottom Nav Mobile ─── */}
+      <AdminBottomNav 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange} 
+        disabled={isEditing} 
+      />
+
 
       {/* ─── Main Content Industrial ─── */}
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
@@ -332,7 +328,7 @@ export default function AdminDashboard() {
               <div className="min-w-0">
                 <h2 className="font-bold text-[13px] text-[var(--color-admin-text)] tracking-tight leading-none truncate">Hellen Ferreira</h2>
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.15em] mt-1 opacity-70">
-                  {greeting} mamãe
+                  {greeting}
                 </p>
               </div>
             </div>
@@ -1150,20 +1146,7 @@ function SidebarNavItem({ active, onClick, icon, label, disabled }: { active: bo
   );
 }
 
-function BottomNavItem({ active, onClick, icon, disabled }: { active: boolean, onClick: () => void, icon: React.ReactNode, disabled?: boolean }) {
-  return (
-    <button 
-      onClick={disabled ? undefined : onClick}
-      disabled={disabled}
-      className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all relative ${
-        active ? 'text-[var(--color-admin-accent)]' : 'text-slate-400'
-      } ${disabled ? 'opacity-20 pointer-events-none' : ''}`}
-    >
-      {React.cloneElement(icon as React.ReactElement<{ size?: number, strokeWidth?: number }>, { size: 24, strokeWidth: active ? 2.5 : 2 })}
-      {active && <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[var(--color-admin-accent)] rounded-full shadow-[0_0_10px_var(--color-admin-accent)]" />}
-    </button>
-  );
-}
+
 
 function StatMetric({ label, value, icon, isPositive, trend }: { label: string, value: string | number, icon: React.ReactNode, isPositive?: boolean, trend: string }) {
   return (
