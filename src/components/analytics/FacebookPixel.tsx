@@ -9,6 +9,11 @@ export const FB_PIXEL_ID = '653557265355207'
 export default function FacebookPixel() {
   const pathname = usePathname()
 
+  // Desabilita o pixel nas rotas de admin para não sujar as métricas
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   useEffect(() => {
     if (typeof window.fbq !== 'undefined') {
       window.fbq('track', 'PageView')
