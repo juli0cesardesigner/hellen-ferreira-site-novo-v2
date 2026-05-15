@@ -11,9 +11,15 @@ export const FB_PIXEL_ID = '653557265355207'
  */
 export const fbEvent = (name: string, options: Record<string, any> = {}) => {
   if (typeof window !== 'undefined' && window.fbq) {
-    // Tenta pegar o código de teste da URL caso o usuário esteja depurando
     const urlParams = new URLSearchParams(window.location.search);
-    const testCode = urlParams.get('test_event_code');
+    let testCode = urlParams.get('test_event_code');
+    
+    // Persiste o código de teste para navegação entre páginas
+    if (testCode) {
+      sessionStorage.setItem('fb_test_code', testCode);
+    } else {
+      testCode = sessionStorage.getItem('fb_test_code');
+    }
     
     const eventOptions = { ...options };
     if (testCode && !eventOptions.test_event_code) {
@@ -33,7 +39,13 @@ export const fbEvent = (name: string, options: Record<string, any> = {}) => {
 export const fbInit = (userData: Record<string, any> = {}) => {
   if (typeof window !== 'undefined' && window.fbq) {
     const urlParams = new URLSearchParams(window.location.search);
-    const testCode = urlParams.get('test_event_code');
+    let testCode = urlParams.get('test_event_code');
+    
+    if (testCode) {
+      sessionStorage.setItem('fb_test_code', testCode);
+    } else {
+      testCode = sessionStorage.getItem('fb_test_code');
+    }
     
     const initData = { ...userData };
     if (testCode && !initData.test_event_code) {
