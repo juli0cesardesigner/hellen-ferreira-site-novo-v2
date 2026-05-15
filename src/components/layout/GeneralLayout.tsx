@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { BottomNav } from "@/components/layout/BottomNav";
+import { AdminBottomNav } from "@/components/layout/BottomNav";
 import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -12,7 +12,12 @@ export function GeneralLayout({ children }: { children: React.ReactNode }) {
   const isAdmin = pathname?.startsWith("/admin");
 
   if (isAdmin) {
-    return <ToastProvider><main className="flex-grow">{children}</main></ToastProvider>;
+    return (
+      <ToastProvider>
+        <main className="flex-grow">{children}</main>
+        <AdminBottomNav />
+      </ToastProvider>
+    );
   }
 
   return (
@@ -22,7 +27,6 @@ export function GeneralLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
-      <BottomNav />
       <WhatsAppWidget />
     </ToastProvider>
   );
