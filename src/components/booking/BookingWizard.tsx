@@ -532,7 +532,7 @@ export default function BookingWizard({
                 </div>
 
                 <button 
-                  disabled={!formData.name || !formData.whatsapp || formData.cpf.replace(/\D/g, '').length !== 11}
+                  disabled={!formData.name || !formData.email || !formData.whatsapp || formData.cpf.replace(/\D/g, '').length !== 11}
                   onClick={() => setStep('payment')}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
