@@ -67,6 +67,7 @@ export default function BookingWizard({
   const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "", cpf: "" });
   const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
   const [pixData, setPixData] = useState<{ qrCode?: string; qrCodeBase64?: string; expiresAt?: string } | null>(null);
@@ -565,14 +566,14 @@ export default function BookingWizard({
                           className={`p-6 border rounded-sm text-left transition-all ${packageType === 'digital' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
                         >
                           <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Apenas Digital</p>
-                          <p className="text-2xl font-serif italic text-text-dark">R$ {activePackage?.price_digital}</p>
+                          <p className="text-3xl font-serif text-[#2C2A29] mt-2">R$ {activePackage?.price_digital}</p>
                         </button>
                         <button 
                           onClick={() => setPackageType('print')}
                           className={`p-6 border rounded-sm text-left transition-all ${packageType === 'print' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
                         >
                           <p className="text-[10px] font-bold uppercase tracking-widest mb-1">{activePackage?.upgrade_label || "Digital + Impressões"}</p>
-                          <p className="text-2xl font-serif italic text-text-dark">R$ {activePackage?.price_print}</p>
+                          <p className="text-3xl font-serif text-[#2C2A29] mt-2">R$ {activePackage?.price_print}</p>
                         </button>
                      </div>
                   </div>
@@ -587,7 +588,7 @@ export default function BookingWizard({
                     >
                       <div>
                         <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Apenas a Reserva</h4>
-                        <p className="text-xs text-text-light mt-2 italic font-serif">Pague o sinal de R$ {(session?.deposit_price || 0).toFixed(2).replace('.', ',')} para garantir a data.</p>
+                        <p className="text-sm text-[#2C2A29] font-medium mt-2">Pague o sinal de R$ {(session?.deposit_price || 0).toFixed(2).replace('.', ',')} para garantir a data.</p>
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentType === 'deposit' ? 'border-blush bg-blush' : 'border-sand'}`}>
                           {paymentType === 'deposit' && <div className="w-2 h-2 bg-white rounded-full" />}
@@ -600,8 +601,8 @@ export default function BookingWizard({
                     >
                       <div>
                         <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Valor Total</h4>
-                        <p className="text-xs text-text-light mt-2 italic font-serif">Pague o valor integral e aproveite a tranquilidade.</p>
-                        <p className="text-[10px] font-bold text-blush uppercase mt-1">
+                        <p className="text-sm text-[#2C2A29] font-medium mt-2">Pague o valor integral e aproveite a tranquilidade.</p>
+                        <p className="text-sm font-bold text-blush uppercase mt-2">
                           Total: R$ {packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print}
                         </p>
                       </div>
@@ -609,13 +610,40 @@ export default function BookingWizard({
                           {paymentType === 'full' && <div className="w-2 h-2 bg-white rounded-full" />}
                       </div>
                     </button>
+
+                    {paymentType === 'deposit' && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-2 p-5 bg-[#FAF9F7] border border-[#E6DFD3] rounded-sm">
+                          <label className="flex items-start gap-4 cursor-pointer group">
+                            <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                              <input 
+                                type="checkbox" 
+                                className="peer sr-only"
+                                checked={acceptedTerms}
+                                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                              />
+                              <div className="w-5 h-5 border-2 border-[#D1CCC5] rounded-sm peer-checked:bg-[#2C2A29] peer-checked:border-[#2C2A29] transition-all flex items-center justify-center">
+                                {acceptedTerms && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                              </div>
+                            </div>
+                            <div className="text-xs text-[#595553] font-normal leading-relaxed">
+                              Estou ciente de que o meu horário ficará reservado <strong className="text-[#2C2A29]">exclusivamente</strong> para mim. Entendo que, em caso de não comparecimento no dia e horário agendados, o valor da reserva não será reembolsado.
+                            </div>
+                          </label>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
                 </div>
 
                 <button 
-                  disabled={isLoading}
+                  disabled={isLoading || (paymentType === 'deposit' && !acceptedTerms)}
                   onClick={handleFinalize}
-                  className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4"
+                  className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4 mt-8"
                 >
                   {isLoading ? "Processando..." : "Finalizar Agendamento"} <CreditCard size={18} />
                 </button>
