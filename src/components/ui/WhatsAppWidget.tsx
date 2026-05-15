@@ -20,7 +20,7 @@ export function WhatsAppWidget() {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-[100] flex flex-col items-end">
+    <div className="hidden md:flex fixed bottom-8 right-8 z-[100] flex flex-col items-end">
       {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (

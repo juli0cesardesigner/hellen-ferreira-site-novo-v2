@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -21,6 +22,7 @@ export function GeneralLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      <BottomNav />
       <WhatsAppWidget />
     </ToastProvider>
   );

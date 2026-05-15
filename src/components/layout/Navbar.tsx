@@ -62,14 +62,8 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-text-dark"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile Toggle - Hidden because we use BottomNav */}
+        <div className="md:hidden w-10" /> 
       </div>
 
       {/* Mobile Menu */}
