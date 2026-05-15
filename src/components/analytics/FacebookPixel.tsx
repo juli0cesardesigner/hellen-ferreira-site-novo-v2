@@ -9,10 +9,19 @@ export const FB_PIXEL_ID = '653557265355207'
 /**
  * Utilitário para disparar eventos do Facebook Pixel
  */
-export const fbEvent = (name: string, options = {}) => {
+export const fbEvent = (name: string, options: Record<string, any> = {}) => {
   if (typeof window !== 'undefined' && window.fbq) {
-    console.log(`[FB Pixel] Event: ${name}`, options);
-    window.fbq('track', name, options)
+    // Tenta pegar o código de teste da URL caso o usuário esteja depurando
+    const urlParams = new URLSearchParams(window.location.search);
+    const testCode = urlParams.get('test_event_code');
+    
+    const eventOptions = { ...options };
+    if (testCode && !eventOptions.test_event_code) {
+      eventOptions.test_event_code = testCode;
+    }
+
+    console.log(`[FB Pixel] Event: ${name}`, eventOptions);
+    window.fbq('track', name, eventOptions)
   } else {
     console.warn(`[FB Pixel] FAILED: ${name} (fbq not found)`);
   }
@@ -21,10 +30,18 @@ export const fbEvent = (name: string, options = {}) => {
 /**
  * Utilitário para inicializar o Pixel com dados do usuário (Advanced Matching)
  */
-export const fbInit = (userData = {}) => {
+export const fbInit = (userData: Record<string, any> = {}) => {
   if (typeof window !== 'undefined' && window.fbq) {
-    console.log(`[FB Pixel] Init with Advanced Matching:`, userData);
-    window.fbq('init', FB_PIXEL_ID, userData)
+    const urlParams = new URLSearchParams(window.location.search);
+    const testCode = urlParams.get('test_event_code');
+    
+    const initData = { ...userData };
+    if (testCode && !initData.test_event_code) {
+      initData.test_event_code = testCode;
+    }
+
+    console.log(`[FB Pixel] Init with Advanced Matching:`, initData);
+    window.fbq('init', FB_PIXEL_ID, initData)
   }
 }
 
