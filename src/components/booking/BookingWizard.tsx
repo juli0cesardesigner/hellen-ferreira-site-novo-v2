@@ -521,7 +521,7 @@ export default function BookingWizard({
                     </div>
                   </div>
                   <div className="space-y-2">
-                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF (Opcional - Obrigatório apenas para PIX)</label>
+                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF</label>
                      <input 
                       type="text" placeholder="000.000.000-00"
                       className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
@@ -531,7 +531,7 @@ export default function BookingWizard({
                 </div>
 
                 <button 
-                  disabled={!formData.name || !formData.whatsapp}
+                  disabled={!formData.name || !formData.whatsapp || formData.cpf.replace(/\D/g, '').length !== 11}
                   onClick={() => setStep('payment')}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
