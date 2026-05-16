@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { 
   Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Edit2, 
-  Palette, Settings, Database, 
+  Settings, Database, 
   Briefcase, CalendarClock, Globe
 } from "lucide-react";
 import { 
   listSessions, createSession, updateSession, deleteSession,
-  listSchemaSlots, addSchemaSlot, syncSessionColors
+  listSchemaSlots, addSchemaSlot
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
@@ -52,7 +52,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   const [isPerpetual, setIsPerpetual] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [fullPrice, setFullPrice] = useState(0);
   const [depositPrice, setDepositPrice] = useState(0);
   const [setupMinutes, setSetupMinutes] = useState(15);
   const [cleanupMinutes, setCleanupMinutes] = useState(15);
@@ -114,7 +113,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
       is_perpetual: isPerpetual,
       start_date: isPerpetual ? null : startDate,
       end_date: isPerpetual ? null : endDate,
-      full_price: fullPrice,
       deposit_price: depositPrice,
       setup_minutes: setupMinutes,
       cleanup_minutes: cleanupMinutes,
@@ -175,29 +173,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
     });
   };
 
-  const handleSyncColorsRequest = () => {
-    showConfirm({
-      title: "Sincronizar Cores?",
-      message: "Deseja aplicar a nova paleta de cores vibrantes em todos os serviços cadastrados?",
-      confirmLabel: "Sincronizar Agora",
-      cancelLabel: "Voltar",
-      onConfirm: async () => {
-        setIsSaving(true);
-        await syncSessionColors();
-        await loadSessions();
-        setIsSaving(false);
-        showConfirm({
-          title: "Sucesso",
-          message: "Cores sincronizadas com sucesso em toda a rede de serviços.",
-          confirmLabel: "Excelente",
-          cancelLabel: "",
-          onConfirm: closeConfirm,
-          variant: "info"
-        });
-      },
-      variant: "info"
-    });
-  };
 
   const handleToggleSlot = async (slot: SlotDefinition) => {
     if (!viewingMatrix) return;
@@ -227,16 +202,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
               </div>
             </div>
           </div>
-
           <div className="flex items-center gap-4">
-            <button 
-              onClick={handleSyncColorsRequest}
-              className="bg-white border-2 border-[var(--color-admin-border)] text-slate-600 px-6 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-3 transition-all hover:border-[var(--color-admin-accent)] hover:text-[var(--color-admin-accent)] active:scale-95 shadow-sm"
-            >
-              <Palette size={20} />
-              Sincronizar Cores
-            </button>
-
             <button 
               onClick={() => { 
                 setEditingSession(null); 
@@ -244,7 +210,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                 setIsPerpetual(true);
                 setStartDate("");
                 setEndDate("");
-                setFullPrice(0);
                 setDepositPrice(0);
                 setSetupMinutes(15);
                 setCleanupMinutes(15);
@@ -306,7 +271,6 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                         setIsPerpetual(session.is_perpetual ?? true);
                         setStartDate(session.start_date || "");
                         setEndDate(session.end_date || "");
-                        setFullPrice(session.full_price || 0);
                         setDepositPrice(session.deposit_price || 0);
                         setSetupMinutes(session.setup_minutes ?? 15);
                         setCleanupMinutes(session.cleanup_minutes ?? 15);
@@ -466,18 +430,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                        </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                       <div className="space-y-3">
-                         <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Preço Total (Exibição)</label>
-                         <div className="relative group">
-                            <input 
-                              type="text" 
-                              value={formatCurrencyBRL(fullPrice)} 
-                              onChange={(e) => setFullPrice(parseCurrencyBRL(e.target.value))}
-                              className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all shadow-inner" 
-                            />
-                         </div>
-                       </div>
+                    <div className="max-w-md">
                        <div className="space-y-3">
                          <label className="text-[11px] font-bold text-[var(--color-admin-text-muted)] tracking-wide ml-2">Valor da Reserva (Sinal)</label>
                          <div className="relative group">
