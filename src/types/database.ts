@@ -9,7 +9,7 @@ export interface Session {
   setup_minutes: number;
   cleanup_minutes: number;
   slug: string;
-  full_price: number;
+  full_price?: number;
   deposit_price: number;
   theme_color?: string;
 }
