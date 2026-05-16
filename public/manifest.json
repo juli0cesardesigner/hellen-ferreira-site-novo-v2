@@ -2,7 +2,7 @@
   "name": "AGENDA",
   "short_name": "AGENDA",
   "description": "Gestão de Fotografia - Hellen Ferreira",
-  "start_url": "/admin/",
+  "start_url": "/admin",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

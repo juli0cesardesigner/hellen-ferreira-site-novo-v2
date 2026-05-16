@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hf-site-v6';
+const CACHE_NAME = 'hf-site-v7';
 const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/icons/192x192.png',
@@ -9,12 +9,20 @@ const ASSETS_TO_CACHE = [
 const OFFLINE_PAGES = [
   '/',
   '/sobre',
-  '/servicos',
+  '/ensaios',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      // Add assets that must be cached
+      cache.addAll(ASSETS_TO_CACHE);
+      // Try to cache offline pages without breaking the install if they fail
+      OFFLINE_PAGES.forEach((page) => {
+        cache.add(page).catch((err) => console.log('Failed to cache offline page:', page, err));
+      });
+      return Promise.resolve();
+    })
   );
   self.skipWaiting();
 });
@@ -52,7 +60,11 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(event.request).then((cached) => {
-            return cached || caches.match('/');
+            // Ultimate fallback to prevent iOS "This page couldn't load"
+            return cached || caches.match('/') || new Response(
+              '<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Você está offline</title><style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background-color:#FCFBF9;color:#3C3C3B;}h1{font-weight:400;margin-bottom:10px;}p{color:#6D6B69;}</style></head><body><h1>Conexão Indisponível</h1><p>Verifique sua internet e tente novamente.</p></body></html>',
+              { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+            );
           });
         })
     );
