@@ -228,7 +228,6 @@ export default function FemininoPage() {
                       "Até 04 trocas de looks",
                       "Fotos impressas 15x21 inclusas",
                       "Arquivo Digital entregue via galeria",
-                      "Maquiagem profissional inclusa",
                       "Consultoria completa de estilo"
                     ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
@@ -269,12 +268,12 @@ export default function FemininoPage() {
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Somente Digital</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20</span>
+                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20,00</span>
               </div>
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Digital + Impressa</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25</span>
+                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25,00</span>
               </div>
             </div>
           </div>
@@ -334,7 +333,7 @@ export default function FemininoPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center py-4 border-b border-sand/20 group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">20 Páginas</span>
-                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 350</span>
+                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 400</span>
                 </div>
                 <div className="flex justify-between items-center py-4 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">40 Páginas</span>

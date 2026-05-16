@@ -275,12 +275,12 @@ export default function CorporativoPage() {
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Somente Digital</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20</span>
+                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20,00</span>
               </div>
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Digital + Impressa</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25</span>
+                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25,00</span>
               </div>
             </div>
           </div>

@@ -265,44 +265,101 @@ export default function GestantePage() {
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Somente Digital</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20</span>
+                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20,00</span>
               </div>
               <div className="flex justify-between items-center group">
                 <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Digital + Impressa</span>
                 <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
-                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25</span>
+                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25,00</span>
               </div>
             </div>
           </div>
         </div>
       </section>
-      {/* 4. Experience */}
-      <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl">
+      {/* 4. Experience / Acervo */}
+      <section className="bg-pearl py-24 md:py-32 overflow-hidden">
         <div className="container-custom">
-          <div className="max-w-[800px] mx-auto text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
-            <h2 className="mb-14">O que preparamos para você</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 text-left">
-              <div className="space-y-6">
-                <div className="w-12 h-12 bg-linen/50 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-blush" strokeWidth={1.5} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch">
+            {/* Main Acervo Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-8 relative min-h-[500px] md:min-h-[600px] rounded-sm overflow-hidden group bg-linen shadow-2xl shadow-sand/20"
+            >
+              <Image 
+                src="/content/looks/IMG_6447.webp" 
+                alt="Nosso Acervo Editorial" 
+                fill 
+                className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                sizes="(max-width: 1024px) 100vw, 66vw"
+              />
+              {/* Gradient Overlay - Strengthened for better readability over bright images */}
+              <div className="absolute inset-0 bg-gradient-to-r from-pearl via-pearl/90 md:via-pearl/70 to-transparent" />
+              
+              <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-center max-w-2xl">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md border border-sand/20">
+                    <Sparkles className="w-5 h-5 text-blush" strokeWidth={1.5} />
+                  </div>
+                  <span className="text-[10px] tracking-[0.6em] uppercase text-text-dark font-bold">Experiência Premium</span>
                 </div>
-                <h4 className="font-serif text-2xl italic text-text-dark">Acervo Incluso</h4>
-                <p className="text-sm text-text-light leading-relaxed font-light mb-8">Acesso livre ao nosso guarda-roupa editorial com vestidos, tules e peças exclusivas para o seu ensaio.</p>
+                
+                <h2 className="mb-8 text-[clamp(32px,5vw,56px)] leading-[1.1] font-serif text-text-dark">
+                  Um Guarda-Roupa <br/> 
+                  <span className="italic text-blush">Exclusivo para Você</span>
+                </h2>
+                
+                <p className="text-text-dark mb-12 text-base md:text-lg font-light leading-relaxed max-w-md">
+                  Esqueça a preocupação com o figurino. Disponibilizamos um acervo editorial completo com vestidos, 
+                  tules e acessórios de alta costura que valorizam sua gestação e criam memórias atemporais.
+                </p>
+                
                 <Link 
                   href="/looks" 
-                  className="inline-block px-10 py-4 bg-sand/10 border border-sand text-text-dark rounded-sm tracking-[0.2em] uppercase text-[10px] font-semibold hover:bg-sand hover:text-white transition-all"
+                  className="group/btn inline-flex items-center gap-6 px-12 py-6 bg-text-dark text-white rounded-full text-[11px] tracking-[0.5em] uppercase hover:bg-blush transition-all duration-500 shadow-2xl shadow-text-dark/20 w-fit"
                 >
                   Ver Acervo Completo
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    <Sparkles className="w-4 h-4 text-white/50 group-hover/btn:text-white" />
+                  </motion.div>
                 </Link>
               </div>
-              <div className="space-y-6">
-                <div className="w-12 h-12 bg-linen/50 rounded-full flex items-center justify-center">
+            </motion.div>
+
+            {/* Side Column - Secondary Features */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-4 flex flex-col gap-8"
+            >
+              <div className="bg-linen/40 p-12 rounded-sm border border-sand/30 flex-grow flex flex-col justify-center hover:bg-linen/60 transition-colors duration-500">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-8 shadow-sm">
                   <ImageIcon className="w-5 h-5 text-blush" strokeWidth={1.5} />
                 </div>
-                <h4 className="font-serif text-2xl italic text-text-dark">Entrega Rápida</h4>
-                <p className="text-sm text-text-light leading-relaxed font-light">Receba suas fotos digitais em alta resolução no prazo combinado, prontas para compartilhar e imprimir.</p>
+                <h4 className="font-serif text-2xl italic text-text-dark mb-6">Entrega Rápida</h4>
+                <p className="text-sm text-text-light leading-relaxed font-light">
+                  Sabemos que você mal pode esperar para ver o resultado. Por isso, priorizamos uma entrega ágil 
+                  mantendo o mais alto padrão de tratamento de imagem.
+                </p>
               </div>
-            </div>
+              
+              <div className="bg-white p-12 rounded-sm border border-sand/40 flex-grow flex flex-col justify-center shadow-sm hover:border-blush/20 transition-colors duration-500">
+                <div className="w-12 h-12 bg-linen/50 rounded-full flex items-center justify-center mb-8">
+                  <Check className="w-5 h-5 text-blush" strokeWidth={1.5} />
+                </div>
+                <h4 className="font-serif text-2xl italic text-text-dark mb-6">Curadoria</h4>
+                <p className="text-sm text-text-light leading-relaxed font-light">
+                  Cada peça é selecionada para harmonizar com a luz e o cenário escolhido, garantindo que 
+                  o foco principal seja sempre a sua beleza.
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -358,7 +415,7 @@ export default function GestantePage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center py-4 border-b border-sand/20 group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">20 Páginas</span>
-                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 350</span>
+                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 400</span>
                 </div>
                 <div className="flex justify-between items-center py-4 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">40 Páginas</span>
