@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
   },
   links: {
     portfolio: "/portfolio",
-    services: "/servicos",
+    services: "/ensaios",
     about: "/sobre",
     blog: "/blog",
     booking: "/agendar",

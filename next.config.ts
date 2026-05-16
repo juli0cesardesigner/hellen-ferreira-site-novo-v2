@@ -1,6 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // SEO Redirects for URL Restructuring
+  async redirects() {
+    return [
+      {
+        source: "/servicos",
+        destination: "/ensaios",
+        permanent: true,
+      },
+      {
+        source: "/servicos/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
+    ];
+  },
+
   // Security headers
   async headers() {
     return [

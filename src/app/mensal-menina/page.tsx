@@ -8,9 +8,9 @@ import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
-import { SessionWithPackages, Package } from "@/types/database";
+import { SessionWithPackages } from "@/types/database";
 
-export default function CasalPage() {
+export default function MensalMeninaPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -18,7 +18,8 @@ export default function CasalPage() {
   React.useEffect(() => {
     async function loadSession() {
       try {
-        const { session: sessionData } = await fetchSessionDetails("decd8b7e-1b04-498f-89ac-d846f37b2929");
+        // Mensal ID único conforme SERVICE_ID_MAP
+        const { session: sessionData } = await fetchSessionDetails("a67d857c-72ea-441a-9761-1e809bd1bf13");
         setSession(sessionData);
       } finally {
         setLoading(false);
@@ -28,14 +29,14 @@ export default function CasalPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/casal")
+    fetch("/api/gallery/mensal-menina")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
           setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
-      .catch(err => console.error("Erro ao carregar galeria Casal:", err));
+      .catch(err => console.error("Erro ao carregar galeria Mensal:", err));
   }, []);
 
   if (loading) {
@@ -50,12 +51,12 @@ export default function CasalPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-pearl p-8 text-center">
         <PauseCircle className="w-16 h-16 text-sand mb-8 opacity-20" strokeWidth={1} />
-        <h1 className="text-4xl mb-6">Ensaio de Casal Pausado</h1>
+        <h1 className="text-4xl mb-6">Acompanhamento Mensal Pausado</h1>
         <p className="max-w-[450px] text-text-light font-light leading-relaxed mb-12">
           Este serviço não está aceitando novos agendamentos no momento. 
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -64,12 +65,7 @@ export default function CasalPage() {
     );
   }
 
-  const getPackage = (tier: number) => {
-    return session?.session_packages?.find((p: Package) => p.tier_order === tier);
-  };
-
-  const pkg1 = getPackage(1);
-  const pkg2 = getPackage(2);
+  const pkg1 = session?.session_packages?.[0];
 
   return (
     <div className="flex flex-col w-full bg-pearl">
@@ -77,8 +73,8 @@ export default function CasalPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="casal"
-            alt="Ensaio de Casal"
+            category="mensal-menina"
+            alt="Acompanhamento Mensal Menina"
             className="object-cover"
             priority
           />
@@ -95,7 +91,7 @@ export default function CasalPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            A beleza do encontro
+            Cada mês uma nova história
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -104,7 +100,7 @@ export default function CasalPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Amor & Conexão
+            Acompanhamento Mensal
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -113,8 +109,8 @@ export default function CasalPage() {
             transition={{ delay: 0.4 }}
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
-            Memórias autênticas e naturais que retratam a verdade do casal. 
-            Em nossos ensaios, priorizamos o momento a dois em vez de apenas a pose.
+            Acompanhe o crescimento da sua pequena com sessões delicadas que registram 
+            cada fase importante do primeiro ano de vida.
           </motion.p>
         </div>
       </section>
@@ -127,46 +123,41 @@ export default function CasalPage() {
         <div className="container-custom">
           <div className="text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
             <h2 className="mb-6">Sessões & Investimento</h2>
-            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">A sua história em cada clique</p>
+            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Valores por Sessão Mensal</p>
           </div>
 
-          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
-            {/* Pacote Encontro */}
+          <div className="max-w-[900px] mx-auto">
             {pkg1 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
+                className="bg-white rounded-sm border border-sand/30 flex flex-col md:flex-row transition-all duration-700 overflow-hidden"
               >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
+                <div className="relative h-80 md:h-auto md:w-1/2 overflow-hidden">
                   <DynamicImage 
-                    category="casal"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    category="mensal-menina"
+                    id="mensal"
+                    alt="Plano Mensal" 
+                    className="object-cover transition-transform duration-700 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-blush">{pkg1.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Leve e Intimista"}</p>
+                <div className="p-12 md:p-16 flex flex-col md:w-1/2">
+                  <div className="mb-14">
+                    <h3 className="text-4xl mb-4 text-blush">{pkg1.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Evolução registrada com delicadeza"}</p>
                   </div>
                   
-                  <ul className="space-y-5 mb-14 flex-grow">
+                  <ul className="space-y-6 mb-20 flex-grow">
                     {(pkg1.features || [
-                      "15 Fotos digitais tratadas",
-                      "Sessão em estúdio",
-                      "Duração de até 01 hora",
-                      "Guia de poses e direção afetiva",
-                      "Entrega via galeria online",
-                      "Curadoria de momentos reais"
+                      "10 Fotos escolhidas em alta resolução",
+                      "1 cenário minimalista",
+                      "Duração: Aproximadamente 40 min",
+                      "Incluso: Acessórios e Roupas",
+                      "Entrega em formato digital",
+                      "Galeria online personalizada"
                     ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
@@ -178,84 +169,18 @@ export default function CasalPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
                     </div>
-                    {pkg1.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg1.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg1.price_print}</span>
                     </div>
-                    )}
+                    <p className="text-[9px] text-text-light italic tracking-[0.1em] text-right">
+                      * Adicional de R$ 50 para participação de Pais e Irmãos
+                    </p>
                   </div>
                   
                   <Link 
-                    href={`/agendar/casal/${pkg1.slug}`} 
-                    className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
-                  >
-                    Ver Agenda Disponível
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Aventura a Dois */}
-            {pkg2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-sm border border-blush/30 shadow-2xl flex flex-col h-full overflow-hidden"
-              >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
-                  <DynamicImage 
-                    category="casal"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-blush">{pkg2.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg2.description || "Um dia inesquecível"}</p>
-                  </div>
-                  
-                  <ul className="space-y-5 mb-14 flex-grow">
-                    {(pkg2.features || [
-                      "30 Fotos digitais tratadas",
-                      "Sessão em locação externa escolhida",
-                      "Ideal para parques, cafés ou cenários urbanos",
-                      "Cobertura de estilo Life Style",
-                      "Galeria completa personalizada",
-                      "Edição poética e sensível",
-                      "Consultoria para o destino"
-                    ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="space-y-6 pt-12 border-t border-sand/20">
-                    <div className="flex justify-between items-baseline gap-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
-                      <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
-                    </div>
-                    {pkg2.price_print > 0 && (
-                    <div className="flex justify-between items-baseline gap-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg2.upgrade_label}</span>
-                      <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
-                    </div>
-                    )}
-                  </div>
-                  
-                  <Link 
-                    href={`/agendar/casal/${pkg2.slug}`} 
-                    className="mt-16 w-full py-6 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/mensal/${pkg1.slug}`} 
+                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -302,7 +227,7 @@ export default function CasalPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/casal/ui/album.webp`}
+              src={`/content/gallery/mensal-menina/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -364,7 +289,7 @@ export default function CasalPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/casal/ui/fotos-extras.webp`}
+              src={`/content/gallery/mensal-menina/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
@@ -420,10 +345,10 @@ export default function CasalPage() {
         </section>
       )}
 
-      {/* 7. Booking CTA Component */}
+      {/* 8. Booking CTA Component */}
       <BookingCTA 
-        sessionName="Ensaio de Casal" 
-        sessionId="decd8b7e-1b04-498f-89ac-d846f37b2929" 
+        sessionName="Acompanhamento Mensal" 
+        sessionId="a67d857c-72ea-441a-9761-1e809bd1bf13" 
       />
     </div>
   );

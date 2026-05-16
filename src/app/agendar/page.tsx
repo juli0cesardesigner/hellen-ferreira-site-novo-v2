@@ -5,5 +5,5 @@ import { redirect } from "next/navigation";
  * The middleware already handles /agendar?sessao=ID → /agendar/[slug] redirects.
  */
 export default function AgendarPage() {
-  redirect("/servicos");
+  redirect("/ensaios");
 }

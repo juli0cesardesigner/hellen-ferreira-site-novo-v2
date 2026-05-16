@@ -3,14 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Briefcase, UserCheck, PauseCircle, Camera } from "lucide-react";
+import { Check, PauseCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
-import { SessionWithPackages, Package } from "@/types/database";
+import { SessionWithPackages } from "@/types/database";
 
-export default function CorporativoPage() {
+export default function RevelacaoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -18,7 +18,7 @@ export default function CorporativoPage() {
   React.useEffect(() => {
     async function loadSession() {
       try {
-        const { session: sessionData } = await fetchSessionDetails("dfe6e10c-0fa5-446d-873d-25c7e78b8bba");
+        const { session: sessionData } = await fetchSessionDetails("50674a5b-ad94-442b-b4d1-328f4d7f59db");
         setSession(sessionData);
       } finally {
         setLoading(false);
@@ -28,14 +28,14 @@ export default function CorporativoPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/corporativo")
+    fetch("/api/gallery/revelacao")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
           setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
-      .catch(err => console.error("Erro ao carregar galeria Corporativo:", err));
+      .catch(err => console.error("Erro ao carregar galeria Revelação:", err));
   }, []);
 
   if (loading) {
@@ -50,12 +50,12 @@ export default function CorporativoPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-pearl p-8 text-center">
         <PauseCircle className="w-16 h-16 text-sand mb-8 opacity-20" strokeWidth={1} />
-        <h1 className="text-4xl mb-6">Sessão Corporativa Pausada</h1>
+        <h1 className="text-4xl mb-6">Página de Revelação Pausada</h1>
         <p className="max-w-[450px] text-text-light font-light leading-relaxed mb-12">
           Este serviço não está aceitando novos agendamentos no momento. 
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -64,12 +64,7 @@ export default function CorporativoPage() {
     );
   }
 
-  const getPackage = (tier: number) => {
-    return session?.session_packages?.find((p: Package) => p.tier_order === tier);
-  };
-
-  const pkg1 = getPackage(1);
-  const pkg2 = getPackage(2);
+  const pkg1 = session?.session_packages?.[0];
 
   return (
     <div className="flex flex-col w-full bg-pearl">
@@ -77,8 +72,8 @@ export default function CorporativoPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="corporativo"
-            alt="Ensaios Corporativos"
+            category="revelacao"
+            alt="Ensaio de Revelação"
             className="object-cover"
             priority
           />
@@ -95,7 +90,7 @@ export default function CorporativoPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            Sua imagem, sua autoridade
+            A descoberta mais doce
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -104,7 +99,7 @@ export default function CorporativoPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Posicionamento & Imagem
+            Anunciar & Revelar
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -113,149 +108,75 @@ export default function CorporativoPage() {
             transition={{ delay: 0.4 }}
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
-            O mercado atual é visual. Criamos ferramentas visuais que elevam sua marca 
-            pessoal, transmitindo profissionalismo e competência em cada detalhe.
+            A emoção da primeira descoberta ou o anúncio oficial da chegada de um novo 
+            amor. Capturamos esse capítulo inicial com toda a delicadeza que ele merece.
           </motion.p>
         </div>
       </section>
 
-      {/* 3. Packages Section */}
+      {/* 3. Package Section */}
       <section 
         style={{ paddingTop: 'var(--spacing-rhythm)', paddingBottom: 'var(--spacing-rhythm)' }} 
         className="bg-linen/30"
       >
         <div className="container-custom">
           <div className="text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
-            <h2 className="mb-6">Sessões & Investimento</h2>
-            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Posicionamento de mercado</p>
+            <h2 className="mb-6">Sessão & Investimento</h2>
+            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">O início de uma nova jornada</p>
           </div>
 
-          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
-            {/* Pacote Impacto */}
+          <div className="max-w-[900px] mx-auto">
             {pkg1 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
+                className="bg-white rounded-sm border border-sand/30 flex flex-col md:flex-row transition-all duration-700 overflow-hidden"
               >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
+                <div className="relative h-80 md:h-auto md:w-1/2 overflow-hidden">
                   <DynamicImage 
-                    category="corporativo"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    category="revelacao"
+                    id="package"
+                    alt="Pacote Revelação" 
+                    className="object-cover transition-transform duration-700 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-text-dark">{pkg1.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">Retratos para Perfil Profissional</p>
+                <div className="p-12 md:p-16 flex flex-col md:w-1/2">
+                  <div className="mb-14">
+                    <h3 className="text-4xl mb-4 text-[#8B5E3C]">{pkg1.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "A primeira grande notícia"}</p>
                   </div>
                   
-                  <ul className="space-y-5 mb-14 flex-grow">
-                    {[
-                      "15 Fotos em alta resolution",
-                      "Sessão exclusiva em estúdio",
-                      "Até 02 trocas de roupa",
-                      "Foco em retratos para LinkedIn/Instagram",
-                      "Consultoria para definição de poses",
-                      "Arquivo Digital de alta qualidade"
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-text-dark mt-1 shrink-0" strokeWidth={1} />
+                  <ul className="space-y-6 mb-20 flex-grow">
+                    {(pkg1.features || [
+                      "15 Fotos escolhidas em alta resolução",
+                      "Sessão em estúdio ou externa",
+                      "Arquivo Digital entregue via galeria",
+                      "Consultoria para o cenário/proposta",
+                      "Participação do casal inclusa",
+                      "Edição profissional e atemporal"
+                    ]).map((item: string, i: number) => (
+                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-[#8B5E3C] mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="space-y-6 pt-10 border-t border-sand/20 text-center">
+                  <div className="space-y-6 pt-12 border-t border-sand/20">
                     <div className="flex justify-between items-baseline gap-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
-                      <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">Investimento Digital</span>
+                      <span className="text-4xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
                     </div>
-                    {pkg1.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg1.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg1.price_print}</span>
                     </div>
-                    )}
                   </div>
                   
                   <Link 
-                    href={`/agendar/corporativo/${pkg1.slug}`} 
-                    className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
-                  >
-                    Ver Agenda Disponível
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Branding Pessoal */}
-            {pkg2 && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-sm border border-text-dark shadow-2xl flex flex-col h-full overflow-hidden"
-              >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
-                  <DynamicImage 
-                    category="corporativo"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-text-dark">{pkg2.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">Apresentação completa de marca</p>
-                  </div>
-                  
-                  <ul className="space-y-5 mb-14 flex-grow">
-                    {[
-                      "25 Fotos em alta resolução",
-                      "Realizado em estúdio ou sua Empresa",
-                      "Até 03 trocas de roupa",
-                      "Fotos de 'Ação' (trabalhando/atendendo)",
-                      "Múltiplos cenários no mesmo local",
-                      "Imagens para site e redes sociais",
-                      "Guia de posicionamento e autoridade"
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-text-dark mt-1 shrink-0" strokeWidth={1} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="space-y-6 pt-10 border-t border-sand/20 text-center">
-                    <div className="flex justify-between items-baseline gap-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
-                      <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
-                    </div>
-                    {pkg2.price_print > 0 && (
-                    <div className="flex justify-between items-baseline gap-4">
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg2.upgrade_label}</span>
-                      <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
-                    </div>
-                    )}
-                  </div>
-                  
-                  <Link 
-                    href={`/agendar/corporativo/${pkg2.slug}`} 
-                    className="mt-12 w-full py-5 border border-text-dark text-text-dark text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-text-dark hover:text-white transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/revelacao/${pkg1.slug}`} 
+                    className="mt-16 w-full py-6 bg-[#8B5E3C] text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#6D492E] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -263,8 +184,6 @@ export default function CorporativoPage() {
               </motion.div>
             )}
           </div>
-        </div>
-      </section>
 
       {/* 3.1. Extras Unitários */}
       <section className="bg-linen/30 pb-24">
@@ -286,28 +205,6 @@ export default function CorporativoPage() {
           </div>
         </div>
       </section>
-
-      {/* 4. Business Experience */}
-      <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl text-center">
-        <div className="container-custom max-w-[800px]">
-          <h2 className="mb-16">Diferenciais do Ensaio</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
-            <div className="space-y-6 text-center md:text-left">
-              <UserCheck className="w-6 h-6 text-text-dark mx-auto md:mx-0" strokeWidth={1.5} />
-              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Autoridade</h4>
-              <p className="text-xs text-text-light leading-relaxed font-light">Uma imagem que transmite domínio sobre sua área de atuação imediatamente.</p>
-            </div>
-            <div className="space-y-6 text-center md:text-left">
-              <Camera className="w-6 h-6 text-text-dark mx-auto md:mx-0" strokeWidth={1.5} />
-              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Versatilidade</h4>
-              <p className="text-xs text-text-light leading-relaxed font-light">Banco de imagens completo para site, LinkedIn, propostas e Instagram.</p>
-            </div>
-            <div className="space-y-6 text-center md:text-left">
-              <Briefcase className="w-6 h-6 text-text-dark mx-auto md:mx-0" strokeWidth={1.5} />
-              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Profissionalismo</h4>
-              <p className="text-xs text-text-light leading-relaxed font-light">Cuidado técnico com luz e composição que elevam o patamar da sua marca.</p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -326,7 +223,7 @@ export default function CorporativoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/corporativo/ui/album.webp`}
+              src={`/content/gallery/revelacao/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -362,7 +259,7 @@ export default function CorporativoPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center py-4 border-b border-sand/20 group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">20 Páginas</span>
-                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 350</span>
+                  <span className="font-serif italic text-2xl font-medium text-text-dark">R$ 400</span>
                 </div>
                 <div className="flex justify-between items-center py-4 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 -mx-4 rounded-sm">
                   <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">40 Páginas</span>
@@ -388,7 +285,7 @@ export default function CorporativoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/corporativo/ui/fotos-extras.webp`}
+              src={`/content/gallery/revelacao/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
@@ -446,8 +343,8 @@ export default function CorporativoPage() {
 
       {/* 7. Booking CTA Component */}
       <BookingCTA 
-        sessionName="Corporativo" 
-        sessionId="dfe6e10c-0fa5-446d-873d-25c7e78b8bba" 
+        sessionName="Revelação" 
+        sessionId="50674a5b-ad94-442b-b4d1-328f4d7f59db" 
       />
     </div>
   );

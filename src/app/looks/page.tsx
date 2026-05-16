@@ -44,7 +44,7 @@ export default function LooksPage() {
       <nav className="fixed top-0 left-0 w-full z-50 bg-pearl/80 backdrop-blur-md border-b border-sand/20">
         <div className="container-custom h-20 flex items-center justify-between">
           <Link 
-            href="/servicos/gestante" 
+            href="/gestante" 
             className="flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-text-light hover:text-text-dark transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

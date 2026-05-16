@@ -190,7 +190,7 @@ export default function Home() {
                   <span className="text-[10px] uppercase tracking-[0.6em] border-b border-white/20 pb-4 font-bold">Ver Sessão</span>
                 </div>
               </div>
-              <Link href={`/servicos/${cat.slug}`} className="absolute inset-0 z-20" />
+              <Link href={`/${cat.slug}`} className="absolute inset-0 z-20" />
             </motion.div>
           ))}
         </div>

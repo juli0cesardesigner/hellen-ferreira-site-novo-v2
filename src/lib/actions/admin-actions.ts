@@ -557,7 +557,7 @@ export async function createSession(data: Omit<Session, 'id'>) {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
-  revalidatePath('/servicos');
+  revalidatePath('/ensaios');
   return { success: true };
 }
 
@@ -575,7 +575,7 @@ export async function updateSession(id: string, updates: Partial<Session>) {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
-  revalidatePath('/servicos');
+  revalidatePath('/ensaios');
   return { success: true };
 }
 
@@ -865,7 +865,7 @@ export async function createSessionPackage(sessionId: string, data: {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
-  revalidatePath('/servicos');
+  revalidatePath('/ensaios');
   return { success: true };
 }
 

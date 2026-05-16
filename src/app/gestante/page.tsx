@@ -3,14 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, PauseCircle } from "lucide-react";
+import { Image as ImageIcon, Check, PauseCircle, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 import { SessionWithPackages, Package } from "@/types/database";
 
-export default function FemininoPage() {
+export default function GestantePage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -18,7 +18,7 @@ export default function FemininoPage() {
   React.useEffect(() => {
     async function loadSession() {
       try {
-        const { session: sessionData } = await fetchSessionDetails("7024263c-2f3e-4c7f-a66f-cf04e2bd069a");
+        const { session: sessionData } = await fetchSessionDetails("be68f0ac-d486-4cad-8ea4-3eed090ffada");
         setSession(sessionData);
       } finally {
         setLoading(false);
@@ -28,14 +28,14 @@ export default function FemininoPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/feminino")
+    fetch("/api/gallery/gestante")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
           setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
-      .catch(err => console.error("Erro ao carregar galeria Feminino:", err));
+      .catch(err => console.error("Erro ao carregar galeria dinâmica:", err));
   }, []);
 
   if (loading) {
@@ -46,16 +46,18 @@ export default function FemininoPage() {
     );
   }
 
+  // Se a sessão estiver inativa/pausada
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-pearl p-8 text-center">
         <PauseCircle className="w-16 h-16 text-sand mb-8 opacity-20" strokeWidth={1} />
-        <h1 className="text-4xl mb-6">Retrato Feminino Pausado</h1>
+        <h1 className="text-4xl mb-6">Ensaio Gestante Pausado</h1>
         <p className="max-w-[450px] text-text-light font-light leading-relaxed mb-12">
           Este serviço não está aceitando novos agendamentos no momento. 
+          Entre em contato para saber mais sobre novas datas.
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -77,8 +79,8 @@ export default function FemininoPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="feminino"
-            alt="Ensaio Feminino"
+            category="gestante"
+            alt="Ensaio Gestante"
             className="object-cover"
             priority
           />
@@ -95,7 +97,7 @@ export default function FemininoPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            Sua força, sua história
+            A Essência da Vida
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -104,7 +106,7 @@ export default function FemininoPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Retrato Feminino
+            Ensaio Gestante
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -113,60 +115,55 @@ export default function FemininoPage() {
             transition={{ delay: 0.4 }}
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
-            Uma experiência de reconexão e celebração. Capturamos a essência da mulher em 
-            ensaios que revelam beleza, confiança e a singularidade de cada fase.
+            Uma poesia visual que eterniza a fase mais transformadora da sua vida, 
+            com o toque atemporal da arte cinematográfica.
           </motion.p>
         </div>
       </section>
 
       {/* 3. Packages Section */}
       <section 
-        style={{ paddingTop: 'var(--spacing-rhythm)', paddingBottom: 'var(--spacing-rhythm)' }} 
+        style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} 
         className="bg-linen/30"
       >
         <div className="container-custom">
           <div className="text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
             <h2 className="mb-6">Sessões & Investimento</h2>
-            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">A sua melhor versão em foco</p>
+            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Preços Válidos para 2026</p>
           </div>
 
-          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
-            {/* Pacote Essencial */}
+          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : 'max-w-[600px]'} gap-20 max-w-[1100px] mx-auto`}>
+            {/* Celebração (Tier 1) */}
             {pkg1 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
+                className="bg-white rounded-sm border border-sand/30 flex flex-col transition-all duration-700 overflow-hidden"
               >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
+                <div className="relative h-64 w-full overflow-hidden">
                   <DynamicImage 
-                    category="feminino"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                    category="gestante"
+                    id="celebracao"
+                    alt="Ensaio Celebração" 
+                    className="object-cover transition-transform duration-700 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-blush">{pkg1.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Elegância e Autenticidade"}</p>
+                  <div className="p-16 flex flex-col flex-grow">
+                  <div className="mb-14">
+                    <h3 className="text-4xl mb-4">{pkg1.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Leve e memorável"}</p>
                   </div>
                   
-                  <ul className="space-y-5 mb-14 flex-grow">
+                  <ul className="space-y-6 mb-20 flex-grow">
                     {(pkg1.features || [
-                      "15 Fotos em alta resolução",
-                      "Sessão em estúdio",
-                      "Até 02 trocas de looks",
-                      "Fotos impressas 15x21 inclusas",
-                      "Arquivo Digital entregue via galeria",
-                      "Direção de poses acolhedora"
+                      "25 Fotos em alta resolution",
+                      "2 trocas de roupa (acervo incluso)",
+                      "Estúdio ou Externa",
+                      "Entrega em formato digital",
+                      "Galeria online por 6 meses"
                     ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
@@ -185,8 +182,8 @@ export default function FemininoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/feminino/${pkg1.slug}`} 
-                    className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/gestante/${pkg1.slug}`} 
+                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -194,44 +191,43 @@ export default function FemininoPage() {
               </motion.div>
             )}
 
-            {/* Pacote Celebração */}
+            {/* Legado (Tier 2) */}
             {pkg2 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-sm border border-blush/30 shadow-2xl shadow-blush/5 flex flex-col h-full overflow-hidden"
+                className="bg-white rounded-sm border border-sand/40 flex flex-col relative transition-all duration-700 overflow-hidden"
               >
-                {/* Imagem Superior */}
-                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
-                  <DynamicImage 
-                    category="feminino"
-                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
-                    alt="Capa do Pacote" 
-                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute top-4 right-4 z-10 bg-sand/80 backdrop-blur-sm text-text-dark px-6 py-2 text-[9px] tracking-[0.4em] uppercase font-bold">
+                  Exclusivo
                 </div>
-                
-                {/* Detalhes Abaixo */}
-                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
-                  <div className="mb-10 text-center">
-                    <h3 className="text-3xl mb-4 text-blush">{pkg2.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg2.description || "Sua história, seu legado"}</p>
+                <div className="relative h-64 w-full overflow-hidden">
+                  <DynamicImage 
+                    category="gestante"
+                    id="legado"
+                    alt="Ensaio Legado" 
+                    className="object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                </div>
+                <div className="p-16 flex flex-col flex-grow">
+                  <div className="mb-14">
+                    <h3 className="text-4xl mb-4">{pkg2.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg2.description || "Uma obra de arte completa"}</p>
                   </div>
                   
-                  <ul className="space-y-5 mb-14 flex-grow">
+                  <ul className="space-y-6 mb-20 flex-grow">
                     {(pkg2.features || [
-                      "25 Fotos em alta resolução",
-                      "Sessão em estúdio or externa",
-                      "Até 04 trocas de looks",
-                      "Fotos impressas 15x21 inclusas",
-                      "Arquivo Digital entregue via galeria",
-                      "Consultoria completa de estilo"
+                      "45 Fotos em alta resolução",
+                      "3 trocas de roupa (acervo incluso)",
+                      "Estúdio ou Externa",
+                      "Look adicional: R$ 50",
+                      "Entrega prioritária",
+                      "Consultoria de figurino completa"
                     ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
+                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-warm-gold mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -247,10 +243,10 @@ export default function FemininoPage() {
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
                     </div>
                   </div>
-                  
+
                   <Link 
-                    href={`/agendar/feminino/${pkg2.slug}`} 
-                    className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/gestante/${pkg2.slug}`} 
+                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -258,7 +254,8 @@ export default function FemininoPage() {
               </motion.div>
             )}
           </div>
-
+        </div>
+      </section>
       {/* 3.1. Extras Unitários */}
       <section className="bg-linen/30 pb-24">
         <div className="container-custom">
@@ -279,6 +276,91 @@ export default function FemininoPage() {
           </div>
         </div>
       </section>
+      {/* 4. Experience / Acervo */}
+      <section className="bg-pearl py-24 md:py-32 overflow-hidden">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-stretch">
+            {/* Main Acervo Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-8 relative min-h-[500px] md:min-h-[600px] rounded-sm overflow-hidden group bg-linen shadow-2xl shadow-sand/20"
+            >
+              <Image 
+                src="/content/looks/IMG_6447.webp" 
+                alt="Nosso Acervo Editorial" 
+                fill 
+                className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                sizes="(max-width: 1024px) 100vw, 66vw"
+              />
+              {/* Gradient Overlay - Strengthened for better readability over bright images */}
+              <div className="absolute inset-0 bg-gradient-to-r from-pearl via-pearl/90 md:via-pearl/70 to-transparent" />
+              
+              <div className="absolute inset-0 p-10 md:p-20 flex flex-col justify-center max-w-2xl">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md border border-sand/20">
+                    <Sparkles className="w-5 h-5 text-blush" strokeWidth={1.5} />
+                  </div>
+                  <span className="text-[10px] tracking-[0.6em] uppercase text-text-dark font-bold">Experiência Premium</span>
+                </div>
+                
+                <h2 className="mb-8 text-[clamp(32px,5vw,56px)] leading-[1.1] font-serif text-text-dark">
+                  Um Guarda-Roupa <br/> 
+                  <span className="italic text-blush">Exclusivo para Você</span>
+                </h2>
+                
+                <p className="text-text-dark mb-12 text-base md:text-lg font-light leading-relaxed max-w-md">
+                  Esqueça a preocupação com o figurino. Disponibilizamos um acervo editorial completo com vestidos, 
+                  tules e acessórios de alta costura que valorizam sua gestação e criam memórias atemporais.
+                </p>
+                
+                <Link 
+                  href="/looks" 
+                  className="group/btn inline-flex items-center gap-6 px-12 py-6 bg-text-dark text-white rounded-full text-[11px] tracking-[0.5em] uppercase hover:bg-blush transition-all duration-500 shadow-2xl shadow-text-dark/20 w-fit"
+                >
+                  Ver Acervo Completo
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    <Sparkles className="w-4 h-4 text-white/50 group-hover/btn:text-white" />
+                  </motion.div>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Side Column - Secondary Features */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-4 flex flex-col gap-8"
+            >
+              <div className="bg-linen/40 p-12 rounded-sm border border-sand/30 flex-grow flex flex-col justify-center hover:bg-linen/60 transition-colors duration-500">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-8 shadow-sm">
+                  <ImageIcon className="w-5 h-5 text-blush" strokeWidth={1.5} />
+                </div>
+                <h4 className="font-serif text-2xl italic text-text-dark mb-6">Entrega Rápida</h4>
+                <p className="text-sm text-text-light leading-relaxed font-light">
+                  Sabemos que você mal pode esperar para ver o resultado. Por isso, priorizamos uma entrega ágil 
+                  mantendo o mais alto padrão de tratamento de imagem.
+                </p>
+              </div>
+              
+              <div className="bg-white p-12 rounded-sm border border-sand/40 flex-grow flex flex-col justify-center shadow-sm hover:border-blush/20 transition-colors duration-500">
+                <div className="w-12 h-12 bg-linen/50 rounded-full flex items-center justify-center mb-8">
+                  <Check className="w-5 h-5 text-blush" strokeWidth={1.5} />
+                </div>
+                <h4 className="font-serif text-2xl italic text-text-dark mb-6">Curadoria</h4>
+                <p className="text-sm text-text-light leading-relaxed font-light">
+                  Cada peça é selecionada para harmonizar com a luz e o cenário escolhido, garantindo que 
+                  o foco principal seja sempre a sua beleza.
+                </p>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -297,7 +379,7 @@ export default function FemininoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/feminino/ui/album.webp`}
+              src={`/content/gallery/gestante/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -359,7 +441,7 @@ export default function FemininoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/feminino/ui/fotos-extras.webp`}
+              src={`/content/gallery/gestante/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
@@ -415,10 +497,10 @@ export default function FemininoPage() {
         </section>
       )}
 
-      {/* 7. Booking CTA Component */}
+      {/* 8. Booking CTA Component */}
       <BookingCTA 
-        sessionName="Feminino" 
-        sessionId="7024263c-2f3e-4c7f-a66f-cf04e2bd069a" 
+        sessionName="Gestante" 
+        sessionId="be68f0ac-d486-4cad-8ea4-3eed090ffada" 
       />
     </div>
   );

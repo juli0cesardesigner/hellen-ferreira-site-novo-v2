@@ -67,7 +67,7 @@ export default function ServicesPage() {
               
               {/* Gestante */}
               {isActive("gestante") && (
-                <Link href="/servicos/gestante" className="flex flex-col items-center group cursor-pointer">
+                <Link href="/gestante" className="flex flex-col items-center group cursor-pointer">
                   <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="gestante"
@@ -87,7 +87,7 @@ export default function ServicesPage() {
               {(isActive("newborn-menino") || isActive("newborn-menina")) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
                   {isActive("newborn-menino") && (
-                    <Link href="/servicos/newborn-menino" className="flex flex-col items-center group cursor-pointer">
+                    <Link href="/newborn-menino" className="flex flex-col items-center group cursor-pointer">
                       <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="newborn-menino"
@@ -103,7 +103,7 @@ export default function ServicesPage() {
                     </Link>
                   )}
                   {isActive("newborn-menina") && (
-                    <Link href="/servicos/newborn-menina" className="flex flex-col items-center group cursor-pointer">
+                    <Link href="/newborn-menina" className="flex flex-col items-center group cursor-pointer">
                       <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="newborn-menina"
@@ -125,7 +125,7 @@ export default function ServicesPage() {
               {(isActive("mensal-menino") || isActive("mensal-menina")) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
                   {isActive("mensal-menino") && (
-                    <Link href="/servicos/mensal-menino" className="flex flex-col items-center group cursor-pointer">
+                    <Link href="/mensal-menino" className="flex flex-col items-center group cursor-pointer">
                       <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="mensal-menino"
@@ -141,7 +141,7 @@ export default function ServicesPage() {
                     </Link>
                   )}
                   {isActive("mensal-menina") && (
-                    <Link href="/servicos/mensal-menina" className="flex flex-col items-center group cursor-pointer">
+                    <Link href="/mensal-menina" className="flex flex-col items-center group cursor-pointer">
                       <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                         <DynamicImage 
                           category="mensal-menina"
@@ -161,7 +161,7 @@ export default function ServicesPage() {
 
               {/* Smash the cake */}
               {isActive("smash") && (
-                <Link href="/servicos/smash" className="flex flex-col items-center group cursor-pointer">
+                <Link href="/smash" className="flex flex-col items-center group cursor-pointer">
                   <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="smash"
@@ -179,7 +179,7 @@ export default function ServicesPage() {
 
               {/* Revelação */}
               {isActive("revelacao") && (
-                <Link href="/servicos/revelacao" className="flex flex-col items-center group cursor-pointer">
+                <Link href="/revelacao" className="flex flex-col items-center group cursor-pointer">
                   <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="revelacao"
@@ -197,7 +197,7 @@ export default function ServicesPage() {
 
               {/* Família */}
               {isActive("familia") && (
-                <Link href="/servicos/familia" className="flex flex-col items-center group cursor-pointer">
+                <Link href="/familia" className="flex flex-col items-center group cursor-pointer">
                   <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
                     <DynamicImage 
                       category="familia"

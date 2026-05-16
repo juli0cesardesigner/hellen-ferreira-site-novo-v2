@@ -3,14 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, PauseCircle } from "lucide-react";
+import { Check, Building2, MapPin, PauseCircle, Heart, Camera, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
-import { SessionWithPackages } from "@/types/database";
+import { SessionWithPackages, Package } from "@/types/database";
 
-export default function MensalMeninaPage() {
+export default function CivilPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -18,8 +18,7 @@ export default function MensalMeninaPage() {
   React.useEffect(() => {
     async function loadSession() {
       try {
-        // Mensal ID único conforme SERVICE_ID_MAP
-        const { session: sessionData } = await fetchSessionDetails("a67d857c-72ea-441a-9761-1e809bd1bf13");
+        const { session: sessionData } = await fetchSessionDetails("1595bad4-1d33-4c39-9ca3-1ec2d1849962");
         setSession(sessionData);
       } finally {
         setLoading(false);
@@ -29,14 +28,14 @@ export default function MensalMeninaPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/mensal-menina")
+    fetch("/api/gallery/civil")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
           setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
-      .catch(err => console.error("Erro ao carregar galeria Mensal:", err));
+      .catch(err => console.error("Erro ao carregar galeria Civil:", err));
   }, []);
 
   if (loading) {
@@ -51,12 +50,12 @@ export default function MensalMeninaPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-pearl p-8 text-center">
         <PauseCircle className="w-16 h-16 text-sand mb-8 opacity-20" strokeWidth={1} />
-        <h1 className="text-4xl mb-6">Acompanhamento Mensal Pausado</h1>
+        <h1 className="text-4xl mb-6">Casamento Civil Pausado</h1>
         <p className="max-w-[450px] text-text-light font-light leading-relaxed mb-12">
           Este serviço não está aceitando novos agendamentos no momento. 
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -65,7 +64,12 @@ export default function MensalMeninaPage() {
     );
   }
 
-  const pkg1 = session?.session_packages?.[0];
+  const getPackage = (tier: number) => {
+    return session?.session_packages?.find((p: Package) => p.tier_order === tier);
+  };
+
+  const pkg1 = getPackage(1);
+  const pkg2 = getPackage(2);
 
   return (
     <div className="flex flex-col w-full bg-pearl">
@@ -73,8 +77,8 @@ export default function MensalMeninaPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="mensal-menina"
-            alt="Acompanhamento Mensal Menina"
+            category="civil"
+            alt="Casamento Civil"
             className="object-cover"
             priority
           />
@@ -91,7 +95,7 @@ export default function MensalMeninaPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            Cada mês uma nova história
+            A decisão mais bonita
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -100,7 +104,7 @@ export default function MensalMeninaPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Acompanhamento Mensal
+            Casamento Civil
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -109,8 +113,8 @@ export default function MensalMeninaPage() {
             transition={{ delay: 0.4 }}
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
-            Acompanhe o crescimento da sua pequena com sessões delicadas que registram 
-            cada fase importante do primeiro ano de vida.
+            Um registro autêntico da conexão do casal onde tudo começa. 
+            Discreto, emocionante e focado na verdade de cada olhar.
           </motion.p>
         </div>
       </section>
@@ -122,65 +126,138 @@ export default function MensalMeninaPage() {
       >
         <div className="container-custom">
           <div className="text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
-            <h2 className="mb-6">Sessões & Investimento</h2>
-            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Valores por Sessão Mensal</p>
+            <h2 className="mb-6">Cobertura & Investimento</h2>
+            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Memórias do grande Sim</p>
           </div>
 
-          <div className="max-w-[900px] mx-auto">
+          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
+            {/* O Sim no Cartório */}
             {pkg1 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-sm border border-sand/30 flex flex-col md:flex-row transition-all duration-700 overflow-hidden"
+                className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
               >
-                <div className="relative h-80 md:h-auto md:w-1/2 overflow-hidden">
+                {/* Imagem Superior */}
+                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
                   <DynamicImage 
-                    category="mensal-menina"
-                    id="mensal"
-                    alt="Plano Mensal" 
-                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    category="civil"
+                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
+                    alt="Capa do Pacote" 
+                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                <div className="p-12 md:p-16 flex flex-col md:w-1/2">
-                  <div className="mb-14">
-                    <h3 className="text-4xl mb-4 text-blush">{pkg1.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Evolução registrada com delicadeza"}</p>
+                
+                {/* Detalhes Abaixo */}
+                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
+                  <div className="mb-10 text-center text-text-dark">
+                    <Building2 className="w-8 h-8 mx-auto mb-6 opacity-40" strokeWidth={1} />
+                    <h3 className="text-3xl mb-4">{pkg1.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">Discreto e Intimista</p>
                   </div>
                   
-                  <ul className="space-y-6 mb-20 flex-grow">
-                    {(pkg1.features || [
-                      "10 Fotos escolhidas em alta resolução",
-                      "1 cenário minimalista",
-                      "Duração: Aproximadamente 40 min",
-                      "Incluso: Acessórios e Roupas",
-                      "Entrega em formato digital",
-                      "Galeria online personalizada"
-                    ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
+                  <ul className="space-y-5 mb-14 flex-grow">
+                    {[
+                      "Cobertura completa da cerimônia no cartório",
+                      "30 Fotos editadas em alta resolução",
+                      "Fotos com padrinhos e familiares",
+                      "Mini ensaio dos noivos no local",
+                      "Entrega via galeria online personalizada",
+                      "Edição com foco na naturalidade"
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-sand mt-1 shrink-0" strokeWidth={1.5} />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="space-y-6 pt-12 border-t border-sand/20">
+                  <div className="space-y-6 pt-10 border-t border-sand/20">
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
                     </div>
+                    {pkg1.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg1.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg1.price_print}</span>
                     </div>
-                    <p className="text-[9px] text-text-light italic tracking-[0.1em] text-right">
-                      * Adicional de R$ 50 para participação de Pais e Irmãos
-                    </p>
+                    )}
                   </div>
                   
                   <Link 
-                    href={`/agendar/mensal/${pkg1.slug}`} 
-                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/civil/${pkg1.slug}`} 
+                    className="mt-12 w-full py-5 border border-text-dark text-text-dark text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-text-dark hover:text-white transition-all shadow-xl shadow-sand/10 flex items-center justify-center gap-3"
+                  >
+                    Ver Agenda Disponível
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+
+            {/* O Sim e Celebração */}
+            {pkg2 && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="bg-white rounded-sm border border-sand/30 shadow-2xl flex flex-col h-full overflow-hidden"
+              >
+                {/* Imagem Superior */}
+                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
+                  <DynamicImage 
+                    category="civil"
+                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
+                    alt="Capa do Pacote" 
+                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                </div>
+                
+                {/* Detalhes Abaixo */}
+                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
+                  <div className="mb-10 text-center text-text-dark">
+                    <MapPin className="w-8 h-8 mx-auto mb-6 opacity-40" strokeWidth={1} />
+                    <h3 className="text-3xl mb-4">{pkg2.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">Sessão completa e romântica</p>
+                  </div>
+                  
+                  <ul className="space-y-5 mb-14 flex-grow">
+                    {[
+                      "Cobertura da cerimônia no cartório",
+                      "50 Fotos editadas em alta resolução",
+                      "Mini Ensaio Externo (até 1h)",
+                      "Fotos com convidados e família",
+                      "Guia de melhores horários para a luz",
+                      "Galeria completa pronta para imprimir",
+                      "Consultoria para o mini ensaio"
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-sand mt-1 shrink-0" strokeWidth={1.5} />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="space-y-6 pt-10 border-t border-sand/20">
+                    <div className="flex justify-between items-baseline gap-4">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
+                      <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
+                    </div>
+                    {pkg2.price_print > 0 && (
+                    <div className="flex justify-between items-baseline gap-4">
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg2.upgrade_label}</span>
+                      <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
+                    </div>
+                    )}
+                  </div>
+                  
+                  <Link 
+                    href={`/agendar/civil/${pkg2.slug}`} 
+                    className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -188,6 +265,8 @@ export default function MensalMeninaPage() {
               </motion.div>
             )}
           </div>
+        </div>
+      </section>
 
       {/* 3.1. Extras Unitários */}
       <section className="bg-linen/30 pb-24">
@@ -209,6 +288,28 @@ export default function MensalMeninaPage() {
           </div>
         </div>
       </section>
+
+      {/* 4. Experience Section */}
+      <section style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} className="bg-pearl text-center">
+        <div className="container-custom max-w-[800px]">
+          <h2 className="mb-16">O Registro do seu Início</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+            <div className="space-y-6 text-center md:text-left">
+              <Heart className="w-6 h-6 text-sand mx-auto md:mx-0" strokeWidth={1.5} />
+              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Discrição</h4>
+              <p className="text-xs text-text-light leading-relaxed font-light">Trabalhamos de forma silenciosa e atenta, sem interferir na solenidade do momento.</p>
+            </div>
+            <div className="space-y-6 text-center md:text-left">
+              <Camera className="w-6 h-6 text-sand mx-auto md:mx-0" strokeWidth={1.5} />
+              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Espontaneidade</h4>
+              <p className="text-xs text-text-light leading-relaxed font-light">As risadas nervosas, o segurar das mãos e os abraços apertados são nossas prioridades.</p>
+            </div>
+            <div className="space-y-6 text-center md:text-left">
+              <Sparkles className="w-6 h-6 text-sand mx-auto md:mx-0" strokeWidth={1.5} />
+              <h4 className="font-serif text-xl italic text-text-dark leading-tight">Atemporalidade</h4>
+              <p className="text-xs text-text-light leading-relaxed font-light">Fotos que daqui a 50 anos ainda transmitirão a elegância e a verdade do seu dia.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -227,7 +328,7 @@ export default function MensalMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/mensal-menina/ui/album.webp`}
+              src={`/content/gallery/civil/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -289,7 +390,7 @@ export default function MensalMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/mensal-menina/ui/fotos-extras.webp`}
+              src={`/content/gallery/civil/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
@@ -345,10 +446,10 @@ export default function MensalMeninaPage() {
         </section>
       )}
 
-      {/* 8. Booking CTA Component */}
+      {/* 7. Booking CTA Component */}
       <BookingCTA 
-        sessionName="Acompanhamento Mensal" 
-        sessionId="a67d857c-72ea-441a-9761-1e809bd1bf13" 
+        sessionName="Casamento Civil" 
+        sessionId="1595bad4-1d33-4c39-9ca3-1ec2d1849962" 
       />
     </div>
   );

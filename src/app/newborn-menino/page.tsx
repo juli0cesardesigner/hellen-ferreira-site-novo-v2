@@ -10,7 +10,7 @@ import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 import { SessionWithPackages, Package } from "@/types/database";
 
-export default function NewbornMeninaPage() {
+export default function NewbornMeninoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -29,7 +29,7 @@ export default function NewbornMeninaPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/newborn-menina")
+    fetch("/api/gallery/newborn-menino")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
@@ -56,7 +56,7 @@ export default function NewbornMeninaPage() {
           Este serviço não está aceitando novos agendamentos no momento. 
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -78,8 +78,8 @@ export default function NewbornMeninaPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="newborn-menina"
-            alt="Ensaio Newborn Menina"
+            category="newborn-menino"
+            alt="Ensaio Newborn Menino"
             className="object-cover"
             priority
           />
@@ -96,7 +96,7 @@ export default function NewbornMeninaPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            A Doçura do Início
+            O Início de Tudo
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -105,7 +105,7 @@ export default function NewbornMeninaPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Newborn Menina
+            Newborn Menino
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -115,7 +115,7 @@ export default function NewbornMeninaPage() {
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
             Memórias dos primeiros dias em um ambiente 100% seguro e higienizado 
-            para bebês de 5 a 15 dias. A delicadeza da sua pequena princesa em cada detalhe.
+            para bebês de 5 a 15 dias. A doçura do seu pequeno herói em cada detalhe.
           </motion.p>
         </div>
       </section>
@@ -142,7 +142,7 @@ export default function NewbornMeninaPage() {
               >
                 <div className="relative h-64 w-full overflow-hidden">
                   <DynamicImage 
-                    category="newborn-menina"
+                    category="newborn-menino"
                     id="baby"
                     alt="Ensaio Newborn Baby" 
                     className="object-cover transition-transform duration-700 hover:scale-105"
@@ -150,7 +150,7 @@ export default function NewbornMeninaPage() {
                 </div>
                   <div className="p-16 flex flex-col flex-grow">
                   <div className="mb-14">
-                    <h3 className="text-4xl mb-4 text-blush">{pkg1.name}</h3>
+                    <h3 className="text-4xl mb-4 text-[#8B5E3C]">{pkg1.name}</h3>
                     <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Foco exclusivo no bebê"}</p>
                   </div>
                   
@@ -164,7 +164,7 @@ export default function NewbornMeninaPage() {
                       "Galeria online por 6 meses"
                     ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
+                        <Check className="w-4 h-4 text-[#8B5E3C] mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -200,12 +200,12 @@ export default function NewbornMeninaPage() {
                 transition={{ delay: 0.2 }}
                 className="bg-white rounded-sm border border-sand/40 flex flex-col relative transition-all duration-700 overflow-hidden"
               >
-                <div className="absolute top-4 right-4 z-10 bg-sand/80 backdrop-blur-sm text-text-dark px-6 py-2 text-[9px] tracking-[0.4em] uppercase font-bold">
+                <div className="absolute top-4 right-4 z-10 bg-sand/80 backdrop-blur-sm text-text-dark Custom-Label-Exclusive px-6 py-2 text-[9px] tracking-[0.4em] uppercase font-bold">
                   Mais Completo
                 </div>
                 <div className="relative h-64 w-full overflow-hidden">
                   <DynamicImage 
-                    category="newborn-menina"
+                    category="newborn-menino"
                     id="familia"
                     alt="Ensaio Newborn Família" 
                     className="object-cover transition-transform duration-700 hover:scale-105"
@@ -213,7 +213,7 @@ export default function NewbornMeninaPage() {
                 </div>
                 <div className="p-16 flex flex-col flex-grow">
                   <div className="mb-14">
-                    <h3 className="text-4xl mb-4 text-blush">{pkg2.name}</h3>
+                    <h3 className="text-4xl mb-4 text-[#8B5E3C]">{pkg2.name}</h3>
                     <p className="text-text-light italic font-serif text-lg">{pkg2.description || "O baby e as primeiras memórias em família"}</p>
                   </div>
                   
@@ -227,7 +227,7 @@ export default function NewbornMeninaPage() {
                       "Entrega prioritária"
                     ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
+                        <Check className="w-4 h-4 text-[#C19A6B] mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -293,7 +293,7 @@ export default function NewbornMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menina/ui/album.webp`}
+              src={`/content/gallery/newborn-menino/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -355,7 +355,7 @@ export default function NewbornMeninaPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menina/ui/fotos-extras.webp`}
+              src={`/content/gallery/newborn-menino/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"

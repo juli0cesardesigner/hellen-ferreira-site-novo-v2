@@ -10,7 +10,7 @@ import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 import { SessionWithPackages, Package } from "@/types/database";
 
-export default function NewbornMeninoPage() {
+export default function CasalPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -18,8 +18,7 @@ export default function NewbornMeninoPage() {
   React.useEffect(() => {
     async function loadSession() {
       try {
-        // Newborn ID único conforme SERVICE_ID_MAP
-        const { session: sessionData } = await fetchSessionDetails("a232eb5e-1583-4fb7-82da-84008e37f1b4");
+        const { session: sessionData } = await fetchSessionDetails("decd8b7e-1b04-498f-89ac-d846f37b2929");
         setSession(sessionData);
       } finally {
         setLoading(false);
@@ -29,14 +28,14 @@ export default function NewbornMeninoPage() {
   }, []);
 
   React.useEffect(() => {
-    fetch("/api/gallery/newborn-menino")
+    fetch("/api/gallery/casal")
       .then(res => res.json())
       .then(data => {
         if (data.images) {
           setGalleryImages(data.images.map((img: { path?: string } | string) => (typeof img === 'string' ? img : img.path || '')));
         }
       })
-      .catch(err => console.error("Erro ao carregar galeria Newborn:", err));
+      .catch(err => console.error("Erro ao carregar galeria Casal:", err));
   }, []);
 
   if (loading) {
@@ -51,12 +50,12 @@ export default function NewbornMeninoPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-pearl p-8 text-center">
         <PauseCircle className="w-16 h-16 text-sand mb-8 opacity-20" strokeWidth={1} />
-        <h1 className="text-4xl mb-6">Ensaio Newborn Pausado</h1>
+        <h1 className="text-4xl mb-6">Ensaio de Casal Pausado</h1>
         <p className="max-w-[450px] text-text-light font-light leading-relaxed mb-12">
           Este serviço não está aceitando novos agendamentos no momento. 
         </p>
         <Link 
-          href="/servicos" 
+          href="/ensaios" 
           className="px-12 py-5 bg-text-dark text-white rounded-full text-[10px] tracking-[0.3em] uppercase"
         >
           Ver outros serviços
@@ -78,8 +77,8 @@ export default function NewbornMeninoPage() {
       <section className="relative h-[85vh] overflow-hidden bg-pearl">
         <div className="absolute inset-0 z-0">
           <DynamicImage
-            category="newborn-menino"
-            alt="Ensaio Newborn Menino"
+            category="casal"
+            alt="Ensaio de Casal"
             className="object-cover"
             priority
           />
@@ -96,7 +95,7 @@ export default function NewbornMeninoPage() {
             viewport={{ once: true }}
             className="inline-block px-6 py-2 mb-10 border border-text-dark/10 rounded-full text-[10px] tracking-[0.5em] uppercase text-text-light font-medium"
           >
-            O Início de Tudo
+            A beleza do encontro
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -105,7 +104,7 @@ export default function NewbornMeninoPage() {
             transition={{ delay: 0.2 }}
             className="mb-10 text-[clamp(40px,8vw,72px)]"
           >
-            Newborn Menino
+            Amor & Conexão
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -114,57 +113,61 @@ export default function NewbornMeninoPage() {
             transition={{ delay: 0.4 }}
             className="max-w-[550px] mx-auto text-lg text-text-medium font-light leading-relaxed"
           >
-            Memórias dos primeiros dias em um ambiente 100% seguro e higienizado 
-            para bebês de 5 a 15 dias. A doçura do seu pequeno herói em cada detalhe.
+            Memórias autênticas e naturais que retratam a verdade do casal. 
+            Em nossos ensaios, priorizamos o momento a dois em vez de apenas a pose.
           </motion.p>
         </div>
       </section>
 
       {/* 3. Packages Section */}
       <section 
-        style={{ paddingTop: 'var(--spacing-section-v)', paddingBottom: 'var(--spacing-section-v)' }} 
+        style={{ paddingTop: 'var(--spacing-rhythm)', paddingBottom: 'var(--spacing-rhythm)' }} 
         className="bg-linen/30"
       >
         <div className="container-custom">
           <div className="text-center" style={{ marginBottom: 'var(--spacing-rhythm)' }}>
             <h2 className="mb-6">Sessões & Investimento</h2>
-            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">Preços Válidos para 2026</p>
+            <p className="text-text-light uppercase tracking-[0.4em] text-[10px] font-medium opacity-70">A sua história em cada clique</p>
           </div>
 
-          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-20 max-w-[1100px] mx-auto`}>
-            {/* Pacote BABY */}
+          <div className={`grid grid-cols-1 ${pkg1 && pkg2 ? 'md:grid-cols-2' : ''} gap-8 max-w-[1100px] mx-auto`}>
+            {/* Pacote Encontro */}
             {pkg1 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white rounded-sm border border-sand/30 flex flex-col transition-all duration-700 overflow-hidden"
+                className="bg-white rounded-sm border border-sand/30 flex flex-col h-full overflow-hidden"
               >
-                <div className="relative h-64 w-full overflow-hidden">
+                {/* Imagem Superior */}
+                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
                   <DynamicImage 
-                    category="newborn-menino"
-                    id="baby"
-                    alt="Ensaio Newborn Baby" 
-                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    category="casal"
+                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
+                    alt="Capa do Pacote" 
+                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                  <div className="p-16 flex flex-col flex-grow">
-                  <div className="mb-14">
-                    <h3 className="text-4xl mb-4 text-[#8B5E3C]">{pkg1.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Foco exclusivo no bebê"}</p>
+                
+                {/* Detalhes Abaixo */}
+                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
+                  <div className="mb-10 text-center">
+                    <h3 className="text-3xl mb-4 text-blush">{pkg1.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg1.description || "Leve e Intimista"}</p>
                   </div>
                   
-                  <ul className="space-y-6 mb-20 flex-grow">
+                  <ul className="space-y-5 mb-14 flex-grow">
                     {(pkg1.features || [
-                      "15 Fotos em alta resolução",
-                      "Somente o Baby",
-                      "2 cenários neutros",
-                      "Incluso: Acessórios e Roupas",
-                      "Entrega em formato digital",
-                      "Galeria online por 6 meses"
+                      "15 Fotos digitais tratadas",
+                      "Sessão em estúdio",
+                      "Duração de até 01 hora",
+                      "Guia de poses e direção afetiva",
+                      "Entrega via galeria online",
+                      "Curadoria de momentos reais"
                     ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-[#8B5E3C] mt-1 shrink-0" strokeWidth={1} />
+                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -175,15 +178,17 @@ export default function NewbornMeninoPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
                     </div>
+                    {pkg1.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg1.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg1.price_print}</span>
                     </div>
+                    )}
                   </div>
                   
                   <Link 
-                    href={`/agendar/newborn/${pkg1.slug}`} 
-                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/casal/${pkg1.slug}`} 
+                    className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -191,43 +196,45 @@ export default function NewbornMeninoPage() {
               </motion.div>
             )}
 
-            {/* Pacote FAMÍLIA */}
+            {/* Aventura a Dois */}
             {pkg2 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-sm border border-sand/40 flex flex-col relative transition-all duration-700 overflow-hidden"
+                className="bg-white rounded-sm border border-blush/30 shadow-2xl flex flex-col h-full overflow-hidden"
               >
-                <div className="absolute top-4 right-4 z-10 bg-sand/80 backdrop-blur-sm text-text-dark Custom-Label-Exclusive px-6 py-2 text-[9px] tracking-[0.4em] uppercase font-bold">
-                  Mais Completo
-                </div>
-                <div className="relative h-64 w-full overflow-hidden">
+                {/* Imagem Superior */}
+                <div className="relative h-72 md:h-80 w-full overflow-hidden shrink-0">
                   <DynamicImage 
-                    category="newborn-menino"
-                    id="familia"
-                    alt="Ensaio Newborn Família" 
-                    className="object-cover transition-transform duration-700 hover:scale-105"
+                    category="casal"
+                    id={`pkg-${Math.floor(Math.random() * 1000)}`}
+                    alt="Capa do Pacote" 
+                    className="object-cover transition-transform duration-1000 group-hover:scale-105"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                <div className="p-16 flex flex-col flex-grow">
-                  <div className="mb-14">
-                    <h3 className="text-4xl mb-4 text-[#8B5E3C]">{pkg2.name}</h3>
-                    <p className="text-text-light italic font-serif text-lg">{pkg2.description || "O baby e as primeiras memórias em família"}</p>
+                
+                {/* Detalhes Abaixo */}
+                <div className="p-10 md:p-14 flex flex-col flex-grow bg-white relative z-10 -mt-4 mx-4 mb-4 rounded-sm shadow-sm">
+                  <div className="mb-10 text-center">
+                    <h3 className="text-3xl mb-4 text-blush">{pkg2.name}</h3>
+                    <p className="text-text-light italic font-serif text-lg">{pkg2.description || "Um dia inesquecível"}</p>
                   </div>
                   
-                  <ul className="space-y-6 mb-20 flex-grow">
+                  <ul className="space-y-5 mb-14 flex-grow">
                     {(pkg2.features || [
-                      "25 Fotos em alta resolução",
-                      "Baby + Pais e Irmãos",
-                      "1 cenário neutro + Free Style",
-                      "Incluso: Acessórios e Roupas (do Baby)",
-                      "Ambiente climatizado e seguro",
-                      "Entrega prioritária"
+                      "30 Fotos digitais tratadas",
+                      "Sessão em locação externa escolhida",
+                      "Ideal para parques, cafés ou cenários urbanos",
+                      "Cobertura de estilo Life Style",
+                      "Galeria completa personalizada",
+                      "Edição poética e sensível",
+                      "Consultoria para o destino"
                     ]).map((item: string, i: number) => (
-                      <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
-                        <Check className="w-4 h-4 text-[#C19A6B] mt-1 shrink-0" strokeWidth={1} />
+                      <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
+                        <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -238,15 +245,17 @@ export default function NewbornMeninoPage() {
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
                     </div>
+                    {pkg2.price_print > 0 && (
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light font-medium">{pkg2.upgrade_label}</span>
                       <span className="text-3xl font-serif text-blush whitespace-nowrap shrink-0">R$ {pkg2.price_print}</span>
                     </div>
+                    )}
                   </div>
-
+                  
                   <Link 
-                    href={`/agendar/newborn/${pkg2.slug}`} 
-                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
+                    href={`/agendar/casal/${pkg2.slug}`} 
+                    className="mt-16 w-full py-6 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -293,7 +302,7 @@ export default function NewbornMeninoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menino/ui/album.webp`}
+              src={`/content/gallery/casal/ui/album.webp`}
               alt="Álbuns Encadernados"
               fill
               sizes="100vw"
@@ -355,7 +364,7 @@ export default function NewbornMeninoPage() {
 
           <div className="relative w-full h-[350px] md:h-[550px] mb-24 overflow-hidden rounded-sm">
             <Image 
-              src={`/content/gallery/newborn-menino/ui/fotos-extras.webp`}
+              src={`/content/gallery/casal/ui/fotos-extras.webp`}
               alt="Fotos Extras e Complementos"
               fill
               sizes="100vw"
@@ -411,10 +420,10 @@ export default function NewbornMeninoPage() {
         </section>
       )}
 
-      {/* 8. Booking CTA Component */}
+      {/* 7. Booking CTA Component */}
       <BookingCTA 
-        sessionName="Newborn" 
-        sessionId="a232eb5e-1583-4fb7-82da-84008e37f1b4" 
+        sessionName="Ensaio de Casal" 
+        sessionId="decd8b7e-1b04-498f-89ac-d846f37b2929" 
       />
     </div>
   );
