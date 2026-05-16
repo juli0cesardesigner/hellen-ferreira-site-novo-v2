@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hf-site-v7';
+const CACHE_NAME = 'hf-site-v8';
 const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/icons/192x192.png',
@@ -60,11 +60,15 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(event.request).then((cached) => {
-            // Ultimate fallback to prevent iOS "This page couldn't load"
-            return cached || caches.match('/') || new Response(
-              '<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Você está offline</title><style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background-color:#FCFBF9;color:#3C3C3B;}h1{font-weight:400;margin-bottom:10px;}p{color:#6D6B69;}</style></head><body><h1>Conexão Indisponível</h1><p>Verifique sua internet e tente novamente.</p></body></html>',
-              { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-            );
+            if (cached) return cached;
+            return caches.match('/').then((cachedRoot) => {
+              if (cachedRoot) return cachedRoot;
+              // Ultimate fallback to prevent iOS "This page couldn't load"
+              return new Response(
+                '<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Você está offline</title><style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background-color:#FCFBF9;color:#3C3C3B;}h1{font-weight:400;margin-bottom:10px;}p{color:#6D6B69;}</style></head><body><h1>Conexão Indisponível</h1><p>Verifique sua internet e tente novamente.</p></body></html>',
+                { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+              );
+            });
           });
         })
     );
