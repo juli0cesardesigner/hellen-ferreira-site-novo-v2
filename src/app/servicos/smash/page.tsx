@@ -190,17 +190,26 @@ export default function SmashPage() {
             )}
           </div>
 
-          {/* Extras */}
-          <div className="mt-16 pt-12 border-t border-sand/20 max-w-[1100px] mx-auto">
-            <div className="max-w-3xl mx-auto bg-white rounded-sm p-8 md:p-10 border border-sand/40">
-              <div className="flex justify-between items-center gap-4 group">
-                <span className="text-[11px] md:text-[13px] tracking-[0.15em] font-medium uppercase text-text-dark group-hover:text-blush transition-colors">Foto Extra</span>
-                <span className="flex-grow border-b border-dotted border-sand/60 mx-3" />
-                <span className="text-[11px] md:text-[13px] tracking-[0.15em] font-medium uppercase text-text-dark group-hover:text-blush transition-colors">Digital + Impressão</span>
-                <span className="ml-6 text-2xl md:text-3xl font-serif font-medium text-blush whitespace-nowrap group-hover:text-text-dark transition-colors">R$ 30</span>
+      {/* 3.1. Extras Unitários */}
+      <section className="bg-linen/30 pb-24">
+        <div className="container-custom">
+          <div className="max-w-3xl mx-auto bg-white rounded-sm p-8 md:p-12 border border-sand/40 shadow-sm">
+            <h3 className="font-serif italic text-2xl md:text-3xl mb-10 text-text-dark border-b border-sand/20 pb-6 text-center">Foto Extra</h3>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center group">
+                <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Somente Digital</span>
+                <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
+                <span className="text-2xl md:text-3xl font-serif text-text-dark">R$ 20</span>
+              </div>
+              <div className="flex justify-between items-center group">
+                <span className="text-[11px] md:text-[13px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark transition-colors">Digital + Impressa</span>
+                <span className="flex-grow border-b border-dotted border-sand/40 mx-4" />
+                <span className="text-2xl md:text-3xl font-serif text-blush">R$ 25</span>
               </div>
             </div>
           </div>
+        </div>
+      </section>
         </div>
       </section>
 
@@ -294,13 +303,9 @@ export default function SmashPage() {
             <h3 className="font-serif italic text-3xl md:text-4xl mb-14 text-text-dark">Complementos e Extras</h3>
             
             <div className="flex flex-col gap-2 bg-white rounded-sm p-8 md:p-12 border border-sand/40">
-              <div className="flex justify-between items-center py-6 border-b border-sand/20 group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
+              <div className="flex justify-between items-center py-6 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
                 <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark">Caixa Personalizada</span>
                 <span className="font-serif italic text-2xl md:text-3xl font-medium text-text-dark">R$ 200</span>
-              </div>
-              <div className="flex justify-between items-center py-6 border-b border-transparent group hover:bg-sand/10 transition-colors px-4 md:px-6 -mx-4 md:-mx-6 rounded-sm">
-                <span className="text-[13px] md:text-[15px] tracking-[0.2em] font-medium uppercase text-text-light group-hover:text-text-dark">Foto Digital <span className="font-light text-[11px] ml-2 tracking-normal lowercase text-text-light/70">(unidade)</span></span>
-                <span className="font-serif italic text-2xl md:text-3xl font-medium text-text-dark">R$ 25</span>
               </div>
             </div>
           </div>
@@ -349,3 +354,4 @@ export default function SmashPage() {
     </div>
   );
 }
+
