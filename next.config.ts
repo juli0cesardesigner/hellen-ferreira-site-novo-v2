@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https://www.facebook.com https://*.google-analytics.com https://*.mercadopago.com https://*.mlstatic.com https://*.mercadolibre.com https://*.mercadolivre.com.br https://*.mercadolivre.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' https://*.supabase.co https://api.mercadopago.com https://*.mercadopago.com https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://*.facebook.com https://connect.facebook.net https://*.mercadolibre.com https://*.mercadolivre.com.br https://*.mercadolivre.com https://http2.mlstatic.com https://api.mercadolibre.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mercadopago.com https://*.mercadopago.com https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://*.facebook.com https://connect.facebook.net https://*.mercadolibre.com https://*.mercadolivre.com.br https://*.mercadolivre.com https://http2.mlstatic.com https://api.mercadolibre.com",
               "frame-src 'self' https://www.mercadopago.com https://*.mercadopago.com https://www.mercadolibre.com https://*.mercadolivre.com.br https://*.mercadolibre.com https://*.facebook.com https://www.facebook.com https://*.google.com",
               "media-src 'self'",
               "object-src 'none'",

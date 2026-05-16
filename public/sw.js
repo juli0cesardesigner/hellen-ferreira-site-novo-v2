@@ -1,25 +1,30 @@
-const CACHE_NAME = 'hf-site-v8';
+const CACHE_NAME = 'hf-site-v9';
 const ASSETS_TO_CACHE = [
   '/manifest.json',
   '/icons/192x192.png',
   '/brand/black.png'
 ];
 
-// Static pages that can be served offline (informational pages)
+// Static pages that can be served offline (informational pages only)
 const OFFLINE_PAGES = [
   '/',
   '/sobre',
   '/ensaios',
 ];
 
+// Routes that must NEVER be cached (dynamic, auth-protected)
+const NO_CACHE_PATHS = [
+  '/admin',
+  '/api/',
+  '/agendar',
+];
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Add assets that must be cached
       cache.addAll(ASSETS_TO_CACHE);
-      // Try to cache offline pages without breaking the install if they fail
       OFFLINE_PAGES.forEach((page) => {
-        cache.add(page).catch((err) => console.log('Failed to cache offline page:', page, err));
+        cache.add(page).catch(() => {});
       });
       return Promise.resolve();
     })
@@ -36,9 +41,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-first for navigation (ensures fresh content), cache fallback for offline
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // NEVER intercept admin, API, or auth-protected routes — let the browser handle them directly
+  if (NO_CACHE_PATHS.some((path) => url.pathname.startsWith(path))) {
+    return; // Don't call event.respondWith — pass through to network
+  }
 
   // Static assets: cache-first
   if (ASSETS_TO_CACHE.includes(url.pathname)) {
@@ -48,14 +57,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests: network-first with offline fallback for static pages
+  // Navigation requests: network-first, only cache 200 OK responses (never redirects)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache successful navigations for offline fallback
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          // Only cache successful (200) responses, never redirects (3xx)
+          if (response.ok) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          }
           return response;
         })
         .catch(() => {
@@ -63,9 +74,8 @@ self.addEventListener('fetch', (event) => {
             if (cached) return cached;
             return caches.match('/').then((cachedRoot) => {
               if (cachedRoot) return cachedRoot;
-              // Ultimate fallback to prevent iOS "This page couldn't load"
               return new Response(
-                '<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Você está offline</title><style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background-color:#FCFBF9;color:#3C3C3B;}h1{font-weight:400;margin-bottom:10px;}p{color:#6D6B69;}</style></head><body><h1>Conexão Indisponível</h1><p>Verifique sua internet e tente novamente.</p></body></html>',
+                '<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Offline</title><style>body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;background:#FCFBF9;color:#3C3C3B}h1{font-weight:400;margin-bottom:10px}p{color:#6D6B69}</style></head><body><h1>Conexão Indisponível</h1><p>Verifique sua internet e tente novamente.</p></body></html>',
                 { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
               );
             });
