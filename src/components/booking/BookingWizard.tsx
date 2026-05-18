@@ -35,7 +35,7 @@ interface MercadoPagoBrickSettings {
   };
   callbacks: {
     onReady: () => void;
-    onSubmit: (paymentFormData: { formData: Record<string, unknown>; payment_method_id: string }) => Promise<void>;
+    onSubmit: (paymentFormData: { formData: Record<string, unknown> }) => Promise<void>;
     onError: (error: unknown) => void;
   };
 }
@@ -185,12 +185,13 @@ export default function BookingWizard({
             onReady: () => {
               setIsLoading(false);
             },
-            onSubmit: async (paymentFormData: { formData: Record<string, unknown>; payment_method_id: string }) => {
+            onSubmit: async (paymentFormData: { formData: Record<string, unknown> }) => {
               try {
                 const formDataSubmit = paymentFormData.formData;
+                const paymentMethodId = formDataSubmit.payment_method_id as string;
                 const cpf = (formDataSubmit as { cpf?: string }).cpf;
                 
-                if (paymentFormData.payment_method_id === 'pix' && !cpf) {
+                if (paymentMethodId === 'pix' && !cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
                   return;
                 }
@@ -202,7 +203,7 @@ export default function BookingWizard({
                 const res = await processPayment(formDataSubmit, bookingId);
                 
                 if (res.success) {
-                  if (paymentFormData.payment_method_id === 'pix') {
+                  if (paymentMethodId === 'pix') {
                     setPixData(res.pixData || null);
                     setPixTimeLeft(30 * 60); // Reset contador (30 min)
                     setStep('pix');
