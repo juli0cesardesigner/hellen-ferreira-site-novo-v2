@@ -254,7 +254,6 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
     `)
     .gte('booking_date', startTargetMonth)
     .lte('booking_date', endTargetMonth)
-    .neq('status', 'pending')
     .order('booking_date', { ascending: true })
     .limit(300);
 
@@ -277,11 +276,18 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
     return acc + (Number(curr.total_amount) || 0);
   }, 0) || 0;
 
+  const currentTime = new Date();
+  const activeBookings = (resBookings.data || []).filter((b) => {
+    if (b.status !== 'pending') return true;
+    if (!b.expires_at) return true;
+    return new Date(b.expires_at as string) > currentTime;
+  });
+
   const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: SlotDefinition) => [s.start_time, s])).values());
 
   return {
     stats: { totalRevenue },
-    bookings: { bookings: resBookings.data || [] },
+    bookings: { bookings: activeBookings },
     grid: { slots: uniqueSlots as SlotDefinition[] },
     blocks: { blocks: resBlocks.data || [] }
   };

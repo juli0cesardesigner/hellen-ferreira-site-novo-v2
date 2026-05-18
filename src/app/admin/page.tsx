@@ -710,53 +710,81 @@ export default function AdminDashboard() {
                                 return isSameDate && b.start_time.slice(0, 5) === slot.start_time.slice(0, 5);
                               });
 
-                                if (bookingAtSlot) {
+                              if (bookingAtSlot) {
                                   const isBlock = bookingAtSlot.customer_name?.startsWith('BLOQUEIO:');
                                   const blockReason = isBlock ? bookingAtSlot.customer_name.replace('BLOQUEIO: ', '') : '';
+                                  const isPending = bookingAtSlot.status === 'pending';
                                     
                                   const colors = isBlock 
                                     ? { isCustom: true, styles: { color: '#ef4444' } }
-                                    : getSessionColor(bookingAtSlot.sessions?.name || 'Outros', bookingAtSlot.sessions?.theme_color);
+                                    : isPending
+                                      ? { isCustom: true, styles: { color: '#f59e0b' } }
+                                      : getSessionColor(bookingAtSlot.sessions?.name || 'Outros', bookingAtSlot.sessions?.theme_color);
                                     
                                   return (
                                     <div 
                                       key={slot.id} 
                                       onClick={() => isBlock ? setSelectedBlockedSlot(bookingAtSlot) : setSelectedBooking(bookingAtSlot)}
-                                    className={`group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border shadow-sm ${isBlock ? 'border-red-200 bg-red-50/30' : 'border-[var(--color-admin-border)]'}`}
-                                  >
-                                    <div className={`w-24 flex flex-col items-center justify-center border-r pr-2 ${isBlock ? 'border-red-100' : 'border-[var(--color-admin-border)]'}`}>
-                                      <span className={`text-[16px] font-black ${isBlock ? 'text-red-600' : 'text-[var(--color-admin-text)]'}`}>{slot.start_time.slice(0, 5)}</span>
-                                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{isBlock ? 'Bloqueio' : 'Início'}</span>
-                                    </div>
-                                    
-                                    <div 
-                                      className="flex-1 p-4 rounded-2xl flex items-center justify-between"
-                                      style={{ backgroundColor: isBlock ? '#fee2e2' : (colors.isCustom ? `${colors.styles?.color}15` : 'var(--color-admin-bg)') }}
+                                      className={`group flex items-stretch gap-6 p-2 rounded-[1.5rem] transition-all hover:translate-x-2 cursor-pointer bg-white border shadow-sm ${
+                                        isBlock 
+                                          ? 'border-red-200 bg-red-50/30' 
+                                          : isPending 
+                                            ? 'border-amber-200 bg-amber-50/10 hover:border-amber-300' 
+                                            : 'border-[var(--color-admin-border)]'
+                                      }`}
                                     >
-                                      <div className="flex items-center gap-4">
-                                        <div 
-                                          className={`w-1.5 h-10 rounded-full ${isBlock ? 'bg-red-500' : ''}`}
-                                          style={!isBlock ? { backgroundColor: colors.isCustom ? colors.styles?.color : 'var(--color-admin-accent)' } : {}}
-                                        />
-                                        <div>
-                                          <h4 className={`text-[15px] font-bold tracking-tight ${isBlock ? 'text-red-900' : 'text-[var(--color-admin-text)]'}`}>
-                                            {isBlock ? 'HORÁRIO BLOQUEADO' : bookingAtSlot.customer_name}
-                                          </h4>
-                                          <p className={`text-[11px] font-bold uppercase tracking-wider ${isBlock ? 'text-red-500' : 'text-slate-500'}`}>
-                                            {isBlock ? blockReason : bookingAtSlot.sessions?.name}
-                                          </p>
-                                        </div>
+                                      <div className={`w-24 flex flex-col items-center justify-center border-r pr-2 ${isBlock ? 'border-red-100' : isPending ? 'border-amber-100' : 'border-[var(--color-admin-border)]'}`}>
+                                        <span className={`text-[16px] font-black ${isBlock ? 'text-red-600' : isPending ? 'text-amber-600' : 'text-[var(--color-admin-text)]'}`}>{slot.start_time.slice(0, 5)}</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{isBlock ? 'Bloqueio' : 'Início'}</span>
                                       </div>
-
-                                      <div className="text-right hidden sm:block">
-                                        <div className={`text-[12px] font-bold ${isBlock ? 'text-red-600' : 'text-[var(--color-admin-text)]'}`}>
-                                          {isBlock ? 'Indisponível' : (bookingAtSlot.status === 'confirmed' ? 'Confirmado' : bookingAtSlot.status === 'completed' ? 'Concluído' : 'Pendente')}
+                                    
+                                      <div 
+                                        className="flex-1 p-4 rounded-2xl flex items-center justify-between"
+                                        style={{ 
+                                          backgroundColor: isBlock 
+                                            ? '#fee2e2' 
+                                            : isPending 
+                                              ? '#fffbeb' 
+                                              : (colors.isCustom ? `${colors.styles?.color}15` : 'var(--color-admin-bg)') 
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-4">
+                                          <div 
+                                            className={`w-1.5 h-10 rounded-full ${isBlock ? 'bg-red-500' : isPending ? 'bg-amber-500 animate-pulse' : ''}`}
+                                            style={(!isBlock && !isPending) ? { backgroundColor: colors.isCustom ? colors.styles?.color : 'var(--color-admin-accent)' } : {}}
+                                          />
+                                          <div>
+                                            <h4 className={`text-[15px] font-bold tracking-tight ${isBlock ? 'text-red-900' : isPending ? 'text-amber-900' : 'text-[var(--color-admin-text)]'}`}>
+                                              {isBlock ? 'HORÁRIO BLOQUEADO' : bookingAtSlot.customer_name}
+                                            </h4>
+                                            <p className={`text-[11px] font-bold uppercase tracking-wider ${isBlock ? 'text-red-500' : isPending ? 'text-amber-600' : 'text-slate-500'}`}>
+                                              {isBlock ? blockReason : bookingAtSlot.sessions?.name}
+                                            </p>
+                                          </div>
                                         </div>
-                                        <div className="text-[10px] font-medium text-slate-400 italic">ref: {bookingAtSlot.id.split('-')[0]}</div>
+ 
+                                        <div className="text-right hidden sm:block">
+                                          <div className={`text-[12px] font-bold flex items-center justify-end gap-1.5 ${isBlock ? 'text-red-600' : isPending ? 'text-amber-600' : 'text-[var(--color-admin-text)]'}`}>
+                                            {isBlock ? (
+                                              'Indisponível'
+                                            ) : isPending ? (
+                                              <>
+                                                <Clock size={12} className="animate-pulse" />
+                                                <span>Aguardando Pix</span>
+                                              </>
+                                            ) : bookingAtSlot.status === 'confirmed' ? (
+                                              'Confirmado'
+                                            ) : bookingAtSlot.status === 'completed' ? (
+                                              'Concluído'
+                                            ) : (
+                                              'Pendente'
+                                            )}
+                                          </div>
+                                          <div className="text-[10px] font-medium text-slate-400 italic">ref: {bookingAtSlot.id.split('-')[0]}</div>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                );
+                                  );
                               }
 
                               return (
