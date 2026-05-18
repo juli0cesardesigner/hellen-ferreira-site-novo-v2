@@ -190,10 +190,34 @@ export default function BookingWizard({
                 const formDataSubmit = paymentFormData.formData;
                 const paymentMethodId = formDataSubmit.payment_method_id as string;
                 
-                // No checkout transparente do Mercado Pago, o CPF fica dentro de payer.identification.number
-                const payer = formDataSubmit.payer as Record<string, unknown> | undefined;
-                const identification = payer?.identification as Record<string, unknown> | undefined;
-                const cpf = (identification?.number as string | undefined) || (formDataSubmit.cpf as string | undefined);
+                // Garantir que a estrutura 'payer' esteja devidamente preenchida e sincronizada com os nossos dados locais
+                if (!formDataSubmit.payer) {
+                  formDataSubmit.payer = {};
+                }
+                const payerObj = formDataSubmit.payer as Record<string, unknown>;
+                
+                // Garantir o e-mail
+                if (!payerObj.email && formData.email) {
+                  payerObj.email = formData.email;
+                }
+                
+                // Garantir a identificação do portador (CPF) para o Pix ou cartão
+                if (!payerObj.identification) {
+                  const cpfClean = formData.cpf.replace(/\D/g, '');
+                  payerObj.identification = {
+                    type: 'CPF',
+                    number: cpfClean
+                  };
+                } else {
+                  const identObj = payerObj.identification as Record<string, unknown>;
+                  if (!identObj.number && formData.cpf) {
+                    identObj.type = 'CPF';
+                    identObj.number = formData.cpf.replace(/\D/g, '');
+                  }
+                }
+
+                const identification = payerObj.identification as Record<string, unknown> | undefined;
+                const cpf = identification?.number as string | undefined;
                 
                 if (paymentMethodId === 'pix' && !cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");

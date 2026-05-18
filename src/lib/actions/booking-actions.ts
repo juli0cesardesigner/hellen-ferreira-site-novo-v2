@@ -182,30 +182,23 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
         return { time: startTime, available: false, reason: `Mínimo de ${minNoticeHours}h de antecedência` };
       }
 
-      const masterIndex = masterGrid.indexOf(startTime);
-      if (masterIndex === -1) return { time: startTime, available: false, reason: "Erro de grade" };
+      // Convert slot start time to minutes
+      const [sh, sm] = startTime.split(':').map(Number);
+      const startMin = sh * 60 + sm;
+      const endMin = startMin + duration * 30;
 
-      // O cliente só vê os horários disponíveis — a duração considera apenas
-      // os slots da sessão (sem setup/cleanup). O bloqueio do slot seguinte
-      // ocorre apenas no momento da criação do agendamento (createBooking).
-      
-      // Verifica se a profissional tem blocos suficientes no dia para a duração do ensaio
-      if (masterIndex + duration > masterGrid.length) {
-        return { time: startTime, available: false, reason: "Tempo insuficiente no fim do dia" };
-      }
+      // Real time overlap check with active bookings
+      const isBooked = activeBookings?.some((b) => {
+        const [bStartH, bStartM] = b.start_time.split(':').map(Number);
+        const [bEndH, bEndM] = b.end_time.split(':').map(Number);
+        const bStartMin = bStartH * 60 + bStartM;
+        const bEndMin = bEndH * 60 + bEndM;
+        
+        return startMin < bEndMin && endMin > bStartMin;
+      });
 
-      // Varre todos os blocos na grade mestra que este ensaio vai consumir
-      for (let i = 0; i < duration; i++) {
-        const gridTime = masterGrid[masterIndex + i] as string;
-        
-        const isBooked = activeBookings?.some((b) => 
-          gridTime >= b.start_time && gridTime < b.end_time
-        );
-        
-        // Se qualquer bloco intermediário bater num agendamento existente
-        if (isBooked) {
-           return { time: startTime, available: false, reason: i === 0 ? "Ocupado" : "Conflita com próxima sessão" };
-        }
+      if (isBooked) {
+        return { time: startTime, available: false, reason: "Ocupado ou conflita com próxima sessão" };
       }
 
       return { time: startTime, available: true };
@@ -355,19 +348,21 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       const dayBookings = activeBookings?.filter((b: any) => b.booking_date === dateStr) || [];
       let hasAvailableSlot = false;
 
-      for (let gi = 0; gi <= dayGrid.length - durationSlots; gi++) {
-        let slotAvailable = true;
-        for (let offset = 0; offset < durationSlots; offset++) {
-          const gridTime = dayGrid[gi + offset];
-          const collides = dayBookings.some((b) =>
-            gridTime >= b.start_time && gridTime < b.end_time
-          );
-          if (collides) {
-            slotAvailable = false;
-            break;
-          }
-        }
-        if (slotAvailable) {
+      for (const gridTime of dayGrid) {
+        const [sh, sm] = gridTime.split(':').map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = startMin + durationSlots * 30;
+
+        const collides = dayBookings.some((b) => {
+          const [bStartH, bStartM] = b.start_time.split(':').map(Number);
+          const [bEndH, bEndM] = b.end_time.split(':').map(Number);
+          const bStartMin = bStartH * 60 + bStartM;
+          const bEndMin = bEndH * 60 + bEndM;
+          
+          return startMin < bEndMin && endMin > bStartMin;
+        });
+
+        if (!collides) {
           hasAvailableSlot = true;
           break;
         }
@@ -429,34 +424,12 @@ export async function createBooking(data: {
   // Isso faz com que o slot seguinte ao cleanup fique naturalmente ocupado
   const totalSlotsForEndTime = durationSlots + cleanupSlots;
 
-  // 3. Calcular End Time dinamicamente baseado na grade mestra (Master Grid)
-  const dayOfWeek = parseLocalDate(data.bookingDate).getDay();
-  const { data: allDaySlots } = await getSupabase().from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
-  const masterGrid = Array.from(new Set(allDaySlots?.map((s: { start_time: string }) => s.start_time) || [])).sort();
-  
-  // start_time do front geralmente vem como '15:30' ou '15:30:00'
-  const timeCompare = data.startTime.length === 5 ? `${data.startTime}:00` : data.startTime;
-  const masterIndex = masterGrid.indexOf(timeCompare);
-  
-  let endTimeStr: string;
-  
-  if (masterIndex !== -1 && masterGrid.length > 0) {
-    // Pega o último slot consumido: duração da sessão + cleanup
-    const lastSlotIndex = Math.min(masterIndex + totalSlotsForEndTime - 1, masterGrid.length - 1);
-    const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
-    const [h, m] = lastSlotStartTime.split(':').map(Number);
-    const totalMinutes = h * 60 + m + 30; // Adiciona 30 min no último horário
-    const endH = Math.floor(totalMinutes / 60);
-    const endM = totalMinutes % 60;
-    endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
-  } else {
-    // Fallback: calcula baseado no startTime + totalSlots
-    const [startH, startM] = data.startTime.split(':').map(Number);
-    const totalMinutes = startH * 60 + startM + totalSlotsForEndTime * 30;
-    const endH = Math.floor(totalMinutes / 60);
-    const endM = totalMinutes % 60;
-    endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
-  }
+  // 3. Calcular End Time dinamicamente baseado no tempo real (sempre!)
+  const [startH, startM] = data.startTime.split(':').map(Number);
+  const totalMinutes = startH * 60 + startM + totalSlotsForEndTime * 30;
+  const endH = Math.floor(totalMinutes / 60);
+  const endM = totalMinutes % 60;
+  const endTimeStr = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
 
   // 3. Determinar os valores baseados no Tier_Order
   const selectedPackage = session.session_packages

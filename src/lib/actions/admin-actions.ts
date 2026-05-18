@@ -709,28 +709,12 @@ export async function createManualBooking(data: {
 
   const duration = dbSession?.duration_slots || session?.duration_slots || 1;
 
-  // 2. Calcular End Time
-  const dayOfWeek = new Date(data.booking_date).getUTCDay();
-  const { data: allDaySlots } = await admin.from('schema_slots').select('start_time').eq('day_of_week', dayOfWeek).eq('is_active', true).order('start_time');
-  const masterGrid = Array.from(new Set(allDaySlots?.map((s: { start_time: string }) => s.start_time) || [])).sort();
-  
-  const timeCompare = data.start_time.length === 5 ? `${data.start_time}:00` : data.start_time;
-  const masterIndex = masterGrid.indexOf(timeCompare);
-  
-  let endTimeDate = new Date();
-  
-  if (masterIndex !== -1 && masterGrid.length > 0) {
-    const lastSlotIndex = Math.min(masterIndex + duration - 1, masterGrid.length - 1);
-    const lastSlotStartTime = masterGrid[lastSlotIndex] as string;
-    const parts = lastSlotStartTime.split(':');
-    endTimeDate.setHours(parseInt(parts[0]), parseInt(parts[1]) + 30, 0); 
-  } else {
-    const startParts = data.start_time.split(':');
-    endTimeDate.setHours(parseInt(startParts[0]), parseInt(startParts[1]), 0);
-    endTimeDate = new Date(endTimeDate.getTime() + (duration * 90 * 60000));
-  }
-  
-  const end_time = endTimeDate.toTimeString().split(' ')[0];
+  // 2. Calcular End Time dinamicamente baseado no tempo real (sempre!)
+  const [startH, startM] = data.start_time.split(':').map(Number);
+  const totalMinutes = startH * 60 + startM + duration * 30;
+  const endH = Math.floor(totalMinutes / 60);
+  const endM = totalMinutes % 60;
+  const end_time = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
 
   const { error } = await admin.from('bookings').insert([{
     session_id: data.sessionId,
