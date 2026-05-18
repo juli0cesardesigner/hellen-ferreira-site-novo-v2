@@ -189,7 +189,11 @@ export default function BookingWizard({
               try {
                 const formDataSubmit = paymentFormData.formData;
                 const paymentMethodId = formDataSubmit.payment_method_id as string;
-                const cpf = (formDataSubmit as { cpf?: string }).cpf;
+                
+                // No checkout transparente do Mercado Pago, o CPF fica dentro de payer.identification.number
+                const payer = formDataSubmit.payer as Record<string, unknown> | undefined;
+                const identification = payer?.identification as Record<string, unknown> | undefined;
+                const cpf = (identification?.number as string | undefined) || (formDataSubmit.cpf as string | undefined);
                 
                 if (paymentMethodId === 'pix' && !cpf) {
                   showToast("CPF é obrigatório para pagamento via PIX. Volte para preencher.", "error");
