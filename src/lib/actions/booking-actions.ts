@@ -56,7 +56,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // 0. Buscar detalhes da sessão no banco para ter as datas de disponibilidade reais
     const { data: dbSession } = await getSupabase()
       .from('sessions')
-      .select('is_active, is_perpetual, start_date, end_date, duration_slots, setup_minutes, cleanup_minutes')
+      .select('is_active, is_perpetual, start_date, end_date, duration_slots, setup_minutes, cleanup_minutes, slug')
       .eq('id', sessionId)
       .single();
 
@@ -106,8 +106,10 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       finalSlotsMap[ss.start_time] = ss;
     });
 
-    // Filtra apenas os que restaram ativos após o merge
-    const schemaSlots = Object.values(finalSlotsMap).filter((s: SlotDefinition) => s.is_active);
+    // Filtra apenas os que restaram ativos após o merge e ordena cronologicamente
+    const schemaSlots = Object.values(finalSlotsMap)
+      .filter((s: SlotDefinition) => s.is_active)
+      .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
     // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes não expirados)
     const currentTime = new Date();
@@ -127,6 +129,18 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       }
       return false;
     });
+
+    // Regra específica para Civil: caso tenha qualquer agendamento a partir de 15:30 (qualquer serviço) - nenhum horário de Civil é exibido para o dia
+    const isCivil = dbSession?.slug === 'civil' || sessionId === '1595bad4-1d33-4c39-9ca3-1ec2d1849962';
+    if (isCivil && !isAdmin) {
+      const hasBookingFrom1530 = activeBookings.some((b) => {
+        const [h, m] = b.start_time.split(':').map(Number);
+        return (h * 60 + m) >= (15 * 60 + 30);
+      });
+      if (hasBookingFrom1530) {
+        return { slots: [], message: "Nenhum horário disponível para Casamento Civil neste dia." };
+      }
+    }
 
     const duration = dbSession?.duration_slots || 1;
 
@@ -222,7 +236,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     // 0. Buscar detalhes da sessão no banco
     const { data: session } = await getSupabase()
       .from('sessions')
-      .select('is_active, is_perpetual, start_date, end_date')
+      .select('is_active, is_perpetual, start_date, end_date, slug')
       .eq('id', sessionId)
       .single();
 
@@ -346,6 +360,20 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       // A day is available if there's at least one starting slot that can accommodate
       // a booking of duration=durationSlots without colliding with existing bookings.
       const dayBookings = activeBookings?.filter((b: any) => b.booking_date === dateStr) || [];
+      
+      // Regra específica para Civil: caso tenha qualquer agendamento a partir de 15:30 (qualquer serviço) - nenhum horário de Civil é exibido para o dia
+      const isCivil = session?.slug === 'civil' || sessionId === '1595bad4-1d33-4c39-9ca3-1ec2d1849962';
+      if (isCivil && !isAdmin) {
+        const hasBookingFrom1530 = dayBookings.some((b) => {
+          const [h, m] = b.start_time.split(':').map(Number);
+          return (h * 60 + m) >= (15 * 60 + 30);
+        });
+        if (hasBookingFrom1530) {
+          availabilityMap[dateStr] = false;
+          continue;
+        }
+      }
+
       let hasAvailableSlot = false;
 
       for (const gridTime of dayGrid) {

@@ -56,7 +56,8 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
         const res = await getAvailableSlots(bookingDate, sessionId, true);
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          setAvailableSlots(res.slots as { time: string, available: boolean }[]);
+          const sortedSlots = [...res.slots].sort((a, b) => a.time.localeCompare(b.time));
+          setAvailableSlots(sortedSlots as { time: string, available: boolean }[]);
         }
         setIsSlotsLoading(false);
       }

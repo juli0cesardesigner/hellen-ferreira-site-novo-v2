@@ -7,7 +7,8 @@ import {
   Clock, 
   BarChart, 
   Receipt, 
-  Settings 
+  Settings,
+  User
 } from "lucide-react";
 
 interface AdminBottomNavProps {
@@ -18,6 +19,7 @@ interface AdminBottomNavProps {
 
 const adminNavItems = [
   { id: 'calendar', name: "Agenda", icon: Calendar },
+  { id: 'clients', name: "Clientes", icon: User },
   { id: 'blocks', name: "Bloqueios", icon: ShieldCheck },
   { id: 'slots', name: "Horários", icon: Clock },
   { id: 'finance', name: "Grana", icon: BarChart },

@@ -101,7 +101,11 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
         // Only apply if this is still the latest request
         if (reqId !== slotsRequestIdRef.current) return;
         if (Array.isArray(res.slots)) {
-          setAvailableSlots((res.slots as any[]).filter(s => !!s.time).map(s => s.time.substring(0, 5)));
+          const sortedTimes = (res.slots as any[])
+            .filter(s => !!s.time)
+            .map(s => s.time.substring(0, 5))
+            .sort((a, b) => a.localeCompare(b));
+          setAvailableSlots(sortedTimes);
         }
         setIsSlotsLoading(false);
       }

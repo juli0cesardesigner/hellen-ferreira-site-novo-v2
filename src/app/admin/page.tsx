@@ -4,12 +4,13 @@ import React, { useState, useMemo } from "react";
 import { 
   Clock, Calendar, Plus, Settings, ShieldCheck, RefreshCw, Database, 
   ChevronRight, ChevronLeft, LogOut, Loader2, BarChart, Receipt, TrendingDown, 
-  ThumbsUp, TrendingUp, CheckCircle2, AlertCircle
+  ThumbsUp, TrendingUp, CheckCircle2, AlertCircle, User
 } from "lucide-react";
 import { MassBlockingSection } from "@/components/admin/MassBlocking";
 import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 import ExpensesConfig from "@/components/admin/ExpensesConfig";
+import { CRMSection } from "@/components/admin/CRMSection";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -25,7 +26,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AdminBottomNav } from "@/components/layout/BottomNav";
 
 
-type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses';
+type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -268,6 +269,13 @@ export default function AdminDashboard() {
             onClick={() => handleTabChange('calendar')} 
             icon={<Calendar size={20} />} 
             label="Agenda" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'clients'} 
+            disabled={isEditing}
+            onClick={() => handleTabChange('clients')} 
+            icon={<User size={20} />} 
+            label="Clientes" 
           />
           <SidebarNavItem 
             active={activeTab === 'blocks'} 
@@ -1037,6 +1045,7 @@ export default function AdminDashboard() {
           )}
 
           <div className="max-w-[1600px] mx-auto pb-20">
+            {activeTab === 'clients' && <CRMSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'slots' && <StandardSlotsSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'sessions' && <SessionConfigSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'expenses' && <ExpensesConfig />}

@@ -36,9 +36,24 @@ export interface BlockedDate {
   reason?: string;
 }
 
+export interface Client {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  cpf: string | null;
+  instagram: string | null;
+  notes: string | null;
+  children_info?: { name: string; birthdate: string }[];
+  estimated_delivery_date?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Booking {
   id: string;
   session_id: string;
+  client_id?: string | null;
   customer_name: string;
   customer_email: string;
   customer_phone: string;
@@ -48,11 +63,13 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
   payment_id?: string;
+  package_type?: string;
   total_amount: number;
   paid_amount: number;
   created_at: string;
   updated_at?: string;
   cpf?: string;
+  gallery_link?: string | null;
   sessions?: {
     name: string;
     theme_color: string;

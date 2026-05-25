@@ -33,7 +33,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
     name: "Civil",
     slug: "civil",
     is_active: true,
-    duration_slots: 2,
+    duration_slots: 6,
     deposit_price: 100,
     theme_color: "#FFD700", // Gold (Civil)
     session_packages: [

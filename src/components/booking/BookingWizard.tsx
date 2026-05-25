@@ -312,7 +312,8 @@ export default function BookingWizard({
         setIsSlotsLoading(true);
         const res = await getAvailableSlots(selectedDate, sessionId);
         if (Array.isArray(res.slots)) {
-          setSelectedDateSlots(res.slots as { time: string; available: boolean; reason?: string }[]);
+          const sortedSlots = [...res.slots].sort((a, b) => a.time.localeCompare(b.time));
+          setSelectedDateSlots(sortedSlots as { time: string; available: boolean; reason?: string }[]);
         }
         setIsSlotsLoading(false);
       }

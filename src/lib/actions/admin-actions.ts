@@ -33,7 +33,7 @@ function getAdminClient() {
 /**
  * Helper para validar se o usuário atual é um administrador autorizado
  */
-async function validateAdmin() {
+export async function validateAdmin() {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
@@ -278,6 +278,7 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
 
   const currentTime = new Date();
   const activeBookings = (resBookings.data || []).filter((b) => {
+    if (b.status === 'cancelled') return false;
     if (b.status !== 'pending') return true;
     if (!b.expires_at) return true;
     return new Date(b.expires_at as string) > currentTime;
