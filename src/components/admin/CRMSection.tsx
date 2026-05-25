@@ -343,8 +343,8 @@ export function CRMSection({
                     <div className="min-w-0 pr-4 space-y-2 flex-1">
                       <h6 className={`font-bold text-[14px] leading-tight transition-colors ${
                         isDebtor 
-                          ? 'text-red-950 group-hover:text-red-800' 
-                          : 'text-[var(--color-admin-text)] group-hover:text-[var(--color-admin-accent)]'
+                          ? 'text-red-600 group-hover:text-red-700' 
+                          : 'text-emerald-600 group-hover:text-emerald-700'
                       }`}>
                         {client.name}
                       </h6>
