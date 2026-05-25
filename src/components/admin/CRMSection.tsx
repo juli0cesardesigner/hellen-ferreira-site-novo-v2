@@ -24,6 +24,7 @@ export function CRMSection({
   const [clients, setClients] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [financeFilter, setFinanceFilter] = useState<'all' | 'debtors' | 'paid'>('all');
   
   // Selection & Details State
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -197,17 +198,27 @@ export function CRMSection({
     });
   };
 
-  // Filter clients based on search
+  // Filter clients based on search and financial status
   const filteredClients = useMemo(() => {
-    if (!searchQuery) return clients;
+    let list = clients;
+
+    // Apply financial status filter
+    if (financeFilter === 'debtors') {
+      list = list.filter(c => (c.total_balance_due || 0) > 0);
+    } else if (financeFilter === 'paid') {
+      list = list.filter(c => (c.total_balance_due || 0) === 0);
+    }
+
+    // Apply search query filter
+    if (!searchQuery) return list;
     const query = searchQuery.toLowerCase().trim();
-    return clients.filter(c => 
+    return list.filter(c => 
       c.name?.toLowerCase().includes(query) ||
       c.email?.toLowerCase().includes(query) ||
       c.phone?.includes(query) ||
       c.cpf?.includes(query)
     );
-  }, [clients, searchQuery]);
+  }, [clients, searchQuery, financeFilter]);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -302,10 +313,43 @@ export function CRMSection({
         
         {/* Clients List Panel */}
         <div className="xl:col-span-1 bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] overflow-hidden shadow-sm flex flex-col max-h-[750px]">
-          <div className="px-8 py-6 border-b border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/50">
-            <h5 className="text-[12px] font-black uppercase tracking-[0.2em] text-[var(--color-admin-text-secondary)]">
-              Lista de Clientes ({filteredClients.length})
+          <div className="px-8 py-5 border-b border-[var(--color-admin-border)] bg-[var(--color-admin-bg)]/50 flex items-center justify-between gap-4">
+            <h5 className="text-[11px] font-black uppercase tracking-[0.15em] text-[var(--color-admin-text-secondary)]">
+              Lista ({filteredClients.length})
             </h5>
+            
+            <div className="flex bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] p-1 rounded-xl text-[10px] font-bold shrink-0">
+              <button 
+                onClick={() => setFinanceFilter('all')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  financeFilter === 'all' 
+                    ? 'bg-white text-[var(--color-admin-text)] shadow-sm' 
+                    : 'text-slate-400 hover:text-slate-650'
+                }`}
+              >
+                Todos
+              </button>
+              <button 
+                onClick={() => setFinanceFilter('debtors')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  financeFilter === 'debtors' 
+                    ? 'bg-red-500 text-white shadow-sm' 
+                    : 'text-slate-400 hover:text-red-500'
+                }`}
+              >
+                Devedores
+              </button>
+              <button 
+                onClick={() => setFinanceFilter('paid')}
+                className={`px-3 py-1.5 rounded-lg transition-all ${
+                  financeFilter === 'paid' 
+                    ? 'bg-emerald-500 text-white shadow-sm' 
+                    : 'text-slate-400 hover:text-emerald-500'
+                }`}
+              >
+                Pagos
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
