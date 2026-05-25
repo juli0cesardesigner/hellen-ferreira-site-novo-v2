@@ -995,3 +995,114 @@ export async function blockSlot(date: string, time: string, reason: string) {
   revalidatePath('/agendar');
   return { success: true };
 }
+
+export async function scanAndReconcilePayments() {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  if (!accessToken) {
+    return {
+      success: false,
+      error: "MERCADOPAGO_ACCESS_TOKEN não configurado no servidor."
+    };
+  }
+
+  try {
+    // 1. Buscar agendamentos pendentes ou cancelados com payment_id
+    const { data: bookings, error } = await admin
+      .from('bookings')
+      .select('id, customer_name, customer_email, booking_date, start_time, status, payment_id, paid_amount')
+      .not('payment_id', 'is', null)
+      .in('status', ['pending', 'cancelled']);
+
+    if (error) {
+      console.error("Erro ao buscar agendamentos para reconciliação:", error);
+      return { success: false, error: "Erro ao buscar agendamentos no banco." };
+    }
+
+    if (!bookings || bookings.length === 0) {
+      return { success: true, reconciledCount: 0, details: [] };
+    }
+
+    const reconciledList: Array<{
+      bookingId: string;
+      customerName: string;
+      date: string;
+      time: string;
+      statusBefore: string;
+      paymentId: string;
+      amount: number;
+    }> = [];
+
+    // 2. Para cada agendamento, consultar o Mercado Pago
+    for (const booking of bookings) {
+      const paymentId = booking.payment_id;
+      if (!paymentId) continue;
+
+      // Consultar pagamentos associados a esta preferência no Mercado Pago
+      // Nota: o payment_id no booking é o preferenceId
+      const url = `https://api.mercadopago.com/v1/payments/search?preference_id=${paymentId}`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.warn(`Erro ao consultar Mercado Pago para preferência ${paymentId}: ${response.statusText}`);
+        continue;
+      }
+
+      const paymentData = await response.json();
+      const results = paymentData.results || [];
+
+      // Procurar se há algum pagamento aprovado ou autorizado
+      const approvedPayment = results.find(
+        (p: { status: string }) => p.status === 'approved' || p.status === 'authorized'
+      );
+
+      if (approvedPayment) {
+        const transactionAmount = Number(approvedPayment.transaction_amount);
+        
+        // 3. Atualizar o agendamento no Supabase
+        const { error: updateError } = await admin
+          .from('bookings')
+          .update({
+            status: 'confirmed',
+            paid_amount: transactionAmount,
+          })
+          .eq('id', booking.id);
+
+        if (updateError) {
+          console.error(`Erro ao atualizar agendamento ${booking.id}:`, updateError);
+          continue;
+        }
+
+        reconciledList.push({
+          bookingId: booking.id,
+          customerName: booking.customer_name,
+          date: booking.booking_date,
+          time: booking.start_time,
+          statusBefore: booking.status,
+          paymentId: paymentId,
+          amount: transactionAmount,
+        });
+      }
+    }
+
+    if (reconciledList.length > 0) {
+      revalidatePath('/admin');
+      revalidatePath('/agendar');
+    }
+
+    return {
+      success: true,
+      reconciledCount: reconciledList.length,
+      details: reconciledList,
+    };
+  } catch (err) {
+    console.error("Erro durante a varredura de pagamentos:", err);
+    return { success: false, error: (err as Error).message };
+  }
+}

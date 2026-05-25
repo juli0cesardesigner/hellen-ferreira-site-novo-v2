@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { 
   Plus, Search, Loader2, Save, X, User, Phone, Mail, 
   Instagram, Calendar, Baby, DollarSign, Heart, Edit3, Trash2,
-  ChevronRight, MessageSquare, ExternalLink
+  ChevronRight, MessageSquare, ExternalLink, RefreshCw
 } from "lucide-react";
 import { 
   getClientsList, getClientDetails, updateClientCRM, createClientCRM 
@@ -25,6 +25,7 @@ export function CRMSection({
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [financeFilter, setFinanceFilter] = useState<'all' | 'debtors' | 'paid'>('all');
+  const [isScanning, setIsScanning] = useState(false);
   
   // Selection & Details State
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -92,6 +93,32 @@ export function CRMSection({
       showNotification("Erro ao carregar clientes", "error");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleScanPayments = async () => {
+    setIsScanning(true);
+    try {
+      const { scanAndReconcilePayments } = await import("@/lib/actions/admin-actions");
+      const res = await scanAndReconcilePayments();
+      if (res.success) {
+        if (res.reconciledCount !== undefined && res.reconciledCount > 0) {
+          showNotification(`Sucesso: ${res.reconciledCount} agendamento(s) reconciliado(s)!`);
+          loadClients();
+          if (selectedClientId) {
+            refreshClientDetails(selectedClientId);
+          }
+        } else {
+          showNotification("Nenhum pagamento pendente foi encontrado no Mercado Pago.");
+        }
+      } else {
+        showNotification(res.error || "Erro ao sincronizar pagamentos", "error");
+      }
+    } catch (e) {
+      console.error(e);
+      showNotification("Erro ao sincronizar pagamentos", "error");
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -296,6 +323,20 @@ export function CRMSection({
                 </button>
               )}
             </div>
+
+            <button
+              onClick={handleScanPayments}
+              disabled={isScanning}
+              className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold uppercase tracking-[0.2em] px-6 py-4 rounded-2xl flex items-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 shrink-0"
+              title="Sincronizar pagamentos do Mercado Pago"
+            >
+              {isScanning ? (
+                <Loader2 size={16} className="animate-spin text-slate-500" />
+              ) : (
+                <RefreshCw size={16} />
+              )}
+              <span>{isScanning ? 'Escaneando...' : 'Sincronizar'}</span>
+            </button>
 
             <button
               onClick={() => setIsNewClientOpen(true)}
