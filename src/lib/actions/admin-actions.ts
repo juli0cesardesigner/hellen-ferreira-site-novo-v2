@@ -228,7 +228,7 @@ export async function getBlockedDates() {
   return { blocks: data };
 }
 
-export async function getDashboardData(dayOfWeek: number, year: number, month: number) {
+export async function getDashboardData(year: number, month: number) {
   await validateAdmin();
   const admin = getAdminClient();
 
@@ -260,7 +260,6 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
   const pGrid = admin
     .from('schema_slots')
     .select('*')
-    .eq('day_of_week', dayOfWeek)
     .eq('is_active', true)
     .order('start_time', { ascending: true });
 
@@ -284,7 +283,7 @@ export async function getDashboardData(dayOfWeek: number, year: number, month: n
     return new Date(b.expires_at as string) > currentTime;
   });
 
-  const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: SlotDefinition) => [s.start_time, s])).values());
+  const uniqueSlots = Array.from(new Map(resGrid.data?.map((s: SlotDefinition) => [`${s.day_of_week}-${s.start_time}`, s])).values());
 
   return {
     stats: { totalRevenue },

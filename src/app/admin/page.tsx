@@ -69,7 +69,10 @@ export default function AdminDashboard() {
   const [isSectionEditing, setIsSectionEditing] = useState(false);
   const [isMonthListExpanded, setIsMonthListExpanded] = useState(true);
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
-  const [daySlots, setDaySlots] = useState<SlotDefinition[]>([]);
+  const [allSlots, setAllSlots] = useState<SlotDefinition[]>([]);
+  const daySlots = useMemo(() => {
+    return allSlots.filter(s => s.day_of_week === selectedDate.getDay());
+  }, [allSlots, selectedDate]);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isBlockSlotOpen, setIsBlockSlotOpen] = useState(false);
@@ -146,10 +149,10 @@ export default function AdminDashboard() {
     if (background) setIsSyncing(true);
     else setIsLoading(true);
     try {
-      const data = await getDashboardData(selectedDate.getDay(), viewDate.getFullYear(), viewDate.getMonth());
+      const data = await getDashboardData(viewDate.getFullYear(), viewDate.getMonth());
       setStats(data.stats);
       setBookings(data.bookings.bookings || []);
-      setDaySlots(data.grid.slots || []);
+      setAllSlots(data.grid.slots || []);
       setBlockedDates(data.blocks.blocks || []);
     } catch (e) {
       console.error(e);
@@ -618,30 +621,47 @@ export default function AdminDashboard() {
                       
                       // Day-level booking counts
                       const dayCounts = dayBookingCounts[dateKey] || { regular: 0, blocked: 0 };
+                      const hasRegularBookings = dayCounts.regular > 0;
+                      const hasBlockedBookings = dayCounts.blocked > 0;
+                      const isBlocked = isFullyBlocked || (hasBlockedBookings && !hasRegularBookings);
+                      const hasBookings = hasRegularBookings;
+                      const dayOfWeek = date.getDay();
+                      const hasSlotsConfigured = allSlots.some(s => s.day_of_week === dayOfWeek);
+
+                      // Determine day styling classes
+                      let cellStyle = '';
+                      if (isSelected) {
+                        cellStyle = 'bg-[var(--color-admin-accent)] border-[var(--color-admin-accent)] text-white shadow-md z-10 scale-105';
+                      } else if (isBlocked) {
+                        cellStyle = `bg-red-50 border-red-200 text-red-600 hover:bg-red-100/50 ${isToday ? 'border-2 border-[var(--color-admin-accent)]/70' : ''}`;
+                      } else if (hasBookings) {
+                        cellStyle = `bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100/50 ${isToday ? 'border-2 border-[var(--color-admin-accent)]/70' : ''}`;
+                      } else if (!hasSlotsConfigured) {
+                        cellStyle = `bg-slate-100 border-slate-200 text-slate-400 opacity-60 hover:bg-slate-200/50 ${isToday ? 'border-2 border-[var(--color-admin-accent)]/70' : ''}`;
+                      } else {
+                        // Default neutral (has slots configured but 0 bookings)
+                        cellStyle = `bg-[var(--color-admin-bg)] hover:bg-slate-50 ${
+                          isToday 
+                            ? 'border-2 border-[var(--color-admin-accent)] text-[var(--color-admin-accent)]' 
+                            : 'border-[var(--color-admin-border)] text-slate-600 hover:border-slate-400'
+                        }`;
+                      }
 
                       cells.push(
                         <button 
                           key={day}
                           onClick={() => setSelectedDate(date)}
-                          className={`aspect-square rounded-xl lg:rounded-2xl flex flex-col items-center justify-center transition-all border relative ${
-                            isSelected 
-                              ? 'bg-[var(--color-admin-accent)] border-[var(--color-admin-accent)] text-white shadow-md z-10 scale-105' 
-                              : isFullyBlocked
-                                ? 'bg-red-50 border-red-200 text-red-600'
-                                : isToday
-                                  ? 'bg-[var(--color-admin-bg)] border-[var(--color-admin-accent)]/30 text-[var(--color-admin-accent)]'
-                                  : 'bg-[var(--color-admin-bg)] border-[var(--color-admin-border)] text-slate-600 hover:border-slate-400'
-                          }`}
+                          className={`aspect-square rounded-xl lg:rounded-2xl flex flex-col items-center justify-center transition-all border relative ${cellStyle}`}
                         >
                           <span className="text-[14px] font-bold">{day}</span>
                           {/* Dots: only for non-fully-blocked days */}
                           {!isFullyBlocked && !isSelected && (dayCounts.regular > 0 || dayCounts.blocked > 0) && (
-                            <div className="flex gap-[2px] mt-1 justify-center flex-wrap px-1">
+                            <div className="flex gap-[1px] mt-1 justify-center flex-nowrap px-1">
                               {Array.from({ length: dayCounts.regular }, (_, i) => (
-                                <div key={`b-${i}`} className="w-[5px] h-[5px] bg-blue-500 rounded-full" />
+                                <div key={`b-${i}`} className="w-[3px] h-[3px] lg:w-[4px] lg:h-[4px] bg-blue-500 rounded-full shrink-0" />
                               ))}
                               {Array.from({ length: dayCounts.blocked }, (_, i) => (
-                                <div key={`r-${i}`} className="w-[5px] h-[5px] bg-red-400 rounded-full" />
+                                <div key={`r-${i}`} className="w-[3px] h-[3px] lg:w-[4px] lg:h-[4px] bg-red-400 rounded-full shrink-0" />
                               ))}
                             </div>
                           )}
