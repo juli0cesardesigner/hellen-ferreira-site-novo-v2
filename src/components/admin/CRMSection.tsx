@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { 
   Plus, Search, Loader2, Save, X, User, Phone, Mail, 
   Instagram, Calendar, Baby, DollarSign, Heart, Edit3, Trash2,
@@ -12,7 +12,15 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Client, Booking } from "@/types/database";
 
-export function CRMSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
+export function CRMSection({ 
+  onEditingChange, 
+  onEditBooking,
+  refreshTrigger 
+}: { 
+  onEditingChange?: (editing: boolean) => void;
+  onEditBooking?: (booking: Booking) => void;
+  refreshTrigger?: number;
+}) {
   const [clients, setClients] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,9 +56,24 @@ export function CRMSection({ onEditingChange }: { onEditingChange?: (editing: bo
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const refreshClientDetails = useCallback(async (id: string) => {
+    try {
+      const res = await getClientDetails(id);
+      setClientDetails(res.client);
+      if (!isEditingClient) {
+        setEditedClient(res.client || {});
+      }
+    } catch (e) {
+      console.error("Erro ao recarregar detalhes:", e);
+    }
+  }, [isEditingClient]);
+
   useEffect(() => {
     loadClients();
-  }, []);
+    if (selectedClientId) {
+      refreshClientDetails(selectedClientId);
+    }
+  }, [refreshTrigger, selectedClientId, refreshClientDetails]);
 
   useEffect(() => {
     if (onEditingChange) {
@@ -298,41 +321,57 @@ export function CRMSection({ onEditingChange }: { onEditingChange?: (editing: bo
             ) : (
               filteredClients.map((client) => {
                 const isSelected = selectedClientId === client.id;
+                const isDebtor = (client.total_balance_due || 0) > 0;
+                
+                let boxStyle = '';
+                if (isDebtor) {
+                  boxStyle = isSelected 
+                    ? 'bg-red-50/80 border-red-400 ring-2 ring-red-400/20' 
+                    : 'bg-red-50/30 border-red-200/80 hover:border-red-300';
+                } else {
+                  boxStyle = isSelected 
+                    ? 'bg-emerald-50/70 border-emerald-400 ring-2 ring-emerald-400/20' 
+                    : 'bg-emerald-50/25 border-emerald-200/70 hover:border-emerald-300';
+                }
+
                 return (
                   <button
                     key={client.id}
                     onClick={() => handleSelectClient(client.id)}
-                    className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group active:scale-[0.99] ${
-                      isSelected 
-                        ? 'bg-[var(--color-admin-accent)]/5 border-[var(--color-admin-accent)]' 
-                        : 'bg-[var(--color-admin-surface)] border-[var(--color-admin-border)] hover:border-slate-400'
-                    }`}
+                    className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group active:scale-[0.99] ${boxStyle}`}
                   >
-                    <div className="min-w-0 pr-4 space-y-2">
-                      <h6 className="font-bold text-[14px] text-[var(--color-admin-text)] truncate leading-tight group-hover:text-[var(--color-admin-accent)] transition-colors">
+                    <div className="min-w-0 pr-4 space-y-2 flex-1">
+                      <h6 className={`font-bold text-[14px] leading-tight transition-colors ${
+                        isDebtor 
+                          ? 'text-red-950 group-hover:text-red-800' 
+                          : 'text-[var(--color-admin-text)] group-hover:text-[var(--color-admin-accent)]'
+                      }`}>
                         {client.name}
                       </h6>
-                      <div className="flex items-center gap-2 text-[11px] text-[var(--color-admin-text-muted)] font-medium">
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500 font-medium">
                         <span>{client.total_bookings} {client.total_bookings === 1 ? 'ensaio' : 'ensaios'}</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[var(--color-admin-success)] font-bold">{formatCurrency(client.ltv || 0)} Pago</span>
-                        {client.total_balance_due > 0 && (
+                        {client.last_booking_date && (
                           <>
                             <span className="w-1 h-1 rounded-full bg-slate-300" />
-                            <span className="text-red-500 font-bold">Devendo: {formatCurrency(client.total_balance_due)}</span>
+                            <span>Último: {formatDate(client.last_booking_date)}</span>
+                          </>
+                        )}
+                        {isDebtor && (
+                          <>
+                            <span className="w-1 h-1 rounded-full bg-red-300" />
+                            <span className="text-red-650 font-black">Devendo: {formatCurrency(client.total_balance_due)}</span>
                           </>
                         )}
                       </div>
-                      {client.last_booking_date && (
-                        <p className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">
-                          Último: {formatDate(client.last_booking_date)}
-                        </p>
-                      )}
                     </div>
                     <ChevronRight 
                       size={18} 
-                      className={`text-slate-400 transition-transform ${
-                        isSelected ? 'translate-x-1 text-[var(--color-admin-accent)]' : 'group-hover:translate-x-1'
+                      className={`transition-transform shrink-0 ${
+                        isDebtor 
+                          ? 'text-red-400' 
+                          : 'text-slate-400'
+                      } ${
+                        isSelected ? 'translate-x-1' : 'group-hover:translate-x-1'
                       }`} 
                     />
                   </button>
@@ -724,14 +763,18 @@ export function CRMSection({ onEditingChange }: { onEditingChange?: (editing: bo
                             const balanceVal = Math.max(0, contractVal - paidVal);
 
                             return (
-                              <div key={booking.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-slate-50/50 transition-colors">
+                              <div 
+                                key={booking.id} 
+                                onClick={() => onEditBooking?.(booking)}
+                                className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                              >
                                 <div className="min-w-0 flex items-center gap-3">
                                   <div 
                                     className="w-2.5 h-2.5 rounded-full shrink-0" 
                                     style={{ backgroundColor: booking.sessions?.theme_color || 'var(--color-admin-accent)' }} 
                                   />
                                   <div>
-                                    <span className="font-bold text-[13px] text-[var(--color-admin-text)] block">{booking.sessions?.name || "Outros"}</span>
+                                    <span className="font-bold text-[13px] text-[var(--color-admin-text)] block group-hover:text-[var(--color-admin-accent)] transition-colors">{booking.sessions?.name || "Outros"}</span>
                                     <span className="text-[10px] font-medium text-slate-400 block">{formatDate(booking.booking_date)}</span>
                                   </div>
                                 </div>
@@ -777,15 +820,16 @@ export function CRMSection({ onEditingChange }: { onEditingChange?: (editing: bo
                           return (
                             <div 
                               key={booking.id}
-                              className="border border-[var(--color-admin-border)] rounded-2xl p-5 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-colors shadow-sm"
+                              onClick={() => onEditBooking?.(booking)}
+                              className="border border-[var(--color-admin-border)] rounded-2xl p-5 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[var(--color-admin-accent)]/30 hover:shadow-md cursor-pointer transition-all active:scale-[0.99] group"
                             >
                               <div className="flex items-center gap-4">
                                 <div 
                                   className="w-3.5 h-3.5 rounded-full shrink-0" 
                                   style={{ backgroundColor: booking.sessions?.theme_color || 'var(--color-admin-accent)' }} 
-                                />
+                                  />
                                 <div>
-                                  <h6 className="font-bold text-[14px] text-[var(--color-admin-text)] leading-none">
+                                  <h6 className="font-bold text-[14px] text-[var(--color-admin-text)] leading-none group-hover:text-[var(--color-admin-accent)] transition-colors">
                                     {booking.sessions?.name || "Outros"}
                                   </h6>
                                   <div className="flex items-center gap-2 mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">

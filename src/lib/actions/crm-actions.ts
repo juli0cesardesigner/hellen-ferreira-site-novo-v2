@@ -54,7 +54,7 @@ export async function getClientsList() {
       .reduce((acc: number, b: any) => acc + (Number(b.paid_amount) || 0), 0);
     
     const totalBalanceDue = bookings
-      .filter((b: any) => b.status !== 'cancelled' && b.status !== 'pending')
+      .filter((b: any) => b.status !== 'cancelled')
       .reduce((acc: number, b: any) => acc + Math.max(0, (Number(b.total_amount) || 0) - (Number(b.paid_amount) || 0)), 0);
     
     const lastBooking = bookings.length > 0
@@ -106,7 +106,7 @@ export async function getClientDetails(id: string) {
       .reduce((acc: number, b: any) => acc + (Number(b.paid_amount) || 0), 0);
       
     const totalBalanceDue = client.bookings
-      .filter((b: any) => b.status !== 'cancelled' && b.status !== 'pending')
+      .filter((b: any) => b.status !== 'cancelled')
       .reduce((acc: number, b: any) => acc + Math.max(0, (Number(b.total_amount) || 0) - (Number(b.paid_amount) || 0)), 0);
 
     client.ltv = ltv;

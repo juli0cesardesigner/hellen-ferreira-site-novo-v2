@@ -30,8 +30,60 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
     start_time: booking.start_time?.slice(0, 5) || "",
     status: booking.status || "pending",
     total_amount: booking.total_amount || 0,
-    paid_amount: booking.paid_amount || 0
+    paid_amount: booking.paid_amount || 0,
+    extra_items: (booking.extra_items || []) as { id: string; name: string; quantity: number; price: number }[]
   });
+
+  const [baseAmount, setBaseAmount] = useState(() => {
+    const extraTotal = (booking.extra_items || []).reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
+    return Math.max(0, (booking.total_amount || 0) - extraTotal);
+  });
+
+  const [newExtraItem, setNewExtraItem] = useState({
+    name: "Fotos Extras",
+    customName: "",
+    quantity: 1,
+    price: 0
+  });
+
+  const handleAddExtraItem = () => {
+    const itemName = newExtraItem.name === "Outros" ? newExtraItem.customName.trim() : newExtraItem.name;
+    if (!itemName) return;
+
+    const itemToAdd = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: itemName,
+      quantity: newExtraItem.quantity,
+      price: newExtraItem.price
+    };
+
+    const updatedItems = [...formData.extra_items, itemToAdd];
+    const extraTotal = updatedItems.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
+
+    setFormData(prev => ({
+      ...prev,
+      extra_items: updatedItems,
+      total_amount: baseAmount + extraTotal
+    }));
+
+    setNewExtraItem({
+      name: "Fotos Extras",
+      customName: "",
+      quantity: 1,
+      price: 0
+    });
+  };
+
+  const handleRemoveExtraItem = (indexToRemove: number) => {
+    const updatedItems = formData.extra_items.filter((_, idx) => idx !== indexToRemove);
+    const extraTotal = updatedItems.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
+
+    setFormData(prev => ({
+      ...prev,
+      extra_items: updatedItems,
+      total_amount: baseAmount + extraTotal
+    }));
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -77,6 +129,7 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
       status: formData.status,
       total_amount: formData.total_amount,
       paid_amount: formData.paid_amount,
+      extra_items: formData.extra_items,
       updated_at: new Date().toISOString()
     });
 
@@ -241,7 +294,9 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
                           value={formatCurrencyBRL(formData.total_amount)} 
                           onChange={(e) => {
                             const val = parseCurrencyBRL(e.target.value);
-                            setFormData({...formData, total_amount: val});
+                            const extraTotal = (formData.extra_items || []).reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
+                            setBaseAmount(Math.max(0, val - extraTotal));
+                            setFormData(prev => ({ ...prev, total_amount: val }));
                           }} 
                           className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3.5 rounded-xl text-[13px] font-bold text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] shadow-inner" 
                         />
@@ -276,6 +331,113 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
                        <option value="completed">Concluído</option>
                     </select>
                     <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção de Gastos / Itens Extras */}
+              <div className="bg-[var(--color-admin-surface)] rounded-[1.5rem] p-6 border border-[var(--color-admin-border)] shadow-inner space-y-6 mt-6">
+                <div className="flex items-center justify-between border-b border-[var(--color-admin-border)] pb-4">
+                  <h4 className="text-[12px] font-black uppercase tracking-[0.2em] text-[var(--color-admin-text-secondary)]">Gastos / Itens Extras</h4>
+                  <span className="text-[10px] font-bold text-slate-400">
+                    Total: {formatCurrencyBRL((formData.extra_items || []).reduce((acc, item) => acc + (item.price * item.quantity), 0))}
+                  </span>
+                </div>
+
+                {/* Lista de itens existentes */}
+                <div className="space-y-2.5">
+                  {formData.extra_items.length > 0 ? (
+                    formData.extra_items.map((item, idx) => (
+                      <div key={item.id || idx} className="flex items-center justify-between p-3.5 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-xl">
+                        <div>
+                          <span className="font-bold text-[13px] text-slate-700 block">{item.name}</span>
+                          <span className="text-[10px] text-slate-400 font-bold block">
+                            {item.quantity}x de {formatCurrencyBRL(item.price)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="font-bold text-[13px] text-slate-700">
+                            {formatCurrencyBRL(item.price * item.quantity)}
+                          </span>
+                          <button 
+                            type="button"
+                            onClick={() => handleRemoveExtraItem(idx)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors active:scale-90"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[11px] text-slate-400 italic">Nenhum item extra adicionado.</p>
+                  )}
+                </div>
+
+                {/* Formulário para novo item */}
+                <div className="space-y-4 pt-4 border-t border-[var(--color-admin-border)]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Item</label>
+                      <select
+                        value={newExtraItem.name}
+                        onChange={(e) => setNewExtraItem(prev => ({ ...prev, name: e.target.value }))}
+                        className="bg-white border border-[var(--color-admin-border)] rounded-xl px-3 py-2.5 text-[12px] font-bold text-slate-700 outline-none cursor-pointer"
+                      >
+                        <option value="Fotos Extras">Fotos Extras</option>
+                        <option value="Álbum de Fotos">Álbum de Fotos</option>
+                        <option value="Pendrive com Fotos">Pendrive com Fotos</option>
+                        <option value="Quadro / Painel">Quadro / Painel</option>
+                        <option value="Outros">Outros (Personalizado)</option>
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Preço Unitário</label>
+                      <input
+                        type="text"
+                        value={formatCurrencyBRL(newExtraItem.price)}
+                        onChange={(e) => {
+                          const val = parseCurrencyBRL(e.target.value);
+                          setNewExtraItem(prev => ({ ...prev, price: val }));
+                        }}
+                        className="bg-white border border-[var(--color-admin-border)] rounded-xl px-3 py-2 text-[12px] font-bold text-slate-700 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {newExtraItem.name === "Outros" && (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Nome do Item Personalizado</label>
+                      <input
+                        type="text"
+                        value={newExtraItem.customName}
+                        onChange={(e) => setNewExtraItem(prev => ({ ...prev, customName: e.target.value }))}
+                        placeholder="Ex: Maquiagem, Figurino..."
+                        className="bg-white border border-[var(--color-admin-border)] rounded-xl px-3 py-2.5 text-[12px] font-medium text-slate-700 outline-none placeholder:text-slate-300"
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-3 items-end">
+                    <div className="col-span-1 flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Qtd</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={newExtraItem.quantity}
+                        onChange={(e) => setNewExtraItem(prev => ({ ...prev, quantity: Math.max(1, parseInt(e.target.value) || 1) }))}
+                        className="bg-white border border-[var(--color-admin-border)] rounded-xl px-3 py-2 text-[12px] font-bold text-slate-700 outline-none"
+                      />
+                    </div>
+                    
+                    <button
+                      type="button"
+                      onClick={handleAddExtraItem}
+                      className="col-span-2 bg-[var(--color-admin-text)] text-[var(--color-admin-bg)] border border-[var(--color-admin-border)] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all hover:bg-slate-900"
+                    >
+                      Adicionar Item
+                    </button>
                   </div>
                 </div>
               </div>

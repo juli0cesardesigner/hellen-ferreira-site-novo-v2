@@ -75,6 +75,7 @@ export default function AdminDashboard() {
   }, [allSlots, selectedDate]);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [crmRefreshTrigger, setCrmRefreshTrigger] = useState(0);
   const [isBlockSlotOpen, setIsBlockSlotOpen] = useState(false);
   const [selectedTimeForAction, setSelectedTimeForAction] = useState<string | null>(null);
 
@@ -226,6 +227,7 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
         loadDataRef.current(true);
         loadFinanceDataRef.current(true);
+        setCrmRefreshTrigger(prev => prev + 1);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'blocked_dates' }, () => {
         loadDataRef.current(true);
@@ -446,6 +448,7 @@ export default function AdminDashboard() {
                 onClose={() => setSelectedBooking(null)} 
                 onUpdated={() => {
                   loadData(true);
+                  setCrmRefreshTrigger(prev => prev + 1);
                   setNotification({ message: "Agendamento atualizado", type: 'success' });
                   setTimeout(() => setNotification(null), 3000);
                 }}
@@ -1065,7 +1068,13 @@ export default function AdminDashboard() {
           )}
 
           <div className="max-w-[1600px] mx-auto pb-20">
-            {activeTab === 'clients' && <CRMSection onEditingChange={setIsSectionEditing} />}
+            {activeTab === 'clients' && (
+              <CRMSection 
+                onEditingChange={setIsSectionEditing} 
+                onEditBooking={setSelectedBooking} 
+                refreshTrigger={crmRefreshTrigger}
+              />
+            )}
             {activeTab === 'slots' && <StandardSlotsSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'sessions' && <SessionConfigSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'expenses' && <ExpensesConfig />}

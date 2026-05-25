@@ -70,6 +70,7 @@ export interface Booking {
   updated_at?: string;
   cpf?: string;
   gallery_link?: string | null;
+  extra_items?: { id: string; name: string; quantity: number; price: number }[] | null;
   sessions?: {
     name: string;
     theme_color: string;
