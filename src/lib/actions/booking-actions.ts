@@ -2,6 +2,7 @@
 
 // Mercado Pago Payment Integration - Active for Pix and Credit Card
 
+import crypto from "crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { type Session, type SlotDefinition, type Booking, type Package } from "@/types/database";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
@@ -474,12 +475,10 @@ export async function createBooking(data: {
 
   // 4. Criar preferência de pagamento PRIMEIRO (evita booking órfão)
   let preferenceId: string | null = null;
+  const bookingId = crypto.randomUUID();
   try {
     const { mpClient } = await import('@/lib/utils/mercadopago');
     const { Preference } = await import('mercadopago');
-    
-    // Usar um ID temporário como external_reference; será atualizado após inserir o booking
-    const tempRef = crypto.randomUUID();
     
     const preference = new Preference(mpClient);
     
@@ -487,7 +486,7 @@ export async function createBooking(data: {
       body: {
         items: [
           {
-            id: tempRef,
+            id: bookingId,
             title: `${session.name} - ${selectedPackage.name}`,
             quantity: 1,
             unit_price: Number(amountToPay),
@@ -510,9 +509,9 @@ export async function createBooking(data: {
           excluded_payment_types: [],
           installments: 12,
         },
-        external_reference: tempRef,
+        external_reference: bookingId,
         metadata: {
-          booking_id: tempRef, // Will be updated below
+          booking_id: bookingId,
         },
         notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://hellenferreira.com'}/api/webhooks/mercadopago`,
         back_urls: {
@@ -549,6 +548,7 @@ export async function createBooking(data: {
   }));
   
   const bookingPayload = {
+    id: bookingId,
     session_id: data.sessionId,
     customer_name: data.clientName,
     customer_email: data.clientEmail,
