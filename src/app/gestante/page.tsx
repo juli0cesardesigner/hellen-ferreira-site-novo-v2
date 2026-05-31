@@ -14,6 +14,8 @@ export default function GestantePage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [acceptedPkg1, setAcceptedPkg1] = React.useState(false);
+  const [acceptedPkg2, setAcceptedPkg2] = React.useState(false);
 
   React.useEffect(() => {
     async function loadSession() {
@@ -181,9 +183,34 @@ export default function GestantePage() {
                     </div>
                   </div>
                   
+                  <div className="pt-6 border-t border-sand/20">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={acceptedPkg1}
+                        onChange={(e) => { setAcceptedPkg1(e.target.checked); if (e.target.checked) setAcceptedPkg2(false); }}
+                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
+                      />
+                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
+                        <strong className="block text-text-dark text-sm mb-1">🤍 Como funciona o guarda-roupa do ensaio?</strong>
+                        Para que você não precise se preocupar com nada, eu disponibilizo um acervo lindo de roupas exclusivas para as gestantes no meu estúdio!
+                        <br /><br />
+                        Já para o papai, peço que ele traga as suas próprias opções de roupa (depois que você escolher o seu look, eu ajudo a combinar o dele!).
+                        <br /><br />
+                        Ah, e se você já tiver algum acessório especial do baby — como o primeiro sapatinho ou uma roupinha —, traga também!
+                        <br /><br />
+                        Vou adorar incluir esses detalhes afetivos nas fotos.
+                      </span>
+                    </label>
+                  </div>
+
                   <Link 
-                    href={`/agendar/gestante/${pkg1.slug}`} 
-                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
+                    href={acceptedPkg1 ? `/agendar/gestante/${pkg1.slug}` : '#'} 
+                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                      acceptedPkg1
+                        ? 'bg-blush text-white hover:bg-[#C29088]'
+                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                    }`}
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -244,9 +271,34 @@ export default function GestantePage() {
                     </div>
                   </div>
 
+                  <div className="pt-6 border-t border-sand/20">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={acceptedPkg2}
+                        onChange={(e) => { setAcceptedPkg2(e.target.checked); if (e.target.checked) setAcceptedPkg1(false); }}
+                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
+                      />
+                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
+                        <strong className="block text-text-dark text-sm mb-1">🤍 Como funciona o guarda-roupa do ensaio?</strong>
+                        Para que você não precise se preocupar com nada, eu disponibilizo um acervo lindo de roupas exclusivas para as gestantes no meu estúdio!
+                        <br /><br />
+                        Já para o papai, peço que ele traga as suas próprias opções de roupa (depois que você escolher o seu look, eu ajudo a combinar o dele!).
+                        <br /><br />
+                        Ah, e se você já tiver algum acessório especial do baby — como o primeiro sapatinho ou uma roupinha —, traga também!
+                        <br /><br />
+                        Vou adorar incluir esses detalhes afetivos nas fotos.
+                      </span>
+                    </label>
+                  </div>
+
                   <Link 
-                    href={`/agendar/gestante/${pkg2.slug}`} 
-                    className="mt-16 w-full py-6 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-[#C29088] transition-all flex items-center justify-center gap-3"
+                    href={acceptedPkg2 ? `/agendar/gestante/${pkg2.slug}` : '#'} 
+                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                      acceptedPkg2
+                        ? 'bg-blush text-white hover:bg-[#C29088]'
+                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                    }`}
                   >
                     Ver Agenda Disponível
                   </Link>

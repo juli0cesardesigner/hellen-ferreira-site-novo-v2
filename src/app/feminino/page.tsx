@@ -14,6 +14,8 @@ export default function FemininoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [acceptedPkg1, setAcceptedPkg1] = React.useState(false);
+  const [acceptedPkg2, setAcceptedPkg2] = React.useState(false);
 
   React.useEffect(() => {
     async function loadSession() {
@@ -173,7 +175,23 @@ export default function FemininoPage() {
                     ))}
                   </ul>
 
-                  <div className="space-y-6 pt-12 border-t border-sand/20">
+                  {/* Accessories notice */}
+                  <div className="pt-6 border-t border-sand/20">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={acceptedPkg1}
+                        onChange={(e) => { setAcceptedPkg1(e.target.checked); if (e.target.checked) setAcceptedPkg2(false); }}
+                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
+                      />
+                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
+                        <strong className="block text-text-dark text-sm mb-1">Dica para o seu ensaio:</strong>
+                        Os acessórios de festa (bolas, velas, bolo e confetes) <strong>não estão inclusos</strong>. Lembre-se trazê-los no dia para criarmos uma ambientação linda e única para você!
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-6 pt-6 border-t border-sand/20">
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg1.price_digital}</span>
@@ -185,8 +203,12 @@ export default function FemininoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/feminino/${pkg1.slug}`} 
-                    className="mt-12 w-full py-5 bg-blush text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:opacity-90 transition-all flex items-center justify-center gap-3"
+                    href={acceptedPkg1 ? `/agendar/feminino/${pkg1.slug}` : '#'} 
+                    className={`mt-12 w-full py-5 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                      acceptedPkg1
+                        ? 'bg-blush text-white hover:opacity-90'
+                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                    }`}
                   >
                     Ver Agenda Disponível
                   </Link>
@@ -237,7 +259,23 @@ export default function FemininoPage() {
                     ))}
                   </ul>
 
-                  <div className="space-y-6 pt-12 border-t border-sand/20">
+                  {/* Accessories notice */}
+                  <div className="pt-6 border-t border-sand/20">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={acceptedPkg2}
+                        onChange={(e) => { setAcceptedPkg2(e.target.checked); if (e.target.checked) setAcceptedPkg1(false); }}
+                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
+                      />
+                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
+                        <strong className="block text-text-dark text-sm mb-1">Dica para o seu ensaio:</strong>
+                        Os acessórios de festa (bolas, velas, bolo e confetes) <strong>não estão inclusos</strong>. Lembre-se trazê-los no dia para criarmos uma ambientação linda e única para você!
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-6 pt-6 border-t border-sand/20">
                     <div className="flex justify-between items-baseline gap-4">
                       <span className="text-[10px] uppercase tracking-[0.2em] text-text-light">Digital</span>
                       <span className="text-3xl font-serif text-text-dark whitespace-nowrap shrink-0">R$ {pkg2.price_digital}</span>
@@ -249,8 +287,12 @@ export default function FemininoPage() {
                   </div>
                   
                   <Link 
-                    href={`/agendar/feminino/${pkg2.slug}`} 
-                    className="mt-12 w-full py-5 bg-text-dark text-white text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium hover:bg-black transition-all flex items-center justify-center gap-3"
+                    href={acceptedPkg2 ? `/agendar/feminino/${pkg2.slug}` : '#'} 
+                    className={`mt-12 w-full py-5 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                      acceptedPkg2
+                        ? 'bg-text-dark text-white hover:bg-black'
+                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                    }`}
                   >
                     Ver Agenda Disponível
                   </Link>
