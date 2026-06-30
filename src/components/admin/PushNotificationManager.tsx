@@ -33,7 +33,16 @@ export default function PushNotificationManager() {
       "PushManager" in window
     ) {
       setIsSupported(true);
-      checkSubscription();
+      // Registrar o Service Worker de fato para que esteja ativo no app
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(() => {
+          checkSubscription();
+        })
+        .catch((err) => {
+          console.error("Erro ao registrar Service Worker:", err);
+          setIsLoading(false);
+        });
     } else {
       setIsSupported(false);
       setIsLoading(false);

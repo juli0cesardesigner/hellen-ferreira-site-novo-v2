@@ -12,6 +12,7 @@ import { SessionConfigSection } from "@/components/admin/SessionConfig";
 import ExpensesConfig from "@/components/admin/ExpensesConfig";
 import { CRMSection } from "@/components/admin/CRMSection";
 import PushNotificationManager from "@/components/admin/PushNotificationManager";
+import NotificationCenter from "@/components/admin/NotificationCenter";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -383,6 +384,18 @@ export default function AdminDashboard() {
             >
               <RefreshCw size={20} className={isLoading ? "animate-spin text-[var(--color-admin-accent)]" : ""} />
             </button>
+
+            <NotificationCenter 
+              onEditBooking={(booking) => {
+                const isBlock = booking.customer_name?.startsWith('BLOQUEIO:');
+                if (isBlock) {
+                  setSelectedBlockedSlot(booking);
+                } else {
+                  setSelectedBooking(booking);
+                }
+              }} 
+              refreshTrigger={crmRefreshTrigger} 
+            />
 
             <button 
               onClick={() => setIsManualBookingOpen(true)}

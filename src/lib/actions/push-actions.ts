@@ -117,3 +117,37 @@ export async function notifyAdminByPush(payload: { title: string; body: string; 
     return { success: false, error: error.message || "Erro desconhecido." };
   }
 }
+
+export async function getRecentBookingsForNotifications(limit: number = 10) {
+  try {
+    await validateAdmin();
+    const admin = getAdminClient();
+
+    const { data: bookings, error } = await admin
+      .from('bookings')
+      .select(`
+        id,
+        customer_name,
+        booking_date,
+        start_time,
+        status,
+        created_at,
+        sessions (
+          name
+        )
+      `)
+      .eq('status', 'confirmed')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("Erro ao carregar notificações de agendamento:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, bookings: bookings || [] };
+  } catch (error: any) {
+    console.error("Erro em getRecentBookingsForNotifications:", error);
+    return { success: false, error: error.message || "Erro desconhecido." };
+  }
+}
