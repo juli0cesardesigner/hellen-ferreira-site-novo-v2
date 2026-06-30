@@ -11,6 +11,7 @@ import { StandardSlotsSection } from "@/components/admin/StandardSlots";
 import { SessionConfigSection } from "@/components/admin/SessionConfig";
 import ExpensesConfig from "@/components/admin/ExpensesConfig";
 import { CRMSection } from "@/components/admin/CRMSection";
+import PushNotificationManager from "@/components/admin/PushNotificationManager";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -1076,7 +1077,12 @@ export default function AdminDashboard() {
               />
             )}
             {activeTab === 'slots' && <StandardSlotsSection onEditingChange={setIsSectionEditing} />}
-            {activeTab === 'sessions' && <SessionConfigSection onEditingChange={setIsSectionEditing} />}
+            {activeTab === 'sessions' && (
+              <div className="space-y-8">
+                <PushNotificationManager />
+                <SessionConfigSection onEditingChange={setIsSectionEditing} />
+              </div>
+            )}
             {activeTab === 'expenses' && <ExpensesConfig />}
             {activeTab === 'blocks' && <MassBlockingSection onEditingChange={setIsSectionEditing} />}
           </div>

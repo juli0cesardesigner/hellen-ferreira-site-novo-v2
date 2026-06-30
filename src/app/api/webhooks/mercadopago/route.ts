@@ -105,19 +105,48 @@ export async function POST(req: NextRequest) {
       const supabase = getSupabaseAdmin();
       
       if (status === 'approved' || status === 'authorized') {
-        // Atualizar o status da reserva para confirmado
-        const { error } = await supabase
+        // Atualizar o status da reserva para confirmado e pegar detalhes para push
+        const { data: updatedBooking, error } = await supabase
           .from('bookings')
           .update({ 
             status: 'confirmed',
             paid_amount: paymentData.transaction_amount
           })
-          .eq('id', bookingId);
+          .eq('id', bookingId)
+          .select(`
+            customer_name, 
+            booking_date, 
+            start_time, 
+            sessions (
+              name
+            )
+          `)
+          .single();
 
         if (error) {
           console.error("❌ Erro ao atualizar agendamento no banco:", error);
           return NextResponse.json({ error: "Database update failed" }, { status: 500 });
         }
+
+        // Disparar notificação push para a administradora
+        if (updatedBooking) {
+          try {
+            const { notifyAdminByPush } = await import('@/lib/actions/push-actions');
+            const [y, m, d] = updatedBooking.booking_date.split('-');
+            const formattedDate = `${d}/${m}/${y}`;
+            const formattedTime = updatedBooking.start_time.slice(0, 5) + 'h';
+            const sessionName = (updatedBooking.sessions as any)?.name || 'Ensaio';
+
+            await notifyAdminByPush({
+              title: '📸 Novo Ensaio Confirmado!',
+              body: `Cliente: ${updatedBooking.customer_name}\nServiço: ${sessionName}\nData: ${formattedDate} às ${formattedTime}`,
+              url: `/admin`
+            });
+          } catch (pushErr) {
+            console.error('Erro ao enviar notificação push do webhook:', pushErr);
+          }
+        }
+
         if (process.env.NODE_ENV === 'development') {
           console.log(`✅ Agendamento ${bookingId} confirmado com sucesso!`);
         }

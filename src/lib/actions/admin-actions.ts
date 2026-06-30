@@ -702,16 +702,17 @@ export async function createManualBooking(data: {
   const admin = getAdminClient();
 
   // 1. Pegar a sessão para calcular o tempo final
-
-  // 1. Pegar a sessão para calcular o tempo final
   const session = SESSIONS_DATA[data.sessionId];
-  const { data: dbSession } = await admin.from('sessions').select('duration_slots').eq('id', data.sessionId).single();
+  const { data: dbSession } = await admin.from('sessions').select('duration_slots, cleanup_minutes').eq('id', data.sessionId).single();
 
   const duration = dbSession?.duration_slots || session?.duration_slots || 1;
+  const cleanupMinutes = dbSession?.cleanup_minutes ?? 15;
+  const cleanupSlots = Math.ceil(cleanupMinutes / 30);
+  const totalSlotsForEndTime = duration + cleanupSlots;
 
   // 2. Calcular End Time dinamicamente baseado no tempo real (sempre!)
   const [startH, startM] = data.start_time.split(':').map(Number);
-  const totalMinutes = startH * 60 + startM + duration * 30;
+  const totalMinutes = startH * 60 + startM + totalSlotsForEndTime * 30;
   const endH = Math.floor(totalMinutes / 60);
   const endM = totalMinutes % 60;
   const end_time = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
@@ -738,6 +739,25 @@ export async function createManualBooking(data: {
     return { success: false, error: error.message };
   }
 
+  // Disparar notificação push para a administradora se estiver confirmado
+  if (data.status === 'confirmed') {
+    try {
+      const { notifyAdminByPush } = await import('./push-actions');
+      const [y, m, d] = data.booking_date.split('-');
+      const formattedDate = `${d}/${m}/${y}`;
+      const formattedTime = data.start_time.slice(0, 5) + 'h';
+      const sessionName = session?.name || 'Ensaio';
+
+      await notifyAdminByPush({
+        title: '✍️ Novo Agendamento Manual!',
+        body: `Cliente: ${data.customer_name}\nServiço: ${sessionName}\nData: ${formattedDate} às ${formattedTime}`,
+        url: `/admin`
+      });
+    } catch (pushErr) {
+      console.error('Erro ao enviar notificação push do agendamento manual:', pushErr);
+    }
+  }
+
   revalidatePath('/admin');
   revalidatePath('/agendar');
   
@@ -750,7 +770,50 @@ export async function createManualBooking(data: {
 
 export async function updateBooking(id: string, updates: Partial<Booking>) {
   await validateAdmin();
-  const { error } = await getAdminClient().from('bookings').update(updates).eq('id', id);
+  const admin = getAdminClient();
+
+  if (updates.start_time) {
+    try {
+      const { data: currentBooking, error: fetchBookingError } = await admin
+        .from('bookings')
+        .select('session_id, start_time')
+        .eq('id', id)
+        .single();
+
+      if (fetchBookingError) {
+        throw new Error("Reserva não encontrada: " + fetchBookingError.message);
+      }
+
+      const sessionId = updates.session_id || currentBooking.session_id;
+      const startTime = updates.start_time || currentBooking.start_time;
+
+      if (sessionId && startTime) {
+        const { data: dbSession } = await admin
+          .from('sessions')
+          .select('duration_slots, cleanup_minutes')
+          .eq('id', sessionId)
+          .single();
+
+        const session = SESSIONS_DATA[sessionId];
+        const durationSlots = dbSession?.duration_slots || session?.duration_slots || 1;
+        const cleanupMinutes = dbSession?.cleanup_minutes ?? 15;
+        const cleanupSlots = Math.ceil(cleanupMinutes / 30);
+        const totalSlotsForEndTime = durationSlots + cleanupSlots;
+
+        const [startH, startM] = startTime.split(':').map(Number);
+        const totalMinutes = startH * 60 + startM + totalSlotsForEndTime * 30;
+        const endH = Math.floor(totalMinutes / 60);
+        const endM = totalMinutes % 60;
+        const end_time = `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}:00`;
+
+        updates.end_time = end_time;
+      }
+    } catch (calcError) {
+      console.error("Erro ao recalcular end_time no updateBooking:", calcError);
+    }
+  }
+
+  const { error } = await admin.from('bookings').update(updates).eq('id', id);
   if (error) {
     console.error("Erro ao atualizar reserva:", error);
     return { success: false, error: error.message };
