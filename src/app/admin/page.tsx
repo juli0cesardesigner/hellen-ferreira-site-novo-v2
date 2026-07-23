@@ -351,7 +351,7 @@ export default function AdminDashboard() {
       <main className="flex-1 flex flex-col overflow-hidden relative z-10">
         
         {/* Header */}
-        <header className="h-20 lg:h-24 bg-[var(--color-admin-surface)]/80 backdrop-blur-md border-b border-[var(--color-admin-border)] flex items-center justify-between px-5 lg:px-14 shrink-0 relative">
+        <header className="h-20 lg:h-24 bg-[var(--color-admin-surface)]/80 backdrop-blur-md border-b border-[var(--color-admin-border)] flex items-center justify-between px-5 lg:px-14 shrink-0 relative z-30">
           <div className="flex items-center gap-6">
             <div className="lg:hidden flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--color-admin-text)] rounded-xl flex items-center justify-center p-1.5 shadow-sm">
