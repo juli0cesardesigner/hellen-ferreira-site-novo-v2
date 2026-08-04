@@ -118,12 +118,12 @@ export async function notifyAdminByPush(payload: { title: string; body: string; 
   }
 }
 
-export async function getRecentBookingsForNotifications(limit: number = 10) {
+export async function getRecentBookingsForNotifications(limit?: number) {
   try {
     await validateAdmin();
     const admin = getAdminClient();
 
-    const { data: bookings, error } = await admin
+    let query = admin
       .from('bookings')
       .select(`
         id,
@@ -132,13 +132,21 @@ export async function getRecentBookingsForNotifications(limit: number = 10) {
         start_time,
         status,
         created_at,
+        paid_amount,
+        total_amount,
+        package_type,
         sessions (
           name
         )
       `)
       .eq('status', 'confirmed')
-      .order('created_at', { ascending: false })
-      .limit(limit);
+      .order('created_at', { ascending: false });
+
+    if (limit && limit > 0) {
+      query = query.limit(limit);
+    }
+
+    const { data: bookings, error } = await query;
 
     if (error) {
       console.error("Erro ao carregar notificações de agendamento:", error);

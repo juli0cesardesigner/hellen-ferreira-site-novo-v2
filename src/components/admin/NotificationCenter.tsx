@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Bell, BellRing, Calendar, Sparkles, User, X } from "lucide-react";
+import { Bell, BellRing, Calendar, ChevronDown, Loader2, Sparkles, User, X } from "lucide-react";
 import { getRecentBookingsForNotifications } from "@/lib/actions/push-actions";
+import { NotificationDetailModal } from "./NotificationDetailModal";
+import { Booking } from "@/types/database";
 
 // Formata data e hora amigáveis
 function formatRelativeTime(dateString: string) {
@@ -11,7 +13,7 @@ function formatRelativeTime(dateString: string) {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 600);
+    const diffHours = Math.floor(diffMins / 60);
 
     if (diffMins < 1) return "Agora mesmo";
     if (diffMins < 60) return `Há ${diffMins} min`;
@@ -35,14 +37,25 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
   const [bookings, setBookings] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastReadTime, setLastReadTime] = useState<number>(0);
+  const [selectedNotification, setSelectedNotification] = useState<Booking | null>(null);
+  const [limit, setLimit] = useState<number>(10);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Carregar notificações e timestamp de leitura
-  const fetchNotifications = async () => {
-    const res = await getRecentBookingsForNotifications(10);
+  const fetchNotifications = async (fetchLimit: number = limit) => {
+    const res = await getRecentBookingsForNotifications(fetchLimit);
     if (res.success && res.bookings) {
       setBookings(res.bookings);
       
+      // Se a quantidade retornada for menor do que o limite solicitado, não há mais registros
+      if (fetchLimit > 0 && res.bookings.length < fetchLimit) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
       // Calcular quantos não foram lidos
       const storedReadTime = localStorage.getItem("lastReadNotificationsTime");
       const readTimeVal = storedReadTime ? parseInt(storedReadTime, 10) : 0;
@@ -58,14 +71,14 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
   };
 
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(limit);
   }, [refreshTrigger]);
 
-  // Atualizar a cada 30 segundos
+  // Atualizar a cada 30 segundos mantendo o limite atual
   useEffect(() => {
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => fetchNotifications(limit), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [limit]);
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -91,9 +104,23 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
 
   const handleItemClick = (booking: any) => {
     setIsOpen(false);
-    if (onEditBooking) {
-      onEditBooking(booking);
-    }
+    setSelectedNotification(booking);
+  };
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    const newLimit = limit + 20;
+    setLimit(newLimit);
+    await fetchNotifications(newLimit);
+    setIsLoadingMore(false);
+  };
+
+  const handleLoadAll = async () => {
+    setIsLoadingMore(true);
+    setLimit(0); // 0 indica sem limite
+    await fetchNotifications(0);
+    setHasMore(false);
+    setIsLoadingMore(false);
   };
 
   return (
@@ -120,9 +147,9 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
         )}
       </button>
 
-      {/* Dropdown Customizado */}
+      {/* Dropdown Customizado (Ajustado para alinhamento mobile sem estourar layout) */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 lg:w-96 bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="fixed left-4 right-4 top-24 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 sm:w-96 max-w-md mx-auto sm:mx-0 bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header do Dropdown */}
           <div className="px-5 py-4 border-b border-[var(--color-admin-border)] flex items-center justify-between bg-slate-50/50">
             <h6 className="text-[12px] font-black uppercase tracking-wider text-[var(--color-admin-text)]">
@@ -202,13 +229,57 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
             )}
           </div>
 
-          {/* Footer do Dropdown */}
-          <div className="px-5 py-3 border-t border-[var(--color-admin-border)] bg-slate-50/30 text-center">
+          {/* Footer do Dropdown com Opções de Ver Mais */}
+          <div className="px-5 py-3 border-t border-[var(--color-admin-border)] bg-slate-50/30 flex flex-col items-center gap-2">
+            {limit > 0 && hasMore && bookings.length >= limit && (
+              <div className="flex items-center justify-center gap-2 w-full pt-1">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  className="flex-1 py-1.5 px-3 bg-white border border-[var(--color-admin-border)] rounded-xl text-[10px] font-bold text-[var(--color-admin-accent)] hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                >
+                  {isLoadingMore ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <ChevronDown size={12} />
+                  )}
+                  <span>Carregar +20</span>
+                </button>
+
+                <button
+                  onClick={handleLoadAll}
+                  disabled={isLoadingMore}
+                  className="flex-1 py-1.5 px-3 bg-[var(--color-admin-accent)] text-white rounded-xl text-[10px] font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1 shadow-sm disabled:opacity-50"
+                >
+                  {isLoadingMore ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <span>Ver Todas</span>
+                  )}
+                </button>
+              </div>
+            )}
+
             <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-              Mostrando as últimas 10 confirmações
+              {limit > 0 && hasMore
+                ? `Mostrando as últimas ${bookings.length} confirmações`
+                : `Mostrando todas as ${bookings.length} confirmações`}
             </span>
           </div>
         </div>
+      )}
+
+      {/* Modal Informativo Resumido da Notificação */}
+      {selectedNotification && (
+        <NotificationDetailModal
+          booking={selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+          onOpenFullEdit={(booking) => {
+            if (onEditBooking) {
+              onEditBooking(booking);
+            }
+          }}
+        />
       )}
     </div>
   );
