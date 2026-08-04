@@ -532,12 +532,70 @@ export async function createBooking(data: {
     };
   }
 
+  // 4.5. Buscar ou cadastrar cliente no CRM e obter client_id
+  let clientId: string | null = null;
+  try {
+    const normalizedEmail = data.clientEmail.toLowerCase().trim();
+    const cleanCpf = data.clientCpf ? data.clientCpf.replace(/\D/g, '') : null;
+
+    let existingClient = null;
+    if (normalizedEmail) {
+      const { data: clientByEmail } = await getSupabase()
+        .from('clients')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
+      existingClient = clientByEmail;
+    }
+
+    if (!existingClient && cleanCpf) {
+      const { data: clientByCpf } = await getSupabase()
+        .from('clients')
+        .select('id')
+        .eq('cpf', cleanCpf)
+        .maybeSingle();
+      existingClient = clientByCpf;
+    }
+
+    if (existingClient?.id) {
+      clientId = existingClient.id;
+      await getSupabase()
+        .from('clients')
+        .update({
+          name: data.clientName.trim(),
+          phone: data.clientPhone.trim(),
+          ...(cleanCpf ? { cpf: cleanCpf } : {}),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', clientId);
+    } else {
+      const { data: newClient } = await getSupabase()
+        .from('clients')
+        .insert({
+          name: data.clientName.trim(),
+          email: normalizedEmail || null,
+          phone: data.clientPhone.trim(),
+          cpf: cleanCpf || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+      if (newClient?.id) {
+        clientId = newClient.id;
+      }
+    }
+  } catch (clientErr) {
+    console.warn("Aviso: Não foi possível sincronizar o cliente no CRM:", clientErr);
+  }
+
   // 5. Salvar no Banco como 'awaiting_payment' (só depois da preferência criada)
   // Garantir que start_time tenha formato HH:mm:ss
   const formattedStartTime = data.startTime.length === 5 ? `${data.startTime}:00` : data.startTime;
   
   console.log("📝 Inserindo booking no Supabase:", JSON.stringify({ 
     session_id: data.sessionId, 
+    client_id: clientId,
     booking_date: data.bookingDate, 
     start_time: formattedStartTime, 
     end_time: endTimeStr,
@@ -550,6 +608,7 @@ export async function createBooking(data: {
   const bookingPayload = {
     id: bookingId,
     session_id: data.sessionId,
+    client_id: clientId,
     customer_name: data.clientName,
     customer_email: data.clientEmail,
     customer_phone: data.clientPhone,
@@ -755,3 +814,23 @@ export async function fetchSessionBySlug(slug: string) {
     return { session: null };
   }
 }
+
+/**
+ * Busca perfil do cliente cadastrado pelo e-mail
+ */
+export async function getClientProfileByEmail(email: string) {
+  try {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) return null;
+    const { data: client, error } = await getSupabase()
+      .from('clients')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+    if (error || !client) return null;
+    return client;
+  } catch {
+    return null;
+  }
+}
+

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 import { fbEvent, fbInit } from "@/components/analytics/FacebookPixel";
+import { getClientData, saveClientData, clearClientData } from "@/lib/utils/client-storage";
 
 import { SessionWithPackages, Package } from "@/types/database";
 
@@ -64,6 +65,8 @@ export default function BookingWizard({
   const [selectedDateSlots, setSelectedDateSlots] = useState<{ time: string; available: boolean; reason?: string }[]>([]);
   
   const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "", cpf: "" });
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isDataAutoFilled, setIsDataAutoFilled] = useState(false);
   const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -74,6 +77,43 @@ export default function BookingWizard({
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
+
+  // Carregar dados salvos do cliente para agendamentos recorrentes
+  useEffect(() => {
+    const savedData = getClientData();
+    if (savedData && savedData.name && savedData.email) {
+      let formattedCpf = savedData.cpf || "";
+      const rawCpf = formattedCpf.replace(/\D/g, "");
+      if (rawCpf.length === 11) {
+        formattedCpf = rawCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+      }
+      setFormData({
+        name: savedData.name,
+        email: savedData.email,
+        whatsapp: savedData.whatsapp,
+        cpf: formattedCpf,
+      });
+      setIsDataAutoFilled(true);
+    }
+  }, []);
+
+  const handleClearSavedData = () => {
+    clearClientData();
+    setFormData({ name: "", email: "", whatsapp: "", cpf: "" });
+    setIsDataAutoFilled(false);
+    showToast("Dados salvos removidos deste dispositivo.", "info");
+  };
+
+  const handleGoToPayment = () => {
+    saveClientData({
+      name: formData.name,
+      email: formData.email,
+      whatsapp: formData.whatsapp,
+      cpf: formData.cpf,
+      rememberMe,
+    });
+    setStep('payment');
+  };
 
   // Determinar o pacote ativo baseado no Tier selecionado
   const activePackage = session?.session_packages?.find((p: Package) => p.tier_order === selectedTier) || session?.session_packages?.[0];
@@ -565,6 +605,24 @@ export default function BookingWizard({
                    <p className="text-sm text-[#8C8681] font-light">Informe seus dados para reservarmos seu espaço.</p>
                 </div>
 
+                {isDataAutoFilled && (
+                  <div className="p-4 bg-blush/10 border border-blush/30 rounded-sm flex items-center justify-between text-xs text-[#2C2A29]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">✨</span>
+                      <span>
+                        <strong>Bem-vinda de volta!</strong> Preenchemos seus dados salvos neste dispositivo.
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleClearSavedData}
+                      className="text-[10px] uppercase font-bold text-blush hover:underline shrink-0 ml-4 cursor-pointer"
+                    >
+                      Não é você? Limpar
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-6">
                   <div className="space-y-2">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">Nome Completo</label>
@@ -600,11 +658,25 @@ export default function BookingWizard({
                       value={formData.cpf} onChange={handleCpfChange}
                     />
                   </div>
+
+                  <div className="pt-2">
+                    <label className="flex items-center gap-3 cursor-pointer select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-[#E6DFD3] accent-blush cursor-pointer"
+                      />
+                      <span className="text-xs text-[#8C8681] font-light">
+                        Salvar meus dados neste dispositivo para agendamentos futuros
+                      </span>
+                    </label>
+                  </div>
                 </div>
 
                 <button 
                   disabled={!formData.name || !formData.email || !formData.whatsapp || formData.cpf.replace(/\D/g, '').length !== 11}
-                  onClick={() => setStep('payment')}
+                  onClick={handleGoToPayment}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
                   Ir para o Pagamento

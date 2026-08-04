@@ -34,15 +34,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Se o usuário tentar acessar /admin e não estiver logado, redireciona para login
-  if (
-    !user &&
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.startsWith('/admin/login')
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin/login'
-    return NextResponse.redirect(url)
+  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = request.nextUrl.pathname.startsWith('/admin/login')
+  const authorizedAdminEmails = ['hellen@hellenferreira.com']
+
+  if (isAdminPath && !isLoginPage) {
+    if (!user || !user.email || !authorizedAdminEmails.includes(user.email)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/login'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
