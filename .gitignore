@@ -45,7 +45,15 @@ superpowers/
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
-
 # MCP config (may contain tokens)
 .vscode/mcp.json
+
+# Temporary logs and debug dumps
+lint_*.txt
+lint_results*.txt
+*.prompt.md
+
+# Data and CSV exports
+*.csv
+agendamentos*.json
+payload*.json
