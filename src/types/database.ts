@@ -103,3 +103,16 @@ export interface Package {
   slug?: string;
   features?: string[];
 }
+
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  description?: string | null;
+  category: 'improvement' | 'change' | 'add' | 'remove' | 'fix';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed';
+  target_area?: string | null;
+  created_at: string;
+  updated_at?: string;
+  completed_at?: string | null;
+}

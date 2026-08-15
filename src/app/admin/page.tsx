@@ -14,6 +14,7 @@ import { CRMSection } from "@/components/admin/CRMSection";
 import PushNotificationManager from "@/components/admin/PushNotificationManager";
 import NotificationCenter from "@/components/admin/NotificationCenter";
 import { ThumbnailManager } from "@/components/admin/ThumbnailManager";
+import { ChecklistManager } from "@/components/admin/ChecklistManager";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -24,12 +25,12 @@ import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
-import { Ban, Camera } from "lucide-react";
+import { Ban, Camera, CheckSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AdminBottomNav } from "@/components/layout/BottomNav";
 
 
-type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails';
+type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails' | 'checklist';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -332,6 +333,16 @@ export default function AdminDashboard() {
             onClick={() => handleTabChange('thumbnails')} 
             icon={<Camera size={20} />} 
             label="Capas e Thumbs" 
+          />
+
+          <div className="px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-10 mb-2">Melhorias & Tarefas</div>
+          
+          <SidebarNavItem 
+            active={activeTab === 'checklist'} 
+            disabled={isEditing}
+            onClick={() => handleTabChange('checklist')} 
+            icon={<CheckSquare size={20} />} 
+            label="Checklist" 
           />
         </nav>
 
@@ -1107,6 +1118,7 @@ export default function AdminDashboard() {
             {activeTab === 'expenses' && <ExpensesConfig />}
             {activeTab === 'blocks' && <MassBlockingSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'thumbnails' && <ThumbnailManager />}
+            {activeTab === 'checklist' && <ChecklistManager />}
           </div>
         </div>
       </main>

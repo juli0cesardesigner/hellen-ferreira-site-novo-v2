@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import crypto from "crypto";
 
-import { Session, SlotDefinition, Booking, Expense } from "@/types/database";
+import { Session, SlotDefinition, Booking, Expense, ChecklistItem } from "@/types/database";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 // Lazy initialization of Supabase client with Service Role for internal admin operations
@@ -1169,3 +1169,122 @@ export async function scanAndReconcilePayments() {
     return { success: false, error: (err as Error).message };
   }
 }
+
+/**
+ * ─────────────────────────────────────────────────────────────
+ * CHECKLIST DE MELHORIAS & NOTAS
+ * ─────────────────────────────────────────────────────────────
+ */
+
+export async function getChecklistItems(): Promise<{ success: boolean; data?: ChecklistItem[]; error?: string }> {
+  try {
+    const admin = getAdminClient();
+    const { data, error } = await admin
+      .from('admin_checklist')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Erro ao buscar itens de checklist:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (err) {
+    console.error("Erro em getChecklistItems:", err);
+    return { success: false, error: (err as Error).message };
+  }
+}
+
+export async function createChecklistItem(item: {
+  title: string;
+  description?: string | null;
+  category?: 'improvement' | 'change' | 'add' | 'remove' | 'fix';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  target_area?: string | null;
+}): Promise<{ success: boolean; data?: ChecklistItem; error?: string }> {
+  try {
+    const admin = getAdminClient();
+    const { data, error } = await admin
+      .from('admin_checklist')
+      .insert({
+        title: item.title.trim(),
+        description: item.description?.trim() || null,
+        category: item.category || 'improvement',
+        priority: item.priority || 'medium',
+        status: 'pending',
+        target_area: item.target_area?.trim() || 'Geral',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error("Erro ao criar item de checklist:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("Erro em createChecklistItem:", err);
+    return { success: false, error: (err as Error).message };
+  }
+}
+
+export async function updateChecklistItem(
+  id: string,
+  updates: Partial<ChecklistItem>
+): Promise<{ success: boolean; data?: ChecklistItem; error?: string }> {
+  try {
+    const admin = getAdminClient();
+    const payload: any = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (updates.status === 'completed' && !updates.completed_at) {
+      payload.completed_at = new Date().toISOString();
+    } else if (updates.status && updates.status !== 'completed') {
+      payload.completed_at = null;
+    }
+
+    const { data, error } = await admin
+      .from('admin_checklist')
+      .update(payload)
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error("Erro ao atualizar item de checklist:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("Erro em updateChecklistItem:", err);
+    return { success: false, error: (err as Error).message };
+  }
+}
+
+export async function deleteChecklistItem(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const admin = getAdminClient();
+    const { error } = await admin
+      .from('admin_checklist')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error("Erro ao excluir item de checklist:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("Erro em deleteChecklistItem:", err);
+    return { success: false, error: (err as Error).message };
+  }
+}
+
