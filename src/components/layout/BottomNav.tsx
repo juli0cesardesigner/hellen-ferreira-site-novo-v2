@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Calendar, ShieldCheck } from "lucide-react";
+import { Calendar, ShieldCheck, CheckSquare } from "lucide-react";
 
 interface AdminBottomNavProps {
   activeTab: string;
@@ -12,6 +12,7 @@ interface AdminBottomNavProps {
 const adminNavItems = [
   { id: 'calendar', name: "Agenda", icon: Calendar },
   { id: 'blocks', name: "Bloqueios", icon: ShieldCheck },
+  { id: 'checklist', name: "Checklist", icon: CheckSquare },
 ];
 
 export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottomNavProps) {
@@ -19,16 +20,16 @@ export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottom
   
   return (
     <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-[100] w-full transition-opacity duration-300 ${disabled ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
-      <div className="relative bg-[#020617]/95 backdrop-blur-lg h-[68px] rounded-t-[24px] flex justify-center items-center shadow-[0_-10px_40px_rgba(0,0,0,0.4)] px-4 border-t border-white/10 pb-safe">
-        <ul className="flex w-full relative justify-between px-2 h-full items-center">
+      <div className="relative bg-[#020617]/95 backdrop-blur-lg h-[68px] rounded-t-[24px] flex justify-center items-center shadow-[0_-10px_40px_rgba(0,0,0,0.4)] px-3 border-t border-white/10 pb-safe">
+        <ul className="flex w-full relative justify-between px-1 h-full items-center">
           
           {/* Indicador de Deslizamento */}
           {activeIndex !== -1 && (
             <div 
               className="absolute h-[50px] bg-white/10 rounded-2xl transition-all duration-500 ease-out shadow-[0_0_20px_rgba(255,255,255,0.05)] border border-white/5"
               style={{ 
-                width: `calc((100% - 16px) / ${adminNavItems.length})`,
-                left: `calc(8px + ${activeIndex} * ((100% - 16px) / ${adminNavItems.length}))`,
+                width: `calc((100% - 12px) / ${adminNavItems.length})`,
+                left: `calc(6px + ${activeIndex} * ((100% - 12px) / ${adminNavItems.length}))`,
               }}
             />
           )}
