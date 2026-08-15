@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { getCategoryThumbnails } from "@/lib/thumbnails-store";
 
 // Image entry: either a string (legacy) or an object with metadata
 type GalleryImageEntry = string | { path: string; width?: number; height?: number; orientation?: 'horizontal' | 'vertical' };
@@ -70,16 +71,23 @@ export async function GET(
       entries = index[category] || [];
     }
 
-    if (entries.length === 0) {
-      return NextResponse.json({ error: "No images found" }, { status: 404 });
-    }
-
     // Seed based on current hour — stable within the same hour, changes hourly
     const hourSeed = Math.floor(Date.now() / 3600000);
     const shuffled = seededShuffle(entries, hourSeed);
-    const images = shuffled.map(normalizeEntry);
+    let images = shuffled.map(normalizeEntry);
 
-    return NextResponse.json({ images });
+    // If Admin defined a custom cover thumbnail for this category, put it first!
+    const thumbnailsMap = getCategoryThumbnails();
+    const configuredCover = thumbnailsMap[category];
+    if (configuredCover) {
+      images = [{ path: configuredCover }, ...images.filter(img => img.path !== configuredCover)];
+    }
+
+    if (images.length === 0) {
+      return NextResponse.json({ error: "No images found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ images, coverImage: configuredCover || null });
   } catch (error) {
     console.error("Error reading gallery:", error);
     return NextResponse.json({ error: "Failed to read gallery" }, { status: 500 });

@@ -13,6 +13,7 @@ import ExpensesConfig from "@/components/admin/ExpensesConfig";
 import { CRMSection } from "@/components/admin/CRMSection";
 import PushNotificationManager from "@/components/admin/PushNotificationManager";
 import NotificationCenter from "@/components/admin/NotificationCenter";
+import { ThumbnailManager } from "@/components/admin/ThumbnailManager";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -23,12 +24,12 @@ import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
-import { Ban } from "lucide-react";
+import { Ban, Camera } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AdminBottomNav } from "@/components/layout/BottomNav";
 
 
-type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients';
+type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -324,6 +325,13 @@ export default function AdminDashboard() {
             onClick={() => handleTabChange('sessions')} 
             icon={<Settings size={20} />} 
             label="Serviços" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'thumbnails'} 
+            disabled={isEditing}
+            onClick={() => handleTabChange('thumbnails')} 
+            icon={<Camera size={20} />} 
+            label="Capas e Thumbs" 
           />
         </nav>
 
@@ -1098,6 +1106,7 @@ export default function AdminDashboard() {
             )}
             {activeTab === 'expenses' && <ExpensesConfig />}
             {activeTab === 'blocks' && <MassBlockingSection onEditingChange={setIsSectionEditing} />}
+            {activeTab === 'thumbnails' && <ThumbnailManager />}
           </div>
         </div>
       </main>

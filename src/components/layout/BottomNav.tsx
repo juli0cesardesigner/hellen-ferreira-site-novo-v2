@@ -8,7 +8,8 @@ import {
   BarChart, 
   Receipt, 
   Settings,
-  User
+  User,
+  Camera
 } from "lucide-react";
 
 interface AdminBottomNavProps {
@@ -25,6 +26,7 @@ const adminNavItems = [
   { id: 'finance', name: "Grana", icon: BarChart },
   { id: 'expenses', name: "Saídas", icon: Receipt },
   { id: 'sessions', name: "Serviços", icon: Settings },
+  { id: 'thumbnails', name: "Thumbs", icon: Camera },
 ];
 
 export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottomNavProps) {
