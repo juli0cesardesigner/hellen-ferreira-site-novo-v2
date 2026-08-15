@@ -1,16 +1,7 @@
 "use client";
 
 import React from "react";
-import { 
-  Calendar, 
-  ShieldCheck, 
-  Clock, 
-  BarChart, 
-  Receipt, 
-  Settings,
-  User,
-  Camera
-} from "lucide-react";
+import { Calendar, ShieldCheck } from "lucide-react";
 
 interface AdminBottomNavProps {
   activeTab: string;
@@ -20,13 +11,7 @@ interface AdminBottomNavProps {
 
 const adminNavItems = [
   { id: 'calendar', name: "Agenda", icon: Calendar },
-  { id: 'clients', name: "Clientes", icon: User },
   { id: 'blocks', name: "Bloqueios", icon: ShieldCheck },
-  { id: 'slots', name: "Horários", icon: Clock },
-  { id: 'finance', name: "Grana", icon: BarChart },
-  { id: 'expenses', name: "Saídas", icon: Receipt },
-  { id: 'sessions', name: "Serviços", icon: Settings },
-  { id: 'thumbnails', name: "Thumbs", icon: Camera },
 ];
 
 export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottomNavProps) {
@@ -34,17 +19,19 @@ export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottom
   
   return (
     <div className={`lg:hidden fixed bottom-0 left-0 right-0 z-[100] w-full transition-opacity duration-300 ${disabled ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
-      <div className="relative bg-[#020617]/95 backdrop-blur-lg h-[70px] rounded-t-[24px] flex justify-center items-center shadow-[0_-10px_40px_rgba(0,0,0,0.4)] px-2 border-t border-white/10 pb-safe">
-        <ul className="flex w-full relative justify-between px-1 h-full items-center">
+      <div className="relative bg-[#020617]/95 backdrop-blur-lg h-[68px] rounded-t-[24px] flex justify-center items-center shadow-[0_-10px_40px_rgba(0,0,0,0.4)] px-4 border-t border-white/10 pb-safe">
+        <ul className="flex w-full relative justify-between px-2 h-full items-center">
           
-          {/* Indicador de Deslizamento (Simples e Elegante) */}
-          <div 
-            className="absolute h-[50px] bg-white/10 rounded-2xl transition-all duration-500 ease-out shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-            style={{ 
-              width: `calc((100% - 16px) / ${adminNavItems.length})`,
-              left: `calc(8px + ${activeIndex} * ((100% - 16px) / ${adminNavItems.length}))`,
-            }}
-          />
+          {/* Indicador de Deslizamento */}
+          {activeIndex !== -1 && (
+            <div 
+              className="absolute h-[50px] bg-white/10 rounded-2xl transition-all duration-500 ease-out shadow-[0_0_20px_rgba(255,255,255,0.05)] border border-white/5"
+              style={{ 
+                width: `calc((100% - 16px) / ${adminNavItems.length})`,
+                left: `calc(8px + ${activeIndex} * ((100% - 16px) / ${adminNavItems.length}))`,
+              }}
+            />
+          )}
 
           {adminNavItems.map((item, index) => {
             const Icon = item.icon;
@@ -64,8 +51,8 @@ export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottom
                     <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
                   </span>
                   <span 
-                    className={`text-[7px] uppercase font-black tracking-widest mt-1 transition-all duration-300 ${
-                      isActive ? "text-white opacity-100" : "text-slate-500 opacity-0 scale-75"
+                    className={`text-[10px] uppercase font-bold tracking-wider mt-1 transition-all duration-300 ${
+                      isActive ? "text-white opacity-100" : "text-slate-500 opacity-60"
                     }`}
                   >
                     {item.name}
