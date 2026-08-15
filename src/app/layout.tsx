@@ -15,18 +15,20 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: ["400", "600"],
+  display: "swap",
 });
 
 const lato = Lato({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "700"],
+  display: "swap",
 });
 
 const inter = Inter({
   variable: "--font-admin",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
