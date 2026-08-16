@@ -11,7 +11,7 @@ const navLinks = [
   { name: "Início", href: "/" },
   { name: "Sessões", href: SITE_CONFIG.links.services },
   { name: "Sobre", href: SITE_CONFIG.links.about },
-  { name: "Links", href: SITE_CONFIG.links.links },
+  // { name: "Agendar", href: SITE_CONFIG.links.booking },
 ];
 
 export function Navbar() {

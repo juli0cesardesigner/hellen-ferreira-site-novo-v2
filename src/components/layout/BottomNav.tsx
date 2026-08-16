@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Calendar, ShieldCheck, CheckSquare } from "lucide-react";
+import { Calendar, ShieldCheck, CheckSquare, Link2 } from "lucide-react";
 
 interface AdminBottomNavProps {
   activeTab: string;
@@ -13,6 +13,7 @@ const adminNavItems = [
   { id: 'calendar', name: "Agenda", icon: Calendar },
   { id: 'blocks', name: "Bloqueios", icon: ShieldCheck },
   { id: 'checklist', name: "Checklist", icon: CheckSquare },
+  { id: 'links', name: "Links", icon: Link2 },
 ];
 
 export function AdminBottomNav({ activeTab, onTabChange, disabled }: AdminBottomNavProps) {

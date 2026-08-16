@@ -18,6 +18,5 @@ export const SITE_CONFIG = {
     about: "/sobre",
     blog: "/blog",
     booking: "/agendar",
-    links: "/links",
   }
 };
