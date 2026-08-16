@@ -30,6 +30,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-text-medium">
               <li><Link href={SITE_CONFIG.links.services} className="hover:text-blush transition-colors">Sessões</Link></li>
               <li><Link href={SITE_CONFIG.links.about} className="hover:text-blush transition-colors">Sobre Mim</Link></li>
+              <li><Link href={SITE_CONFIG.links.links} className="hover:text-blush transition-colors">Links</Link></li>
               {/* <li><Link href={SITE_CONFIG.links.booking} className="hover:text-blush transition-colors">Agendar</Link></li> */}
             </ul>
           </div>
