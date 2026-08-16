@@ -11,20 +11,20 @@ interface EnsaioLink {
 }
 
 const ENSAIO_LINKS: EnsaioLink[] = [
-  { id: "gestante", name: "Gestante", path: "/gestante" },
-  { id: "newborn-menino", name: "Newborn Menino", path: "/newborn-menino" },
-  { id: "newborn-menina", name: "Newborn Menina", path: "/newborn-menina" },
-  { id: "mensal-menino", name: "Mensal Menino", path: "/mensal-menino" },
-  { id: "mensal-menina", name: "Mensal Menina", path: "/mensal-menina" },
-  { id: "smash", name: "Smash the Cake", path: "/smash" },
-  { id: "revelacao", name: "Revelação", path: "/revelacao" },
+  { id: "looks", name: "Acervo de Looks", path: "/looks" },
+  { id: "casal", name: "Casal", path: "/casal" },
+  { id: "ensaios", name: "Catálogo Completo (Ensaios)", path: "/ensaios" },
+  { id: "civil", name: "Civil", path: "/civil" },
+  { id: "corporativo", name: "Corporativo", path: "/corporativo" },
   { id: "familia", name: "Família", path: "/familia" },
   { id: "feminino", name: "Feminino", path: "/feminino" },
-  { id: "corporativo", name: "Corporativo", path: "/corporativo" },
-  { id: "civil", name: "Civil", path: "/civil" },
-  { id: "casal", name: "Casal", path: "/casal" },
-  { id: "looks", name: "Acervo de Looks", path: "/looks" },
-  { id: "ensaios", name: "Catálogo Completo (Ensaios)", path: "/ensaios" },
+  { id: "gestante", name: "Gestante", path: "/gestante" },
+  { id: "mensal-menina", name: "Mensal Menina", path: "/mensal-menina" },
+  { id: "mensal-menino", name: "Mensal Menino", path: "/mensal-menino" },
+  { id: "newborn-menina", name: "Newborn Menina", path: "/newborn-menina" },
+  { id: "newborn-menino", name: "Newborn Menino", path: "/newborn-menino" },
+  { id: "revelacao", name: "Revelação", path: "/revelacao" },
+  { id: "smash", name: "Smash the Cake", path: "/smash" },
 ];
 
 export function LinksManager() {
@@ -64,7 +64,7 @@ export function LinksManager() {
           </div>
           <div>
             <h3 className="text-[18px] font-bold text-[var(--color-admin-text)] tracking-tight">
-              Links Rápidos dos Ensaios
+              Links Rápidos
             </h3>
             <p className="text-[12px] text-[var(--color-admin-text-muted)] mt-0.5">
               Clique em qualquer ensaio abaixo para copiar o link direto para a área de transferência.

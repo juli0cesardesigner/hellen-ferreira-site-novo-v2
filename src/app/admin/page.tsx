@@ -350,7 +350,7 @@ export default function AdminDashboard() {
             disabled={isEditing}
             onClick={() => handleTabChange('links')} 
             icon={<Link2 size={20} />} 
-            label="Links dos Ensaios" 
+            label="Links Rápidos" 
           />
         </nav>
 
