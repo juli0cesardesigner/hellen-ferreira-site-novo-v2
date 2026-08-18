@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { getCategoryThumbnails } from "@/lib/thumbnails-store";
+import { getCategoryThumbnailsAsync } from "@/lib/thumbnails-store";
 
 // Image entry: either a string (legacy) or an object with metadata
 type GalleryImageEntry = string | { path: string; width?: number; height?: number; orientation?: 'horizontal' | 'vertical' };
@@ -77,7 +77,7 @@ export async function GET(
     let images = shuffled.map(normalizeEntry);
 
     // If Admin defined a custom cover thumbnail for this category, put it first!
-    const thumbnailsMap = getCategoryThumbnails();
+    const thumbnailsMap = await getCategoryThumbnailsAsync();
     const configuredCover = thumbnailsMap[category];
     if (configuredCover) {
       images = [{ path: configuredCover }, ...images.filter(img => img.path !== configuredCover)];

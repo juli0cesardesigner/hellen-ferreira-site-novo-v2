@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { 
-  Upload, Image as ImageIcon, CheckCircle2, Loader2, RefreshCw, 
+  Upload, Image as ImageIcon, CheckCircle2, AlertCircle, Loader2, RefreshCw, 
   Sparkles, ShieldCheck, X, Grid, Camera
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -152,7 +152,11 @@ export function ThumbnailManager() {
             }`}
           >
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              {notification.type === "success" ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+              )}
               <span className="font-medium">{notification.message}</span>
             </div>
             <button onClick={() => setNotification(null)} className="p-1 hover:opacity-70">
