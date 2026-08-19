@@ -3,11 +3,14 @@ import { notFound, redirect } from "next/navigation";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { Metadata } from "next";
 import { Package } from "@/types/database";
+import { getCategoryDynamicMetadata } from "@/lib/seo-metadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ tier?: string }>;
 }
+
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -19,13 +22,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  return {
+  return getCategoryDynamicMetadata({
+    category: slug,
     title: `Agendar ${session.name} | Hellen Ferreira`,
     description: `Agende agora sua sessão de ${session.name} com Hellen Ferreira. Garanta sua data com facilidade e segurança.`,
-    alternates: {
-      canonical: `https://www.hellenferreira.com.br/agendar/${slug}`,
-    }
-  };
+    path: `/agendar/${slug}`,
+  });
 }
 
 export default async function AgendarSlugPage({ params, searchParams }: PageProps) {

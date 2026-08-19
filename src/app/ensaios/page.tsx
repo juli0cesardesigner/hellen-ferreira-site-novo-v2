@@ -72,6 +72,7 @@ export default function ServicesPage() {
                     <DynamicImage 
                       category="gestante"
                       alt="Gestante" 
+                      preferCover={true}
                       className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                     />
                   </div>
@@ -92,6 +93,7 @@ export default function ServicesPage() {
                         <DynamicImage 
                           category="newborn-menino"
                           alt="Newborn Menino" 
+                          preferCover={true}
                           className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                         />
                       </div>
@@ -108,6 +110,7 @@ export default function ServicesPage() {
                         <DynamicImage 
                           category="newborn-menina"
                           alt="Newborn Menina" 
+                          preferCover={true}
                           className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                         />
                       </div>
@@ -130,6 +133,7 @@ export default function ServicesPage() {
                         <DynamicImage 
                           category="mensal-menino"
                           alt="Mensal Menino" 
+                          preferCover={true}
                           className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                         />
                       </div>
@@ -146,6 +150,7 @@ export default function ServicesPage() {
                         <DynamicImage 
                           category="mensal-menina"
                           alt="Mensal Menina" 
+                          preferCover={true}
                           className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                         />
                       </div>
@@ -166,6 +171,7 @@ export default function ServicesPage() {
                     <DynamicImage 
                       category="smash"
                       alt="Smash the Cake" 
+                      preferCover={true}
                       className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                     />
                   </div>
@@ -184,6 +190,7 @@ export default function ServicesPage() {
                     <DynamicImage 
                       category="revelacao"
                       alt="Revelação" 
+                      preferCover={true}
                       className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                     />
                   </div>
@@ -202,6 +209,7 @@ export default function ServicesPage() {
                     <DynamicImage 
                       category="familia"
                       alt="Família" 
+                      preferCover={true}
                       className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                     />
                   </div>
@@ -227,13 +235,14 @@ export default function ServicesPage() {
             {SERVICES_CONTENT.lifestyleCategories.filter(cat => isActive(cat.id)).map((cat) => (
               <Link 
                 key={cat.id}
-                href={`/servicos/${cat.id}`}
+                href={`/${cat.id}`}
                 className="flex flex-col items-center group cursor-pointer"
               >
                 <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-black/10">
                   <DynamicImage 
                     category={cat.id} 
                     alt={cat.title} 
+                    preferCover={true}
                     className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
                   />
                 </div>

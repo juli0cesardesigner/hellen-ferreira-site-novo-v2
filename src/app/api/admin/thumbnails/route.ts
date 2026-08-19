@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
 import { 
@@ -64,6 +65,15 @@ export async function POST(request: NextRequest) {
       const success = await saveCategoryThumbnail(category, imagePath);
       if (!success) {
         return NextResponse.json({ error: "Erro ao salvar a thumbnail" }, { status: 500 });
+      }
+
+      try {
+        revalidatePath("/", "layout");
+        revalidatePath("/ensaios");
+        revalidatePath(`/${category}`);
+        revalidatePath("/agendar", "layout");
+      } catch (revErr) {
+        console.warn("Revalidation warning:", revErr);
       }
 
       return NextResponse.json({ success: true, category, imagePath });
@@ -135,6 +145,15 @@ export async function POST(request: NextRequest) {
       const success = await saveCategoryThumbnail(category, publicUrl);
       if (!success) {
         return NextResponse.json({ error: "Erro ao salvar a thumbnail" }, { status: 500 });
+      }
+
+      try {
+        revalidatePath("/", "layout");
+        revalidatePath("/ensaios");
+        revalidatePath(`/${category}`);
+        revalidatePath("/agendar", "layout");
+      } catch (revErr) {
+        console.warn("Revalidation warning:", revErr);
       }
 
       return NextResponse.json({ success: true, category, imagePath: publicUrl });

@@ -17,6 +17,7 @@ interface DynamicImageProps {
   className?: string;
   priority?: boolean;
   id?: string; // Unique ID to prevent multiple components from showing the same image
+  preferCover?: boolean; // When true, always prioritize the admin configured cover
 }
 
 export function DynamicImage({ 
@@ -24,7 +25,8 @@ export function DynamicImage({
   alt, 
   className = "", 
   priority = false,
-  id = "hero" 
+  id = "hero",
+  preferCover = false
 }: DynamicImageProps) {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
@@ -34,6 +36,11 @@ export function DynamicImage({
         const response = await fetch(`/api/gallery/${category}`);
         const data = await response.json();
         const entries: GalleryImageEntry[] = data.images;
+
+        if (preferCover && data.coverImage) {
+          setCurrentImage(data.coverImage);
+          return;
+        }
 
         if (!entries || entries.length === 0) return;
 
