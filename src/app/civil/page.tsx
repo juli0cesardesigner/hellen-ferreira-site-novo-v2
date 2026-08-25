@@ -159,14 +159,14 @@ export default function CivilPage() {
                   </div>
                   
                   <ul className="space-y-5 mb-14 flex-grow">
-                    {[
+                    {(pkg1.features && pkg1.features.length > 0 ? pkg1.features : [
                       "Cobertura completa da cerimônia no cartório",
                       "30 Fotos editadas em alta resolução",
                       "Fotos com padrinhos e familiares",
                       "Mini ensaio dos noivos no local",
                       "Entrega via galeria online personalizada",
                       "Edição com foco na naturalidade"
-                    ].map((item, i) => (
+                    ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-sand mt-1 shrink-0" strokeWidth={1.5} />
                         <span>{item}</span>
@@ -226,7 +226,7 @@ export default function CivilPage() {
                   </div>
                   
                   <ul className="space-y-5 mb-14 flex-grow">
-                    {[
+                    {(pkg2.features && pkg2.features.length > 0 ? pkg2.features : [
                       "Cobertura da cerimônia no cartório",
                       "50 Fotos editadas em alta resolução",
                       "Mini Ensaio Externo (até 1h)",
@@ -234,7 +234,7 @@ export default function CivilPage() {
                       "Guia de melhores horários para a luz",
                       "Galeria completa pronta para imprimir",
                       "Consultoria para o mini ensaio"
-                    ].map((item, i) => (
+                    ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-sand mt-1 shrink-0" strokeWidth={1.5} />
                         <span>{item}</span>

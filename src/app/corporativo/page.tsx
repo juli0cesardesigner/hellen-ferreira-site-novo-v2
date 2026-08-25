@@ -158,14 +158,14 @@ export default function CorporativoPage() {
                   </div>
                   
                   <ul className="space-y-5 mb-14 flex-grow">
-                    {[
+                    {(pkg1.features && pkg1.features.length > 0 ? pkg1.features : [
                       "15 Fotos em alta resolution",
                       "Sessão exclusiva em estúdio",
                       "Até 02 trocas de roupa",
                       "Foco em retratos para LinkedIn/Instagram",
                       "Consultoria para definição de poses",
                       "Arquivo Digital de alta qualidade"
-                    ].map((item, i) => (
+                    ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-text-dark mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
@@ -224,7 +224,7 @@ export default function CorporativoPage() {
                   </div>
                   
                   <ul className="space-y-5 mb-14 flex-grow">
-                    {[
+                    {(pkg2.features && pkg2.features.length > 0 ? pkg2.features : [
                       "25 Fotos em alta resolução",
                       "Realizado em estúdio ou sua Empresa",
                       "Até 03 trocas de roupa",
@@ -232,7 +232,7 @@ export default function CorporativoPage() {
                       "Múltiplos cenários no mesmo local",
                       "Imagens para site e redes sociais",
                       "Guia de posicionamento e autoridade"
-                    ].map((item, i) => (
+                    ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-4 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-text-dark mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>

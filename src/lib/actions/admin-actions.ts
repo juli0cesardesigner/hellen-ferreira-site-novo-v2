@@ -919,6 +919,7 @@ export async function createSessionPackage(sessionId: string, data: {
   revalidatePath('/admin');
   revalidatePath('/agendar');
   revalidatePath('/ensaios');
+  revalidatePath('/', 'layout');
   return { success: true };
 }
 
@@ -946,6 +947,8 @@ export async function updateSessionPackage(id: string, updates: {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
+  revalidatePath('/ensaios');
+  revalidatePath('/', 'layout');
   return { success: true };
 }
 
@@ -963,6 +966,8 @@ export async function deleteSessionPackage(id: string) {
 
   revalidatePath('/admin');
   revalidatePath('/agendar');
+  revalidatePath('/ensaios');
+  revalidatePath('/', 'layout');
   return { success: true };
 }
 

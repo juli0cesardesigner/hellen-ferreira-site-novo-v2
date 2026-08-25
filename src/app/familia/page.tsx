@@ -148,14 +148,14 @@ export default function FamiliaPage() {
                   </div>
                   
                   <ul className="space-y-6 mb-20 flex-grow">
-                    {[
+                    {(pkg1.features && pkg1.features.length > 0 ? pkg1.features : [
                       "15 Fotos escolhidas e tratadas",
                       "Sessão em estúdio ou externa",
                       "Fotos com toda a família (pais e filhos)",
                       "Retratos individuais das crianças",
                       "Entrega em formato digital",
                       "Galeria online para seleção"
-                    ].map((item, i) => (
+                    ]).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-5 text-text-medium text-sm font-light">
                         <Check className="w-4 h-4 text-blush mt-1 shrink-0" strokeWidth={1} />
                         <span>{item}</span>
