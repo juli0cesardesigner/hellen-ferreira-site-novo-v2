@@ -710,7 +710,22 @@ export async function processPayment(paymentData: Record<string, unknown>, booki
       };
     }
 
-    // 3. Para outros métodos (Cartão), retornar o status
+    // 3. Para outros métodos (Cartão), se já vier aprovado na hora, confirmar no banco imediatamente
+    if (response.status === 'approved' || response.status === 'authorized') {
+      try {
+        await getSupabase()
+          .from('bookings')
+          .update({ 
+            status: 'confirmed', 
+            paid_amount: Number(response.transaction_amount) || Number(paymentData.transaction_amount),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', bookingId);
+      } catch (confirmErr) {
+        console.warn("Aviso: Falha ao confirmar agendamento no checkout direto (webhook cuidará):", confirmErr);
+      }
+    }
+
     return {
       success: true,
       status: response.status,

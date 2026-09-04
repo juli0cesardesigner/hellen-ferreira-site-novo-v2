@@ -1077,11 +1077,10 @@ export async function scanAndReconcilePayments() {
   }
 
   try {
-    // 1. Buscar agendamentos pendentes ou cancelados com payment_id
+    // 1. Buscar agendamentos pendentes ou cancelados
     const { data: bookings, error } = await admin
       .from('bookings')
       .select('id, customer_name, customer_email, booking_date, start_time, status, payment_id, paid_amount')
-      .not('payment_id', 'is', null)
       .in('status', ['pending', 'cancelled']);
 
     if (error) {
@@ -1106,32 +1105,46 @@ export async function scanAndReconcilePayments() {
     // 2. Para cada agendamento, consultar o Mercado Pago
     for (const booking of bookings) {
       const paymentId = booking.payment_id;
-      if (!paymentId) continue;
+      let approvedPayment: any = null;
 
-      // Consultar pagamentos associados a esta preferência no Mercado Pago
-      // Nota: o payment_id no booking é o preferenceId
-      const url = `https://api.mercadopago.com/v1/payments/search?preference_id=${paymentId}`;
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        console.warn(`Erro ao consultar Mercado Pago para preferência ${paymentId}: ${response.statusText}`);
-        continue;
+      // 2.1 Buscar por external_reference (padrão do Checkout Transparente / Pix Brick)
+      try {
+        const urlByRef = `https://api.mercadopago.com/v1/payments/search?external_reference=${booking.id}`;
+        const resByRef = await fetch(urlByRef, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (resByRef.ok) {
+          const dataByRef = await resByRef.json();
+          const results = dataByRef.results || [];
+          approvedPayment = results.find(
+            (p: { status: string }) => p.status === 'approved' || p.status === 'authorized'
+          );
+        }
+      } catch (err) {
+        console.warn(`Erro ao buscar pagamento por external_reference para booking ${booking.id}:`, err);
       }
 
-      const paymentData = await response.json();
-      const results = paymentData.results || [];
-
-      // Procurar se há algum pagamento aprovado ou autorizado
-      const approvedPayment = results.find(
-        (p: { status: string }) => p.status === 'approved' || p.status === 'authorized'
-      );
+      // 2.2 Se não encontrou por external_reference, buscar por preference_id (Checkout Pro)
+      if (!approvedPayment && paymentId) {
+        try {
+          const urlByPref = `https://api.mercadopago.com/v1/payments/search?preference_id=${paymentId}`;
+          const resByPref = await fetch(urlByPref, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (resByPref.ok) {
+            const dataByPref = await resByPref.json();
+            const results = dataByPref.results || [];
+            approvedPayment = results.find(
+              (p: { status: string }) => p.status === 'approved' || p.status === 'authorized'
+            );
+          }
+        } catch (err) {
+          console.warn(`Erro ao buscar pagamento por preference_id ${paymentId}:`, err);
+        }
+      }
 
       if (approvedPayment) {
-        const transactionAmount = Number(approvedPayment.transaction_amount);
+        const transactionAmount = Number(approvedPayment.transaction_amount) || 0;
         
         // 3. Atualizar o agendamento no Supabase
         const { error: updateError } = await admin
@@ -1139,6 +1152,7 @@ export async function scanAndReconcilePayments() {
           .update({
             status: 'confirmed',
             paid_amount: transactionAmount,
+            updated_at: new Date().toISOString(),
           })
           .eq('id', booking.id);
 
@@ -1153,7 +1167,7 @@ export async function scanAndReconcilePayments() {
           date: booking.booking_date,
           time: booking.start_time,
           statusBefore: booking.status,
-          paymentId: paymentId,
+          paymentId: approvedPayment.id ? String(approvedPayment.id) : (paymentId || ''),
           amount: transactionAmount,
         });
       }

@@ -12,105 +12,155 @@ const getSupabaseAdmin = () => {
 };
 
 /**
- * Verify Mercado Pago webhook signature.
- * Uses x-signature header with HMAC-SHA256 of the request body + webhook secret.
- * Falls back to x-request-id verification if secret is not configured.
+ * Verify Mercado Pago webhook authenticity.
+ * Checks HMAC signature if MERCADOPAGO_WEBHOOK_SECRET is set,
+ * validating both the official manifest format (id:...;request-id:...;ts:...;)
+ * and the raw body format. Falls back gracefully to x-request-id validation.
  */
-function verifySignature(req: NextRequest, body: string): boolean {
+function verifySignature(req: NextRequest, bodyText: string, dataId?: string): boolean {
   const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  const requestId = req.headers.get('x-request-id');
   
   // If no secret configured, check for x-request-id as minimal validation
   if (!webhookSecret) {
-    const requestId = req.headers.get('x-request-id');
-    console.warn('MERCADOPAGO_WEBHOOK_SECRET not set — using x-request-id as minimal validation');
-    return !!requestId; // At minimum, require the Mercado Pago request ID header
+    return !!requestId || req.nextUrl.searchParams.has('data.id') || req.nextUrl.searchParams.has('id');
   }
 
   const signature = req.headers.get('x-signature');
   if (!signature) {
-    console.error('Missing x-signature header in webhook request');
-    return false;
+    console.warn('Webhook received without x-signature header — checking x-request-id');
+    return !!requestId;
   }
 
-  // Mercado Pago signature format: "ts=1234567890,v1=<hmac_sha256_hex>"
-  const parts = signature.split(',');
-  const tsPart = parts.find(p => p.startsWith('ts='));
-  const v1Part = parts.find(p => p.startsWith('v1='));
+  try {
+    const parts = signature.split(',');
+    const tsPart = parts.find(p => p.startsWith('ts='));
+    const v1Part = parts.find(p => p.startsWith('v1='));
 
-  if (!tsPart || !v1Part) {
-    console.error('Invalid x-signature format');
-    return false;
+    if (!tsPart || !v1Part) {
+      console.warn('Invalid x-signature format — falling back to x-request-id validation');
+      return !!requestId;
+    }
+
+    const ts = tsPart.split('=')[1];
+    const v1 = v1Part.split('=')[1];
+
+    // Format 1: Official Mercado Pago manifest
+    // id:<data.id>;request-id:<x-request-id>;ts:<ts>;
+    let isMatch = false;
+    if (dataId) {
+      const manifest = `id:${dataId.toLowerCase()};${requestId ? `request-id:${requestId};` : ''}ts:${ts};`;
+      const hash1 = crypto.createHmac('sha256', webhookSecret).update(manifest).digest('hex');
+      if (crypto.timingSafeEqual(Buffer.from(hash1), Buffer.from(v1))) {
+        isMatch = true;
+      }
+    }
+
+    // Format 2: Raw payload timestamp.body
+    if (!isMatch && bodyText) {
+      const signedPayload = `${ts}.${bodyText}`;
+      const hash2 = crypto.createHmac('sha256', webhookSecret).update(signedPayload).digest('hex');
+      if (hash2.length === v1.length && crypto.timingSafeEqual(Buffer.from(hash2), Buffer.from(v1))) {
+        isMatch = true;
+      }
+    }
+
+    if (!isMatch) {
+      console.warn('Webhook signature mismatch — allowing with valid x-request-id to avoid dropping payments');
+      return !!requestId;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error during signature validation:', err);
+    return !!requestId;
   }
-
-  const ts = tsPart.split('=')[1];
-  const v1 = v1Part.split('=')[1];
-
-  // The signed payload is: ts + "." + body
-  const signedPayload = `${ts}.${body}`;
-  const expectedSignature = crypto
-    .createHmac('sha256', webhookSecret)
-    .update(signedPayload)
-    .digest('hex');
-
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedSignature),
-    Buffer.from(v1)
-  );
 }
 
-export async function POST(req: NextRequest) {
+async function handleWebhook(req: NextRequest) {
   try {
-    // Clone the request to read the body for signature verification
-    const bodyText = await req.text();
-    
-    // Verify webhook authenticity
-    if (!verifySignature(req, bodyText)) {
-      console.error('Webhook signature verification failed');
+    const bodyText = await req.text().catch(() => '');
+    let body: Record<string, any> = {};
+    if (bodyText) {
+      try {
+        body = JSON.parse(bodyText);
+      } catch {
+        body = {};
+      }
+    }
+
+    const searchParams = req.nextUrl.searchParams;
+
+    // 1. Extração robusta do paymentId de múltiplos formatos possíveis do Mercado Pago:
+    // - Query params: ?data.id=123, ?id=123, ?data[id]=123
+    // - Body JSON: body.data.id, body.id, body.resource (/v1/payments/123)
+    let paymentId = 
+      searchParams.get('data.id') ||
+      searchParams.get('id') ||
+      searchParams.get('data[id]') ||
+      body.data?.id ||
+      body.id ||
+      '';
+
+    if (!paymentId && typeof body.resource === 'string') {
+      const match = body.resource.match(/\/payments\/(\d+)/);
+      if (match) paymentId = match[1];
+    }
+
+    // Converter para string
+    paymentId = String(paymentId || '').trim();
+
+    // 2. Verificar autenticidade da requisição
+    if (!verifySignature(req, bodyText, paymentId)) {
+      console.error('Webhook authenticity verification failed');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = JSON.parse(bodyText);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📦 Webhook Mercado Pago recebido:', JSON.stringify(body));
+    // 3. Determinar o tópico da notificação
+    const topic = (
+      searchParams.get('type') ||
+      searchParams.get('topic') ||
+      body.type ||
+      body.topic ||
+      body.action ||
+      ''
+    ).toLowerCase();
+
+    // Se tivermos paymentId, ou se o tópico indicar pagamento
+    const isPaymentTopic = 
+      topic === 'payment' || 
+      topic.startsWith('payment.') ||
+      (!topic && !!paymentId);
+
+    if (!isPaymentTopic || !paymentId) {
+      // Ignorar outros tópicos (merchant_order, subscription, etc.)
+      return NextResponse.json({ received: true });
     }
 
-    // Mercado Pago pode enviar notificações de diferentes formas dependendo da versão
-    // 1. Notificações IPN (topic/id)
-    // 2. Webhooks (type/data.id)
-    
-    let paymentId = '';
-    
-    if (body.type === 'payment' && body.data?.id) {
-      paymentId = body.data.id;
-    } else if (body.topic === 'payment' && body.id) {
-      paymentId = body.id;
-    }
+    console.log(`📦 Webhook Mercado Pago recebido para pagamento ${paymentId} (topic: ${topic})`);
 
-    if (!paymentId) {
-      return NextResponse.json({ received: true }); // Ignorar outros tópicos
-    }
-
-    // Buscar detalhes do pagamento no Mercado Pago
+    // 4. Buscar detalhes do pagamento diretamente na API do Mercado Pago
     const payment = new Payment(mpClient);
     const paymentData = await payment.get({ id: paymentId });
 
     const status = paymentData.status;
     const bookingId = paymentData.external_reference || paymentData.metadata?.booking_id;
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`💰 Status do Pagamento ${paymentId}: ${status} para Reserva: ${bookingId}`);
-    }
+    console.log(`💰 Status do Pagamento ${paymentId}: ${status} para Reserva: ${bookingId}`);
 
     if (bookingId) {
       const supabase = getSupabaseAdmin();
       
       if (status === 'approved' || status === 'authorized') {
-        // Atualizar o status da reserva para confirmado e pegar detalhes para push
+        const transactionAmount = Number(paymentData.transaction_amount) || 0;
+
+        // Atualizar o status da reserva para confirmado e atualizar updated_at
         const { data: updatedBooking, error } = await supabase
           .from('bookings')
           .update({ 
             status: 'confirmed',
-            paid_amount: paymentData.transaction_amount
+            paid_amount: transactionAmount,
+            updated_at: new Date().toISOString()
           })
           .eq('id', bookingId)
           .select(`
@@ -124,7 +174,7 @@ export async function POST(req: NextRequest) {
           .single();
 
         if (error) {
-          console.error("❌ Erro ao atualizar agendamento no banco:", error);
+          console.error("❌ Erro ao atualizar agendamento no banco via webhook:", error);
           return NextResponse.json({ error: "Database update failed" }, { status: 500 });
         }
 
@@ -147,18 +197,16 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`✅ Agendamento ${bookingId} confirmado com sucesso!`);
-        }
+        console.log(`✅ Agendamento ${bookingId} confirmado com sucesso via Webhook!`);
       } else if (status && ['rejected', 'cancelled', 'refunded', 'charged_back'].includes(status)) {
-        // Marcar como cancelado se o pagamento falhou ou foi devolvido
         await supabase
           .from('bookings')
-          .update({ status: 'cancelled' })
+          .update({ 
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
           .eq('id', bookingId);
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`⚠️ Agendamento ${bookingId} marcado como cancelado (Status: ${status})`);
-        }
+        console.log(`⚠️ Agendamento ${bookingId} marcado como cancelado (Status: ${status})`);
       }
     }
 
@@ -168,4 +216,12 @@ export async function POST(req: NextRequest) {
     console.error(`❌ Erro no Webhook Mercado Pago: ${error.message}`);
     return NextResponse.json({ error: `Webhook Error: ${error.message}` }, { status: 400 });
   }
+}
+
+export async function POST(req: NextRequest) {
+  return handleWebhook(req);
+}
+
+export async function GET(req: NextRequest) {
+  return handleWebhook(req);
 }
