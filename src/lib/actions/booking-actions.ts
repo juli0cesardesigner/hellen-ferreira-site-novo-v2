@@ -57,7 +57,7 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
     // 0. Buscar detalhes da sessão no banco para ter as datas de disponibilidade reais
     const { data: dbSession } = await getSupabase()
       .from('sessions')
-      .select('is_active, is_perpetual, start_date, end_date, duration_slots, setup_minutes, cleanup_minutes, slug')
+      .select('is_active, is_perpetual, start_date, end_date, duration_slots, setup_minutes, cleanup_minutes, slug, min_notice_hours')
       .eq('id', sessionId)
       .single();
 
@@ -160,9 +160,14 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       }
     }
 
-    // 4.2 Antecedência Mínima
-    const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
-    const minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    // 4.2 Antecedência Mínima (override do serviço sobrepõe a regra geral)
+    let minNoticeHours: number;
+    if (dbSession?.min_notice_hours !== null && dbSession?.min_notice_hours !== undefined) {
+      minNoticeHours = Number(dbSession.min_notice_hours);
+    } else {
+      const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+      minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    }
     const now = new Date();
     // Adicionamos a antecedência ao tempo atual
     const minBookingTime = new Date(now.getTime() + (minNoticeHours * 60 * 60 * 1000));
@@ -237,7 +242,7 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     // 0. Buscar detalhes da sessão no banco
     const { data: session } = await getSupabase()
       .from('sessions')
-      .select('is_active, is_perpetual, start_date, end_date, slug')
+      .select('is_active, is_perpetual, start_date, end_date, slug, min_notice_hours')
       .eq('id', sessionId)
       .single();
 
@@ -312,9 +317,14 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       return false;
     });
 
-    // 0.3 Antecedência mínima e data atual de referência
-    const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
-    const minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    // 0.3 Antecedência mínima e data atual de referência (override do serviço sobrepõe a regra geral)
+    let minNoticeHours: number;
+    if (session?.min_notice_hours !== null && session?.min_notice_hours !== undefined) {
+      minNoticeHours = Number(session.min_notice_hours);
+    } else {
+      const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+      minNoticeHours = parseInt(minNoticeHoursStr || '12');
+    }
     const now = new Date();
     const minBookingTime = new Date(now.getTime() + (minNoticeHours * 60 * 60 * 1000));
 
@@ -444,6 +454,24 @@ export async function createBooking(data: {
 
   if (!session) return { error: "Sessão não encontrada." };
   if (!session.is_active) return { error: "Este serviço está temporariamente pausado." };
+
+  // 1.1 Validar antecedência mínima (override do serviço sobrepõe a regra geral)
+  let minNoticeHours: number;
+  if (session.min_notice_hours !== null && session.min_notice_hours !== undefined) {
+    minNoticeHours = Number(session.min_notice_hours);
+  } else {
+    const minNoticeHoursStr = await getSiteSetting('min_booking_notice_hours');
+    minNoticeHours = parseInt(minNoticeHoursStr || '12');
+  }
+  const [bYear, bMonth, bDay] = data.bookingDate.split('-').map(Number);
+  const [bHour, bMin] = data.startTime.split(':').map(Number);
+  const slotDate = new Date(bYear, bMonth - 1, bDay, bHour, bMin, 0);
+  const minBookingTime = new Date(Date.now() + (minNoticeHours * 60 * 60 * 1000));
+  if (slotDate < minBookingTime) {
+    return { 
+      error: `Este horário exige no mínimo ${minNoticeHours}h de antecedência para ser agendado.` 
+    };
+  }
 
   // 2. Duração do banco (ou fallback)
   const durationSlots = dbSessionFull?.duration_slots || (session as unknown as Session).duration_slots;

@@ -28,6 +28,7 @@ interface Session {
   is_perpetual?: boolean;
   start_date?: string | null;
   end_date?: string | null;
+  min_notice_hours?: number | null;
 }
 
 /**

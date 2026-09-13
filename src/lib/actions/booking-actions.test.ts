@@ -95,3 +95,37 @@ describe("Availability calculation logic", () => {
     expect(isBlocked).toBe(false);
   });
 });
+
+describe("Minimum booking notice override logic", () => {
+  function getEffectiveNoticeHours(serviceNotice: number | null | undefined, globalNoticeStr: string | null): number {
+    if (serviceNotice !== null && serviceNotice !== undefined) {
+      return Number(serviceNotice);
+    }
+    return parseInt(globalNoticeStr || '12');
+  }
+
+  it("should use service-specific notice when defined", () => {
+    expect(getEffectiveNoticeHours(2, '24')).toBe(2);
+    expect(getEffectiveNoticeHours(48, '12')).toBe(48);
+    expect(getEffectiveNoticeHours(0, '24')).toBe(0);
+  });
+
+  it("should fallback to global notice when service notice is null or undefined", () => {
+    expect(getEffectiveNoticeHours(null, '24')).toBe(24);
+    expect(getEffectiveNoticeHours(undefined, '18')).toBe(18);
+    expect(getEffectiveNoticeHours(null, null)).toBe(12);
+  });
+
+  it("should correctly determine slot availability based on notice cutoff", () => {
+    const now = new Date("2026-09-13T10:00:00Z");
+    const serviceNoticeHours = 2; // custom 2h notice
+    const cutoff = new Date(now.getTime() + serviceNoticeHours * 60 * 60 * 1000); // 12:00:00Z
+
+    const slot1130 = new Date("2026-09-13T11:30:00Z");
+    const slot1230 = new Date("2026-09-13T12:30:00Z");
+
+    expect(slot1130 < cutoff).toBe(true); // unavailable (less than 2h notice)
+    expect(slot1230 >= cutoff).toBe(true); // available (more than 2h notice)
+  });
+});
+

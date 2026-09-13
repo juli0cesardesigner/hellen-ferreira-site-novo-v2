@@ -25,6 +25,7 @@ export interface Session {
   end_date?: string | null;
   setup_minutes?: number;   // Minutos de preparação antes da sessão
   cleanup_minutes?: number; // Minutos de limpeza/intervalo após a sessão
+  min_notice_hours?: number | null; // Antecedência mínima em horas para reserva (sobrepõe regra geral)
 }
 
 export const SESSIONS_DATA: Record<string, Session> = {

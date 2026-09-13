@@ -172,7 +172,7 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
                 <Clock size={18} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-admin-text-muted)] mb-1">Antecedência Mínima</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-admin-text-muted)] mb-0.5">Antecedência Mínima Geral</span>
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 
@@ -182,6 +182,7 @@ export function StandardSlotsSection({ onEditingChange }: { onEditingChange?: (e
                     placeholder="24"
                   />
                   <span className="text-[12px] font-bold text-[var(--color-admin-text-muted)]">horas</span>
+                  <span className="text-[9px] text-[var(--color-admin-text-muted)] hidden xl:inline font-medium ml-1">(Padrão do estúdio — serviços com regra própria têm prioridade)</span>
                 </div>
               </div>
               <button 

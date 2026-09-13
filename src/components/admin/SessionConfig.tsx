@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { 
   listSessions, createSession, updateSession, deleteSession,
-  listSchemaSlots, addSchemaSlot
+  listSchemaSlots, addSchemaSlot, getSiteSetting
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
@@ -55,6 +55,9 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   const [depositPrice, setDepositPrice] = useState(0);
   const [setupMinutes, setSetupMinutes] = useState(15);
   const [cleanupMinutes, setCleanupMinutes] = useState(15);
+  const [globalNoticeHours, setGlobalNoticeHours] = useState(12);
+  const [useCustomNotice, setUseCustomNotice] = useState(false);
+  const [minNoticeHours, setMinNoticeHours] = useState<number | string>("");
   const [packageManagerSession, setPackageManagerSession] = useState<{ id: string; name: string } | null>(null);
 
   // System Modal State
@@ -85,8 +88,14 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
 
   const loadSessions = React.useCallback(async () => {
     setIsLoading(true);
-    const data = await listSessions();
+    const [data, settingVal] = await Promise.all([
+      listSessions(),
+      getSiteSetting('min_booking_notice_hours')
+    ]);
     setSessions(data.sessions || []);
+    if (settingVal) {
+      setGlobalNoticeHours(parseInt(settingVal) || 12);
+    }
     setIsLoading(false);
   }, []);
 
@@ -116,6 +125,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
       deposit_price: depositPrice,
       setup_minutes: setupMinutes,
       cleanup_minutes: cleanupMinutes,
+      min_notice_hours: useCustomNotice && minNoticeHours !== "" ? Number(minNoticeHours) : null,
       is_active: true,
       slug: (formData.get("name") as string).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
     };
@@ -213,6 +223,8 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                 setDepositPrice(0);
                 setSetupMinutes(15);
                 setCleanupMinutes(15);
+                setUseCustomNotice(false);
+                setMinNoticeHours("");
                 setIsModalOpen(true); 
               }}
               className="bg-[var(--color-admin-accent)] text-white px-10 py-5 rounded-2xl text-[12px] font-bold tracking-tight flex items-center gap-4 transition-all shadow-sm active:scale-95 group"
@@ -274,6 +286,13 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                         setDepositPrice(session.deposit_price || 0);
                         setSetupMinutes(session.setup_minutes ?? 15);
                         setCleanupMinutes(session.cleanup_minutes ?? 15);
+                        if (session.min_notice_hours !== null && session.min_notice_hours !== undefined) {
+                          setUseCustomNotice(true);
+                          setMinNoticeHours(session.min_notice_hours);
+                        } else {
+                          setUseCustomNotice(false);
+                          setMinNoticeHours("");
+                        }
                         setIsModalOpen(true); 
                       }}
                       className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-[var(--color-admin-accent)] hover:border-[var(--color-admin-accent)]/30 active:scale-90 shadow-sm"
@@ -301,6 +320,14 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
                     <span className="text-slate-400">Intervalo</span>
                     <span className="text-[var(--color-admin-text)]">{(session.cleanup_minutes ?? 15)} MIN</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Antecedência</span>
+                    {session.min_notice_hours !== null && session.min_notice_hours !== undefined ? (
+                      <span className="text-amber-500 font-bold">{session.min_notice_hours}h (Personalizada)</span>
+                    ) : (
+                      <span className="text-[var(--color-admin-text)]">{globalNoticeHours}h (Geral)</span>
+                    )}
                   </div>
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
                     <span className="text-slate-400">Disponibilidade</span>
@@ -488,6 +515,102 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                          </div>
                          <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium ml-2">Tempo após a sessão para limpeza/descanso</p>
                        </div>
+                    </div>
+
+                    {/* ─── Antecedência Mínima para Reserva ─── */}
+                    <div className="pt-6 border-t border-[var(--color-admin-border)] space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <label className="text-[12px] font-bold text-[var(--color-admin-text)] tracking-wide flex items-center gap-2">
+                            <span>Antecedência Mínima</span>
+                            {useCustomNotice && (
+                              <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                                Sobrepõe Geral
+                              </span>
+                            )}
+                          </label>
+                          <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium mt-0.5">
+                            {useCustomNotice 
+                              ? "Regra personalizada para este serviço. Clientes só agendam com essa antecedência." 
+                              : `Herdando a regra geral do estúdio (${globalNoticeHours} horas).`}
+                          </p>
+                        </div>
+
+                        <div className="flex bg-[var(--color-admin-bg)] p-1 rounded-xl border border-[var(--color-admin-border)] self-start sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUseCustomNotice(false);
+                              setMinNoticeHours("");
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${!useCustomNotice ? 'bg-[var(--color-admin-accent)] text-white shadow' : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'}`}
+                          >
+                            Padrão Geral ({globalNoticeHours}h)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUseCustomNotice(true);
+                              if (minNoticeHours === "" || minNoticeHours === null || minNoticeHours === undefined) {
+                                setMinNoticeHours(globalNoticeHours || 12);
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${useCustomNotice ? 'bg-amber-500 text-white shadow' : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'}`}
+                          >
+                            Personalizada
+                          </button>
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {useCustomNotice && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="space-y-4 pt-2"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative flex-1">
+                                <input 
+                                  type="number"
+                                  min={0}
+                                  max={720}
+                                  value={minNoticeHours}
+                                  onChange={(e) => setMinNoticeHours(e.target.value)}
+                                  placeholder="Ex: 24"
+                                  className="w-full bg-[var(--color-admin-bg)] border-2 border-amber-500/40 rounded-2xl px-6 py-4 text-[14px] font-black text-amber-500 outline-none focus:border-amber-500 transition-all shadow-inner" 
+                                />
+                              </div>
+                              <span className="text-[13px] font-bold text-[var(--color-admin-text)]">horas</span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[9px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">Atalhos:</span>
+                              {[
+                                { label: 'Mesmo dia (2h)', val: 2 },
+                                { label: '6h', val: 6 },
+                                { label: '12h', val: 12 },
+                                { label: '24h (1 dia)', val: 24 },
+                                { label: '48h (2 dias)', val: 48 },
+                                { label: '72h (3 dias)', val: 72 }
+                              ].map((preset) => (
+                                <button
+                                  key={preset.val}
+                                  type="button"
+                                  onClick={() => setMinNoticeHours(preset.val)}
+                                  className={`px-3 py-1 rounded-lg text-[10px] font-bold border transition-all ${Number(minNoticeHours) === preset.val ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] border-[var(--color-admin-border)] hover:text-[var(--color-admin-text)]'}`}
+                                >
+                                  {preset.label}
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-[10px] text-amber-500/90 font-medium">
+                              Clientes só conseguirão agendar este serviço se faltar no mínimo {minNoticeHours || 0} horas para o horário escolhido.
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
 

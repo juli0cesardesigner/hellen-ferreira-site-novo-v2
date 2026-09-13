@@ -12,6 +12,7 @@ export interface Session {
   full_price?: number;
   deposit_price: number;
   theme_color?: string;
+  min_notice_hours?: number | null;
 }
 
 export interface SessionWithPackages extends Session {
