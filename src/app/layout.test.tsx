@@ -18,6 +18,10 @@ vi.mock("@/components/layout/GeneralLayout", () => ({
 vi.mock("@/components/analytics/FacebookPixel", () => ({
   default: () => null,
 }));
+vi.mock("@/components/analytics/SiteTracker", () => ({
+  default: () => null,
+  trackSiteEvent: vi.fn(),
+}));
 vi.mock("@/components/pwa/PWARegistration", () => ({
   PWARegistration: () => null,
 }));

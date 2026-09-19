@@ -6,6 +6,7 @@ import { X, Send } from "lucide-react";
 import Image from "next/image";
 import { SITE_CONFIG } from "@/lib/constants";
 import { fbEvent } from "@/components/analytics/FacebookPixel";
+import { trackSiteEvent } from "@/components/analytics/SiteTracker";
 
 export function WhatsAppWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ export function WhatsAppWidget() {
       method: 'WhatsApp',
       content_name: 'Suporte/Agendamento via WhatsApp'
     });
+    trackSiteEvent('click_whatsapp', 'Suporte/Agendamento via WhatsApp');
     window.open(SITE_CONFIG.social.whatsappLink, "_blank");
     setIsOpen(false);
   };

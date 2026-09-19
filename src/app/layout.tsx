@@ -79,7 +79,9 @@ export const metadata: Metadata = {
 
 import { GoogleAnalytics } from '@next/third-parties/google';
 import FacebookPixel from "@/components/analytics/FacebookPixel";
+import SiteTracker from "@/components/analytics/SiteTracker";
 import { PWARegistration } from "@/components/pwa/PWARegistration";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -91,8 +93,11 @@ export default function RootLayout({
       <body className="antialiased bg-pearl flex flex-col min-h-screen">
         <PWARegistration />
         <FacebookPixel />
+        <Suspense fallback={null}>
+          <SiteTracker />
+        </Suspense>
         <GeneralLayout>{children}</GeneralLayout>
-        <GoogleAnalytics gaId="G-TS8PLV0TCX" />
+        <GoogleAnalytics gaId="G-T5BFLV0TCX" />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 import { fbEvent, fbInit } from "@/components/analytics/FacebookPixel";
+import { trackSiteEvent } from "@/components/analytics/SiteTracker";
 import { getClientData, saveClientData, clearClientData } from "@/lib/utils/client-storage";
 
 import { SessionWithPackages, Package } from "@/types/database";
@@ -156,6 +157,7 @@ export default function BookingWizard({
         content_ids: [sessionId],
         content_type: 'product'
       });
+      trackSiteEvent('step_booking_details', session?.name);
     }
     if (step === 'checkout') {
       fbEvent('AddPaymentInfo', {
@@ -163,6 +165,7 @@ export default function BookingWizard({
         value: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
         currency: 'BRL'
       });
+      trackSiteEvent('step_booking_checkout', session?.name);
     }
     if (step === 'success') {
       fbEvent('Purchase', {
@@ -172,6 +175,7 @@ export default function BookingWizard({
         value: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
         currency: 'BRL'
       });
+      trackSiteEvent('booking_success', session?.name);
     }
   }, [step, session?.name, sessionId, paymentType, packageType, activePackage, session?.deposit_price]);
 
@@ -409,6 +413,7 @@ export default function BookingWizard({
       content_name: session?.name,
       content_category: 'Booking'
     });
+    trackSiteEvent('lead_form_submitted', session?.name);
 
     const res = await createBooking({
       sessionId,

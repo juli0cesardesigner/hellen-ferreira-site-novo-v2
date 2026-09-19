@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 
 import { getSlugById } from "@/lib/data/sessions";
 import { fbEvent } from "@/components/analytics/FacebookPixel";
+import { trackSiteEvent } from "@/components/analytics/SiteTracker";
 
 interface BookingCTAProps {
   sessionName: string;
@@ -51,6 +52,7 @@ export function BookingCTA({ sessionName, sessionId }: BookingCTAProps) {
             return (
               <Link 
                 href={href}
+                onClick={() => trackSiteEvent('click_cta_booking', sessionName)}
                 className="group inline-flex items-center gap-4 px-12 py-5 bg-text-dark text-white rounded-sm text-[12px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all shadow-2xl hover:shadow-blush/20"
               >
                 Agendar Sessão Agora <Calendar size={18} className="group-hover:rotate-12 transition-transform" />

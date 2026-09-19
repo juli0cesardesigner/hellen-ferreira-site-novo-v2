@@ -16,6 +16,7 @@ import NotificationCenter from "@/components/admin/NotificationCenter";
 import { ThumbnailManager } from "@/components/admin/ThumbnailManager";
 import { ChecklistManager } from "@/components/admin/ChecklistManager";
 import { LinksManager } from "@/components/admin/LinksManager";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -26,12 +27,12 @@ import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
-import { Ban, Camera, CheckSquare, Link2 } from "lucide-react";
+import { Ban, Camera, CheckSquare, Link2, Activity } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AdminBottomNav } from "@/components/layout/BottomNav";
 
 
-type TabType = 'calendar' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails' | 'checklist' | 'links';
+type TabType = 'calendar' | 'analytics' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails' | 'checklist' | 'links';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -286,6 +287,13 @@ export default function AdminDashboard() {
             onClick={() => handleTabChange('clients')} 
             icon={<User size={20} />} 
             label="Clientes" 
+          />
+          <SidebarNavItem 
+            active={activeTab === 'analytics'} 
+            disabled={isEditing}
+            onClick={() => handleTabChange('analytics')} 
+            icon={<Activity size={20} />} 
+            label="Métricas do Site" 
           />
           <SidebarNavItem 
             active={activeTab === 'blocks'} 
@@ -1115,6 +1123,9 @@ export default function AdminDashboard() {
                 onEditBooking={setSelectedBooking} 
                 refreshTrigger={crmRefreshTrigger}
               />
+            )}
+            {activeTab === 'analytics' && (
+              <AnalyticsDashboard onRefreshTrigger={crmRefreshTrigger} />
             )}
             {activeTab === 'slots' && <StandardSlotsSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'sessions' && (
