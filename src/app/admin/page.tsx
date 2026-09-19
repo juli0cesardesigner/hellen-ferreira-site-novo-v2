@@ -1207,9 +1207,17 @@ function BookingList({ bookings, onEdit, isLoading }: { bookings: Booking[], onE
                         <h4 className="text-[14px] lg:text-[16px] font-bold text-[var(--color-admin-text)] tracking-tight truncate group-hover:text-[var(--color-admin-accent)] transition-colors">
                           {booking.customer_name}
                         </h4>
-                        <div className="flex items-center gap-2 mt-1.5">
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
                             {booking.sessions?.name}
+                          </span>
+                          <span className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border flex items-center gap-1 ${
+                            booking.location_type === 'externo'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                            {booking.location_type === 'externo' ? '🌳 Externo' : '🏠 Estúdio'}
+                            {booking.location_details && booking.location_type === 'externo' ? ` (${booking.location_details})` : ''}
                           </span>
                         </div>
                       </div>

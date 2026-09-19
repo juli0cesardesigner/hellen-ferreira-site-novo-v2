@@ -154,47 +154,79 @@ async function handleWebhook(req: NextRequest) {
       if (status === 'approved' || status === 'authorized') {
         const transactionAmount = Number(paymentData.transaction_amount) || 0;
 
-        // Atualizar o status da reserva para confirmado e atualizar updated_at
-        const { data: updatedBooking, error } = await supabase
+        // 1. Buscar a reserva atual para checar idempotência e evitar pushes duplicados
+        const { data: existingBooking, error: fetchError } = await supabase
           .from('bookings')
-          .update({ 
-            status: 'confirmed',
-            paid_amount: transactionAmount,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', bookingId)
           .select(`
+            id,
+            status,
+            notified_at,
             customer_name, 
             booking_date, 
             start_time, 
+            location_type,
+            location_details,
             sessions (
               name
             )
           `)
-          .single();
+          .eq('id', bookingId)
+          .maybeSingle();
 
-        if (error) {
-          console.error("❌ Erro ao atualizar agendamento no banco via webhook:", error);
+        if (fetchError || !existingBooking) {
+          console.error("❌ Erro ao buscar agendamento no banco via webhook:", fetchError);
+          return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+        }
+
+        // Determinar se a notificação push já foi enviada anteriormente
+        const alreadyNotified = !!existingBooking.notified_at;
+
+        // Atualizar status, valor pago, payment_id do MP e registrar notified_at se ainda não notificado
+        const nowIso = new Date().toISOString();
+        const updatePayload: Record<string, any> = {
+          status: 'confirmed',
+          paid_amount: transactionAmount,
+          payment_id: String(paymentId),
+          updated_at: nowIso,
+        };
+
+        if (!alreadyNotified) {
+          updatePayload.notified_at = nowIso;
+        }
+
+        const { error: updateError } = await supabase
+          .from('bookings')
+          .update(updatePayload)
+          .eq('id', bookingId);
+
+        if (updateError) {
+          console.error("❌ Erro ao atualizar agendamento no banco via webhook:", updateError);
           return NextResponse.json({ error: "Database update failed" }, { status: 500 });
         }
 
-        // Disparar notificação push para a administradora
-        if (updatedBooking) {
+        // Disparar notificação push para a administradora SOMENTE na primeira vez
+        if (!alreadyNotified) {
           try {
             const { notifyAdminByPush } = await import('@/lib/actions/push-actions');
-            const [y, m, d] = updatedBooking.booking_date.split('-');
+            const [y, m, d] = existingBooking.booking_date.split('-');
             const formattedDate = `${d}/${m}/${y}`;
-            const formattedTime = updatedBooking.start_time.slice(0, 5) + 'h';
-            const sessionName = (updatedBooking.sessions as any)?.name || 'Ensaio';
+            const formattedTime = existingBooking.start_time.slice(0, 5) + 'h';
+            const sessionName = (existingBooking.sessions as any)?.name || 'Ensaio';
+            const locationLabel = (existingBooking as any).location_type === 'externo'
+              ? ((existingBooking as any).location_details ? `🌳 Externo (${(existingBooking as any).location_details})` : '🌳 Externo')
+              : '🏠 Estúdio';
 
             await notifyAdminByPush({
               title: '📸 Novo Ensaio Confirmado!',
-              body: `Cliente: ${updatedBooking.customer_name}\nServiço: ${sessionName}\nData: ${formattedDate} às ${formattedTime}`,
+              body: `Cliente: ${existingBooking.customer_name}\nServiço: ${sessionName} • ${locationLabel}\nData: ${formattedDate} às ${formattedTime}`,
               url: `/admin`
             });
+            console.log(`🔔 Notificação push enviada com sucesso para o agendamento ${bookingId}`);
           } catch (pushErr) {
             console.error('Erro ao enviar notificação push do webhook:', pushErr);
           }
+        } else {
+          console.log(`ℹ️ Agendamento ${bookingId} já foi notificado anteriormente (${existingBooking.notified_at}). Notificação push duplicada evitada.`);
         }
 
         console.log(`✅ Agendamento ${bookingId} confirmado com sucesso via Webhook!`);

@@ -697,6 +697,8 @@ export async function createManualBooking(data: {
   total_amount: number;
   paid_amount: number;
   status: 'pending' | 'confirmed';
+  location_type?: 'estudio' | 'externo';
+  location_details?: string;
 }) {
   await validateAdmin();
   const admin = getAdminClient();
@@ -728,8 +730,11 @@ export async function createManualBooking(data: {
     date_time: `${data.booking_date}T${data.start_time}`,
     status: data.status,
     package_type: data.package_type,
+    location_type: data.location_type || 'estudio',
+    location_details: data.location_details || null,
     total_amount: data.total_amount,
     paid_amount: data.paid_amount,
+    notified_at: data.status === 'confirmed' ? new Date().toISOString() : null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }]);

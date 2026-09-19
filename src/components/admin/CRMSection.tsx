@@ -859,7 +859,16 @@ export function CRMSection({
                                     style={{ backgroundColor: booking.sessions?.theme_color || 'var(--color-admin-accent)' }} 
                                   />
                                   <div>
-                                    <span className="font-bold text-[13px] text-[var(--color-admin-text)] block group-hover:text-[var(--color-admin-accent)] transition-colors">{booking.sessions?.name || "Outros"}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-[13px] text-[var(--color-admin-text)] block group-hover:text-[var(--color-admin-accent)] transition-colors">{booking.sessions?.name || "Outros"}</span>
+                                      <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                                        booking.location_type === 'externo'
+                                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                                      }`}>
+                                        {booking.location_type === 'externo' ? '🌳 Externo' : '🏠 Estúdio'}
+                                      </span>
+                                    </div>
                                     <span className="text-[10px] font-medium text-slate-400 block">{formatDate(booking.booking_date)}</span>
                                   </div>
                                 </div>
@@ -925,7 +934,14 @@ export function CRMSection({
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
+                                  booking.location_type === 'externo'
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-amber-50 text-amber-700 border-amber-200'
+                                }`}>
+                                  {booking.location_type === 'externo' ? '🌳 Externo' : '🏠 Estúdio'}
+                                </span>
                                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 py-1 bg-slate-50 border rounded-lg">
                                   {booking.package_type || "Padrão"}
                                 </span>

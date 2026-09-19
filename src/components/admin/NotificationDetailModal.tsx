@@ -121,7 +121,7 @@ export function NotificationDetailModal({
                   Tipo do Ensaio
                 </span>
                 <p className="text-xs sm:text-sm font-bold text-[var(--color-admin-text)] mt-0.5">
-                  {sessionName}
+                  {sessionName} • {booking.location_type === 'externo' ? `🌳 Externo${booking.location_details ? ` (${booking.location_details})` : ''}` : '🏠 Estúdio'}
                 </p>
               </div>
             </div>

@@ -431,6 +431,8 @@ export async function createBooking(data: {
   paymentType: 'deposit' | 'full';
   packageType: 'digital' | 'print';
   selectedTier?: number;
+  locationType?: 'estudio' | 'externo';
+  locationDetails?: string;
 }) {
   const tier = data.selectedTier || 1;
 
@@ -645,6 +647,8 @@ export async function createBooking(data: {
     end_time: endTimeStr,
     status: 'pending',
     package_type: data.packageType,
+    location_type: data.locationType || 'estudio',
+    location_details: data.locationDetails ? data.locationDetails.trim() : null,
     total_amount: packagePrice,
     paid_amount: amountToPay,
     payment_id: preferenceId || null,

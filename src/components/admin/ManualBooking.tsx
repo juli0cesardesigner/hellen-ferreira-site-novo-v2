@@ -46,7 +46,9 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
     total_amount: 0,
     paid_amount: 0,
     status: 'confirmed' as 'confirmed' | 'pending',
-    isGift: false
+    isGift: false,
+    location_type: 'estudio' as 'estudio' | 'externo',
+    location_details: ""
   });
   
   const packages = formData.session_id ? SESSIONS_DATA[formData.session_id]?.session_packages || [] : [];
@@ -131,6 +133,8 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
       booking_date: formData.date,
       start_time: formData.start_time + ":00", 
       package_type: packages.find(p => p.id === formData.package_id)?.name || 'Schema Customizado',
+      location_type: formData.location_type,
+      location_details: formData.location_type === 'externo' ? formData.location_details.trim() : undefined,
       total_amount: formData.isGift ? 0 : formData.total_amount,
       paid_amount: formData.isGift ? 0 : formData.paid_amount,
       status: formData.status
@@ -263,6 +267,51 @@ export function ManualBookingModal({ onClose, onCreated, initialDate, initialTim
                         placeholder="+55 00 00000 0000"
                         />
                     </div>
+                  </div>
+
+                  {/* Seletor de Modalidade */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">
+                      Local do Ensaio
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, location_type: 'estudio' }))}
+                        className={`py-3 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          formData.location_type === 'estudio'
+                            ? 'bg-amber-500/10 text-amber-700 border-amber-300 ring-2 ring-amber-500/20'
+                            : 'bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] border-[var(--color-admin-border)] hover:border-slate-300'
+                        }`}
+                      >
+                        <span>🏠</span>
+                        <span>No Estúdio</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, location_type: 'externo' }))}
+                        className={`py-3 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          formData.location_type === 'externo'
+                            ? 'bg-emerald-500/10 text-emerald-700 border-emerald-300 ring-2 ring-emerald-500/20'
+                            : 'bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] border-[var(--color-admin-border)] hover:border-slate-300'
+                        }`}
+                      >
+                        <span>🌳</span>
+                        <span>Locação Externa</span>
+                      </button>
+                    </div>
+
+                    {formData.location_type === 'externo' && (
+                      <div className="pt-1">
+                        <input
+                          type="text"
+                          placeholder="Nome do local (ex: Parque Ecológico, Chácara...)"
+                          value={formData.location_details}
+                          onChange={(e) => setFormData(prev => ({ ...prev, location_details: e.target.value }))}
+                          className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3 rounded-xl text-[12px] font-medium text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="bg-[var(--color-admin-surface)] rounded-[1.5rem] p-6 border border-[var(--color-admin-border)] shadow-inner space-y-6 mt-4">

@@ -69,9 +69,12 @@ export interface Booking {
   paid_amount: number;
   created_at: string;
   updated_at?: string;
+  notified_at?: string | null;
   cpf?: string;
   gallery_link?: string | null;
   extra_items?: { id: string; name: string; quantity: number; price: number }[] | null;
+  location_type?: 'estudio' | 'externo' | string | null;
+  location_details?: string | null;
   sessions?: {
     name: string;
     theme_color: string;

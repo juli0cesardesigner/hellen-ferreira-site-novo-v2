@@ -9,12 +9,14 @@ import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 import { SessionWithPackages } from "@/types/database";
+import { AttentionNoticeBox, AttentionNoticeBoxRef } from "@/components/ui/AttentionNoticeBox";
 
 export default function MensalMeninoPage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
   const [session, setSession] = React.useState<SessionWithPackages | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [acceptedStyle, setAcceptedStyle] = React.useState(false);
+  const noticeRef = React.useRef<AttentionNoticeBoxRef>(null);
 
   React.useEffect(() => {
     async function loadSession() {
@@ -180,32 +182,28 @@ export default function MensalMeninoPage() {
                   </div>
                   
                   <div className="pt-6 border-t border-sand/20">
-                    <label className="flex items-start gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={acceptedStyle}
-                        onChange={(e) => setAcceptedStyle(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
-                      />
-                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
-                        <strong className="block text-text-dark text-sm mb-1">✨ Nosso Estilo e Acervo</strong>
-                        Uso exclusivamente as roupinhas, cenários e acessórios do estúdio.
-                        <br /><br />
-                        Priorizo uma estética minimalista, delicada e atemporal para registrar a pureza de cada fase do bebê.
-                        <br /><br />
-                        Por isso, não realizamos sessões com <strong>fantasias, roupas de personagens ou temas comerciais</strong>.
-                        <br /><br />
-                        Tudo o que você precisa para um ensaio lindo já está aqui esperando por vocês!
-                      </span>
-                    </label>
+                    <AttentionNoticeBox
+                      ref={noticeRef}
+                      checked={acceptedStyle}
+                      onChange={setAcceptedStyle}
+                      title="Estilo e vestuário:"
+                    >
+                      Todo o acervo é fornecido por mim, com foco em suavidade e minimalismo. Não utilizo temas de personagens ou fantasias, mantendo a atenção voltada exclusivamente para o bebê.
+                    </AttentionNoticeBox>
                   </div>
 
                   <Link 
                     href={acceptedStyle ? `/agendar/mensal/${pkg1.slug}` : '#'} 
-                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                    onClick={(e) => {
+                      if (!acceptedStyle) {
+                        e.preventDefault();
+                        noticeRef.current?.triggerAttention();
+                      }
+                    }}
+                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 cursor-pointer ${
                       acceptedStyle
                         ? 'bg-blush text-white hover:bg-[#C29088]'
-                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                        : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                     }`}
                   >
                     Ver Agenda Disponível

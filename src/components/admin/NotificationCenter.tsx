@@ -213,7 +213,7 @@ export default function NotificationCenter({ onEditBooking, refreshTrigger = 0 }
                       </div>
                       
                       <p className="text-[10px] font-semibold text-slate-500 truncate">
-                        {sessionName}
+                        {sessionName} • {booking.location_type === 'externo' ? '🌳 Externo' : '🏠 Estúdio'}
                       </p>
 
                       <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider pt-0.5">

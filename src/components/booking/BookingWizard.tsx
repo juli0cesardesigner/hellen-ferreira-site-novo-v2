@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Home, Trees, MapPin } from "lucide-react";
 import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
@@ -65,6 +65,8 @@ export default function BookingWizard({
   const [selectedDateSlots, setSelectedDateSlots] = useState<{ time: string; available: boolean; reason?: string }[]>([]);
   
   const [formData, setFormData] = useState({ name: "", email: "", whatsapp: "", cpf: "" });
+  const [locationType, setLocationType] = useState<'estudio' | 'externo'>('estudio');
+  const [locationDetails, setLocationDetails] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isDataAutoFilled, setIsDataAutoFilled] = useState(false);
   const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
@@ -117,6 +119,9 @@ export default function BookingWizard({
 
   // Determinar o pacote ativo baseado no Tier selecionado
   const activePackage = session?.session_packages?.find((p: Package) => p.tier_order === selectedTier) || session?.session_packages?.[0];
+
+  // Sessões que permitem escolha entre Estúdio ou Externo (ex: Gestante, Feminino, Família, Revelação)
+  const supportsLocationChoice = !session?.slug || ['gestante', 'feminino', 'familia', 'revelacao'].includes(session.slug);
 
   // Carregar Detalhes da Sessão
   useEffect(() => {
@@ -415,7 +420,9 @@ export default function BookingWizard({
       startTime: selectedTime,
       paymentType,
       packageType,
-      selectedTier
+      selectedTier,
+      locationType: supportsLocationChoice ? locationType : 'estudio',
+      locationDetails: supportsLocationChoice && locationType === 'externo' ? locationDetails : undefined,
     });
     
     if (res.success && res.preferenceId) {
@@ -659,6 +666,92 @@ export default function BookingWizard({
                     />
                   </div>
 
+                  {/* Seletor de Modalidade (Estúdio vs Externo) */}
+                  {supportsLocationChoice && (
+                    <div className="space-y-4 pt-2">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">
+                          Local do Ensaio
+                        </label>
+                        <span className="text-[11px] text-[#8C8681] font-light">
+                          Selecione onde você deseja que o ensaio seja realizado.
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setLocationType('estudio')}
+                          className={`p-5 rounded-sm border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            locationType === 'estudio'
+                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md'
+                              : 'border-[#E6DFD3] bg-white hover:border-blush/40'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Home size={16} className={locationType === 'estudio' ? 'text-blush' : 'text-[#8C8681]'} />
+                              <span className="text-xs font-bold uppercase tracking-wider text-[#2C2A29]">No Estúdio</span>
+                            </div>
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              locationType === 'estudio' ? 'border-blush bg-blush' : 'border-[#E6DFD3]'
+                            }`}>
+                              {locationType === 'estudio' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-[#8C8681] font-light leading-relaxed">
+                            Ambiente privativo, climatizado e acervo de peças e figurinos incluso.
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setLocationType('externo')}
+                          className={`p-5 rounded-sm border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            locationType === 'externo'
+                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md'
+                              : 'border-[#E6DFD3] bg-white hover:border-blush/40'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Trees size={16} className={locationType === 'externo' ? 'text-blush' : 'text-[#8C8681]'} />
+                              <span className="text-xs font-bold uppercase tracking-wider text-[#2C2A29]">Locação Externa</span>
+                            </div>
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                              locationType === 'externo' ? 'border-blush bg-blush' : 'border-[#E6DFD3]'
+                            }`}>
+                              {locationType === 'externo' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-[#8C8681] font-light leading-relaxed">
+                            Parque, fazenda ou locação ao ar livre de sua preferência.
+                          </p>
+                        </button>
+                      </div>
+
+                      {locationType === 'externo' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="pt-2 space-y-1.5"
+                        >
+                          <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681] flex items-center gap-1.5">
+                            <MapPin size={12} className="text-blush" />
+                            Local pretendido (Opcional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: Parque da Cidade, Fazenda ou 'alinhar com a Hellen'"
+                            className="w-full p-4 bg-white border border-[#E6DFD3] rounded-sm text-xs outline-none focus:border-blush transition-all"
+                            value={locationDetails}
+                            onChange={(e) => setLocationDetails(e.target.value)}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="pt-2">
                     <label className="flex items-center gap-3 cursor-pointer select-none">
                       <input 
@@ -700,6 +793,34 @@ export default function BookingWizard({
                 </div>
 
                 <div className="space-y-8">
+                  {/* Resumo da Reserva */}
+                  <div className="bg-[#FAF7F2] p-5 rounded-sm border border-[#E6DFD3] flex flex-wrap items-center justify-between gap-4 text-xs">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">📸</span>
+                      <div>
+                        <p className="font-bold text-[#2C2A29] uppercase tracking-wider text-[11px]">{session?.name} • {activePackage?.name}</p>
+                        <p className="text-[#8C8681] text-[11px]">
+                          {selectedDate ? new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) : ''} às {selectedTime.substring(0, 5)}h
+                        </p>
+                      </div>
+                    </div>
+                    {supportsLocationChoice && (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-[#E6DFD3] text-[11px] font-medium text-[#2C2A29]">
+                        {locationType === 'externo' ? (
+                          <>
+                            <Trees size={13} className="text-blush" />
+                            <span>Locação Externa{locationDetails ? `: ${locationDetails}` : ''}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Home size={13} className="text-blush" />
+                            <span>No Estúdio</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Escolha do Pacote */}
                   <div className="bg-linen/20 p-6 rounded-sm border border-sand/30">
                      <p className="text-[10px] uppercase tracking-widest text-text-light font-bold mb-4">Escolha seu pacote</p>

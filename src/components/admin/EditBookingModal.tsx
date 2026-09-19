@@ -31,7 +31,9 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
     status: booking.status || "pending",
     total_amount: booking.total_amount || 0,
     paid_amount: booking.paid_amount || 0,
-    extra_items: (booking.extra_items || []) as { id: string; name: string; quantity: number; price: number }[]
+    extra_items: (booking.extra_items || []) as { id: string; name: string; quantity: number; price: number }[],
+    location_type: booking.location_type || "estudio",
+    location_details: booking.location_details || ""
   });
 
   const [baseAmount, setBaseAmount] = useState(() => {
@@ -130,6 +132,8 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
       total_amount: formData.total_amount,
       paid_amount: formData.paid_amount,
       extra_items: formData.extra_items,
+      location_type: formData.location_type,
+      location_details: formData.location_type === 'externo' ? formData.location_details.trim() : null,
       updated_at: new Date().toISOString()
     });
 
@@ -282,6 +286,51 @@ export function EditBookingModal({ booking, onClose, onUpdated }: { booking: Boo
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Modalidade / Local do Ensaio */}
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-bold text-[var(--color-admin-text-muted)] tracking-widest uppercase ml-1 opacity-70">
+                  Local do Ensaio
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, location_type: 'estudio' }))}
+                    className={`py-3 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      formData.location_type === 'estudio'
+                        ? 'bg-amber-500/10 text-amber-700 border-amber-300 ring-2 ring-amber-500/20'
+                        : 'bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] border-[var(--color-admin-border)] hover:border-slate-300'
+                    }`}
+                  >
+                    <span>🏠</span>
+                    <span>No Estúdio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, location_type: 'externo' }))}
+                    className={`py-3 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      formData.location_type === 'externo'
+                        ? 'bg-emerald-500/10 text-emerald-700 border-emerald-300 ring-2 ring-emerald-500/20'
+                        : 'bg-[var(--color-admin-bg)] text-[var(--color-admin-text-muted)] border-[var(--color-admin-border)] hover:border-slate-300'
+                    }`}
+                  >
+                    <span>🌳</span>
+                    <span>Locação Externa</span>
+                  </button>
+                </div>
+
+                {formData.location_type === 'externo' && (
+                  <div className="pt-1">
+                    <input
+                      type="text"
+                      placeholder="Nome do local (ex: Parque da Cidade, Fazenda...)"
+                      value={formData.location_details}
+                      onChange={(e) => setFormData(prev => ({ ...prev, location_details: e.target.value }))}
+                      className="w-full bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] px-4 py-3 rounded-xl text-[12px] font-medium text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300 shadow-inner"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="bg-[var(--color-admin-surface)] rounded-[1.5rem] p-6 border border-[var(--color-admin-border)] shadow-inner space-y-6 mt-4">

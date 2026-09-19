@@ -9,6 +9,7 @@ import { DynamicImage } from "@/components/ui/DynamicImage";
 import { BookingCTA } from "@/components/booking/BookingCTA";
 import { fetchSessionDetails } from "@/lib/actions/booking-actions";
 import { SessionWithPackages, Package } from "@/types/database";
+import { AttentionNoticeBox, AttentionNoticeBoxRef } from "@/components/ui/AttentionNoticeBox";
 
 export default function GestantePage() {
   const [galleryImages, setGalleryImages] = React.useState<string[]>([]);
@@ -16,6 +17,8 @@ export default function GestantePage() {
   const [loading, setLoading] = React.useState(true);
   const [acceptedPkg1, setAcceptedPkg1] = React.useState(false);
   const [acceptedPkg2, setAcceptedPkg2] = React.useState(false);
+  const noticeRefPkg1 = React.useRef<AttentionNoticeBoxRef>(null);
+  const noticeRefPkg2 = React.useRef<AttentionNoticeBoxRef>(null);
 
   React.useEffect(() => {
     async function loadSession() {
@@ -184,32 +187,35 @@ export default function GestantePage() {
                   </div>
                   
                   <div className="pt-6 border-t border-sand/20">
-                    <label className="flex items-start gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={acceptedPkg1}
-                        onChange={(e) => { setAcceptedPkg1(e.target.checked); if (e.target.checked) setAcceptedPkg2(false); }}
-                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
-                      />
-                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
-                        <strong className="block text-text-dark text-sm mb-1">🤍 Como funciona o guarda-roupa do ensaio?</strong>
-                        Para que você não precise se preocupar com nada, eu disponibilizo um acervo lindo de roupas exclusivas para as gestantes no meu estúdio!
-                        <br /><br />
-                        Já para o papai, peço que ele traga as suas próprias opções de roupa (depois que você escolher o seu look, eu ajudo a combinar o dele!).
-                        <br /><br />
-                        Ah, e se você já tiver algum acessório especial do baby — como o primeiro sapatinho ou uma roupinha —, traga também!
-                        <br /><br />
-                        Vou adorar incluir esses detalhes afetivos nas fotos.
-                      </span>
-                    </label>
+                    <AttentionNoticeBox
+                      ref={noticeRefPkg1}
+                      checked={acceptedPkg1}
+                      onChange={(val) => {
+                        setAcceptedPkg1(val);
+                        if (val) setAcceptedPkg2(false);
+                      }}
+                      title="Sobre as roupas:"
+                    >
+                      • Mãe: peças disponíveis no estúdio
+                      <br />
+                      • Pai: traz as suas opções (ajudo a harmonizar)
+                      <br />
+                      • Bebê: traga detalhes com valor afetivo (sapatinhos, peças especiais)
+                    </AttentionNoticeBox>
                   </div>
 
                   <Link 
                     href={acceptedPkg1 ? `/agendar/gestante/${pkg1.slug}` : '#'} 
-                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                    onClick={(e) => {
+                      if (!acceptedPkg1) {
+                        e.preventDefault();
+                        noticeRefPkg1.current?.triggerAttention();
+                      }
+                    }}
+                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 cursor-pointer ${
                       acceptedPkg1
                         ? 'bg-blush text-white hover:bg-[#C29088]'
-                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                        : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                     }`}
                   >
                     Ver Agenda Disponível
@@ -272,32 +278,35 @@ export default function GestantePage() {
                   </div>
 
                   <div className="pt-6 border-t border-sand/20">
-                    <label className="flex items-start gap-3 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={acceptedPkg2}
-                        onChange={(e) => { setAcceptedPkg2(e.target.checked); if (e.target.checked) setAcceptedPkg1(false); }}
-                        className="mt-0.5 w-4 h-4 rounded border-2 border-blush/40 text-blush focus:ring-blush/30 focus:ring-offset-0 cursor-pointer shrink-0"
-                      />
-                      <span className="text-xs text-text-medium leading-relaxed select-none group-hover:text-text-dark transition-colors">
-                        <strong className="block text-text-dark text-sm mb-1">🤍 Como funciona o guarda-roupa do ensaio?</strong>
-                        Para que você não precise se preocupar com nada, eu disponibilizo um acervo lindo de roupas exclusivas para as gestantes no meu estúdio!
-                        <br /><br />
-                        Já para o papai, peço que ele traga as suas próprias opções de roupa (depois que você escolher o seu look, eu ajudo a combinar o dele!).
-                        <br /><br />
-                        Ah, e se você já tiver algum acessório especial do baby — como o primeiro sapatinho ou uma roupinha —, traga também!
-                        <br /><br />
-                        Vou adorar incluir esses detalhes afetivos nas fotos.
-                      </span>
-                    </label>
+                    <AttentionNoticeBox
+                      ref={noticeRefPkg2}
+                      checked={acceptedPkg2}
+                      onChange={(val) => {
+                        setAcceptedPkg2(val);
+                        if (val) setAcceptedPkg1(false);
+                      }}
+                      title="Sobre as roupas:"
+                    >
+                      • Mãe: peças disponíveis no estúdio
+                      <br />
+                      • Pai: traz as suas opções (ajudo a harmonizar)
+                      <br />
+                      • Bebê: traga detalhes com valor afetivo (sapatinhos, peças especiais)
+                    </AttentionNoticeBox>
                   </div>
 
                   <Link 
                     href={acceptedPkg2 ? `/agendar/gestante/${pkg2.slug}` : '#'} 
-                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 ${
+                    onClick={(e) => {
+                      if (!acceptedPkg2) {
+                        e.preventDefault();
+                        noticeRefPkg2.current?.triggerAttention();
+                      }
+                    }}
+                    className={`mt-8 w-full py-6 text-center rounded-sm tracking-[0.3em] uppercase text-[10px] font-medium transition-all flex items-center justify-center gap-3 cursor-pointer ${
                       acceptedPkg2
                         ? 'bg-blush text-white hover:bg-[#C29088]'
-                        : 'bg-gray-200 text-gray-400 pointer-events-none'
+                        : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                     }`}
                   >
                     Ver Agenda Disponível
