@@ -141,13 +141,20 @@ export function getStudioGalleryImagesForCategory(category: string): string[] {
   try {
     const galleryData: Record<string, (string | { path: string })[]> = galleryIndexData as unknown as Record<string, (string | { path: string })[]>;
     
-    // Map category key alias if needed (e.g. newborn-menino -> newborn)
+    // 1. Direct match first (e.g. smash-menino, smash-menina, newborn-menino, etc.)
+    if (galleryData[category] && galleryData[category].length > 0) {
+      return galleryData[category].map((entry) => 
+        typeof entry === "string" ? entry : entry.path
+      );
+    }
+
+    // 2. Map category key alias if needed as fallback (e.g. legacy smash or newborn)
     let key = category;
     if (category.startsWith("newborn")) key = "newborn";
     if (category.startsWith("mensal")) key = "mensal";
-    if (category === "smash-the-cake" || category === "smash") key = "smash";
+    if (category.startsWith("smash")) key = "smash";
     
-    const entries = galleryData[key] || galleryData[category] || [];
+    const entries = galleryData[key] || [];
     return entries.map((entry) => 
       typeof entry === "string" ? entry : entry.path
     );
