@@ -231,7 +231,9 @@ export function AnalyticsDashboard({ onRefreshTrigger }: AnalyticsDashboardProps
             <div className="text-2xl font-bold text-white tracking-tight">
               {isLoading ? '...' : formatCurrency(data?.totalRevenue || 0)}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1">Sinais & ensaios pagos</div>
+            <div className="text-[11px] text-slate-400 mt-1">
+              {isLoading ? '...' : data?.totalReceived ? `${formatCurrency(data.totalReceived)} em sinal` : 'Total contratado'}
+            </div>
           </div>
         </div>
 
@@ -263,7 +265,7 @@ export function AnalyticsDashboard({ onRefreshTrigger }: AnalyticsDashboardProps
             <div className="text-2xl font-bold text-white tracking-tight">
               {isLoading ? '...' : formatCurrency(data?.averageTicket || 0)}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1">Média por ensaio</div>
+            <div className="text-[11px] text-slate-400 mt-1">Média por contrato</div>
           </div>
         </div>
       </div>

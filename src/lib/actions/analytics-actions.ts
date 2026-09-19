@@ -49,6 +49,7 @@ export interface AnalyticsDashboardStats {
   totalPageviews: number;
   totalBookings: number;
   totalRevenue: number;
+  totalReceived: number;
   conversionRate: number;
   averageTicket: number;
   sources: TrafficSourceItem[];
@@ -140,7 +141,7 @@ export async function getAnalyticsDashboardData(
     // 3. Buscar Bookings do período para cruzar com Vendas reais
     let bkQuery = supabase
       .from('bookings')
-      .select('id, total_amount, paid_amount, status, created_at')
+      .select('id, customer_name, total_amount, paid_amount, status, created_at')
       .gte('created_at', startIso)
       .neq('status', 'cancelled');
     if (endIso) {
@@ -152,7 +153,10 @@ export async function getAnalyticsDashboardData(
       console.error('Erro ao buscar reservas no analytics:', bkError);
     }
 
-    const bks = bookings || [];
+    // Filtrar apenas reservas reais (excluir bloqueios de agenda)
+    const realBookings = (bookings || []).filter(
+      (b) => !b.customer_name?.startsWith('BLOQUEIO:')
+    );
 
     // Agrupamento por Sessão
     const sessionMap = new Map<string, typeof pvs>();
@@ -166,8 +170,17 @@ export async function getAnalyticsDashboardData(
     const totalPageviews = pvs.length;
 
     // Métricas Financeiras
-    const totalBookings = bks.length;
-    const totalRevenue = bks.reduce((acc, b) => acc + (Number(b.paid_amount) || Number(b.total_amount) || 0), 0);
+    const totalBookings = realBookings.length;
+    // Faturamento Total dos Contratos dos ensaios
+    const totalRevenue = realBookings.reduce(
+      (acc, b) => acc + (Number(b.total_amount) || Number(b.paid_amount) || 0), 
+      0
+    );
+    // Entrada em Caixa (sinal ou pago no site)
+    const totalReceived = realBookings.reduce(
+      (acc, b) => acc + (Number(b.paid_amount) || 0), 
+      0
+    );
     const conversionRate = totalSessions > 0 ? Number(((totalBookings / totalSessions) * 100).toFixed(1)) : 0;
     const averageTicket = totalBookings > 0 ? Math.round(totalRevenue / totalBookings) : 0;
 
@@ -323,6 +336,7 @@ export async function getAnalyticsDashboardData(
       totalPageviews,
       totalBookings,
       totalRevenue,
+      totalReceived,
       conversionRate,
       averageTicket,
       sources,
@@ -337,6 +351,7 @@ export async function getAnalyticsDashboardData(
       totalPageviews: 0,
       totalBookings: 0,
       totalRevenue: 0,
+      totalReceived: 0,
       conversionRate: 0,
       averageTicket: 0,
       sources: [],
