@@ -24,7 +24,8 @@ const ENSAIO_LINKS: EnsaioLink[] = [
   { id: "newborn-menina", name: "Newborn Menina", path: "/newborn-menina" },
   { id: "newborn-menino", name: "Newborn Menino", path: "/newborn-menino" },
   { id: "revelacao", name: "Revelação", path: "/revelacao" },
-  { id: "smash", name: "Smash the Cake", path: "/smash" },
+  { id: "smash-menina", name: "Smash Menina", path: "/smash-menina" },
+  { id: "smash-menino", name: "Smash Menino", path: "/smash-menino" },
 ];
 
 export function LinksManager() {

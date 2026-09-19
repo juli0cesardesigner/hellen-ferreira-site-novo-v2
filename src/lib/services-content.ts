@@ -31,10 +31,16 @@ export const SERVICES_CONTENT = {
       columns: 2,
     },
     {
-      id: "smash-the-cake",
-      title: "Smash the cake",
+      id: "smash-menino",
+      title: "Smash Menino",
       image: "/content/services/smash.avif",
-      fullWidth: true,
+      columns: 2,
+    },
+    {
+      id: "smash-menina",
+      title: "Smash Menina",
+      image: "/content/services/smash.avif",
+      columns: 2,
     },
     {
       id: "revelacao",

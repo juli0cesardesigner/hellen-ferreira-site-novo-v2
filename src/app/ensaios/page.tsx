@@ -17,7 +17,8 @@ const SERVICE_ID_MAP: Record<string, string> = {
   "newborn-menina": "a232eb5e-1583-4fb7-82da-84008e37f1b4",   // → "Newborn"
   "mensal-menino": "a67d857c-72ea-441a-9761-1e809bd1bf13",    // → "Mensal"
   "mensal-menina": "a67d857c-72ea-441a-9761-1e809bd1bf13",    // → "Mensal"
-  "smash": "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2",
+  "smash-menino": "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2",     // → "Smash the Cake"
+  "smash-menina": "6d560dc9-e87d-45c1-8cbf-e26edc72a2f2",     // → "Smash the Cake"
   "revelacao": "50674a5b-ad94-442b-b4d1-328f4d7f59db",
   "familia": "70b4d4e6-72b5-4262-890c-cf0730e0db8e",
   "feminino": "7024263c-2f3e-4c7f-a66f-cf04e2bd069a",
@@ -164,23 +165,44 @@ export default function ServicesPage() {
                 </div>
               )}
 
-              {/* Smash the cake */}
-              {isActive("smash") && (
-                <Link href="/smash" className="flex flex-col items-center group cursor-pointer">
-                  <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
-                    <DynamicImage 
-                      category="smash"
-                      alt="Smash the Cake" 
-                      preferCover={true}
-                      className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
-                    />
-                  </div>
-                  <div className="mt-[-25px] z-10 transition-transform duration-500 group-hover:scale-105">
-                    <span className="bg-[#8B5E3C] text-white px-12 py-4 rounded-full text-sm tracking-[0.2em] font-medium shadow-2xl uppercase">
-                      {SERVICES_CONTENT.mainCategories[5].title}
-                    </span>
-                  </div>
-                </Link>
+              {/* Smash Split */}
+              {(isActive("smash-menino") || isActive("smash-menina")) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
+                  {isActive("smash-menino") && (
+                    <Link href="/smash-menino" className="flex flex-col items-center group cursor-pointer">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
+                        <DynamicImage 
+                          category="smash-menino"
+                          alt="Smash the Cake Menino" 
+                          preferCover={true}
+                          className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
+                        />
+                      </div>
+                      <div className="mt-[-25px] z-10 transition-transform duration-500 group-hover:scale-105 text-center">
+                        <span className="bg-[#8B5E3C] text-white px-8 py-4 rounded-full text-[10px] sm:text-xs tracking-[0.2em] font-medium shadow-2xl whitespace-nowrap uppercase">
+                          {SERVICES_CONTENT.mainCategories[5].title}
+                        </span>
+                      </div>
+                    </Link>
+                  )}
+                  {isActive("smash-menina") && (
+                    <Link href="/smash-menina" className="flex flex-col items-center group cursor-pointer">
+                      <div className="relative w-full aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-sand/20">
+                        <DynamicImage 
+                          category="smash-menina"
+                          alt="Smash the Cake Menina" 
+                          preferCover={true}
+                          className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" 
+                        />
+                      </div>
+                      <div className="mt-[-25px] z-10 transition-transform duration-500 group-hover:scale-105 text-center">
+                        <span className="bg-[#8B5E3C] text-white px-8 py-4 rounded-full text-[10px] sm:text-xs tracking-[0.2em] font-medium shadow-2xl whitespace-nowrap uppercase">
+                          {SERVICES_CONTENT.mainCategories[6].title}
+                        </span>
+                      </div>
+                    </Link>
+                  )}
+                </div>
               )}
 
               {/* Revelação */}
@@ -196,7 +218,7 @@ export default function ServicesPage() {
                   </div>
                   <div className="mt-[-25px] z-10 transition-transform duration-500 group-hover:scale-105">
                     <span className="bg-[#8B5E3C] text-white px-12 py-4 rounded-full text-sm tracking-[0.2em] font-medium shadow-2xl uppercase">
-                      {SERVICES_CONTENT.mainCategories[6].title}
+                      {SERVICES_CONTENT.mainCategories[7].title}
                     </span>
                   </div>
                 </Link>
@@ -215,7 +237,7 @@ export default function ServicesPage() {
                   </div>
                   <div className="mt-[-25px] z-10 transition-transform duration-500 group-hover:scale-105">
                     <span className="bg-[#8B5E3C] text-white px-12 py-4 rounded-full text-sm tracking-[0.2em] font-medium shadow-2xl uppercase">
-                      {SERVICES_CONTENT.mainCategories[7].title}
+                      {SERVICES_CONTENT.mainCategories[8].title}
                     </span>
                   </div>
                 </Link>
