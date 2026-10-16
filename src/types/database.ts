@@ -120,3 +120,23 @@ export interface ChecklistItem {
   updated_at?: string;
   completed_at?: string | null;
 }
+
+export interface NatalSlot {
+  day_of_week: number; // 0=Dom, 1=Seg, ..., 6=Sab
+  time: string; // "17:00"
+}
+
+export interface NatalSessionRule {
+  sessionId: string;
+  paused: boolean;
+  locationOverride?: 'all' | 'estudio' | 'externo'; // 'all' herda o normal, 'estudio' força só estúdio, 'externo' força só externo
+  slots?: NatalSlot[]; // se definido e não vazio, substitui os horários para essa sessão durante o Natal
+}
+
+export interface NatalConfig {
+  enabled: boolean;
+  startDate: string; // "YYYY-MM-DD"
+  endDate: string;   // "YYYY-MM-DD"
+  defaultLocationOverride?: 'all' | 'estudio' | 'externo';
+  sessionRules: Record<string, NatalSessionRule>;
+}

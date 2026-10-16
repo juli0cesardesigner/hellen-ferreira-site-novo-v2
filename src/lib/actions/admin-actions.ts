@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 import crypto from "crypto";
 
-import { Session, SlotDefinition, Booking, Expense, ChecklistItem } from "@/types/database";
+import { Session, SlotDefinition, Booking, Expense, ChecklistItem, NatalConfig } from "@/types/database";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 // Lazy initialization of Supabase client with Service Role for internal admin operations
@@ -652,17 +652,64 @@ export async function listSchemaSlots(sessionId: string | null) {
 
 export async function addSchemaSlot(dayOfWeek: number, startTime: string, sessionId: string | null = null, isActive: boolean = true) {
   await validateAdmin();
+  const admin = getAdminClient();
+
+  const formattedSessionId = sessionId === "" ? null : sessionId;
+
+  // Verificar se já existe um slot com este day_of_week, start_time e session_id
+  let query = admin
+    .from('schema_slots')
+    .select('id')
+    .eq('day_of_week', dayOfWeek)
+    .eq('start_time', startTime);
+
+  if (formattedSessionId) {
+    query = query.eq('session_id', formattedSessionId);
+  } else {
+    query = query.is('session_id', null);
+  }
+
+  const { data: existing } = await query.maybeSingle();
+
+  if (existing) {
+    const { error: updateError } = await admin
+      .from('schema_slots')
+      .update({ is_active: isActive })
+      .eq('id', existing.id);
+
+    if (updateError) {
+      console.error("Erro ao atualizar slot:", updateError);
+      return { success: false, error: updateError.message };
+    }
+  } else {
+    const { error: insertError } = await admin
+      .from('schema_slots')
+      .insert([{ 
+        session_id: formattedSessionId, 
+        day_of_week: dayOfWeek, 
+        start_time: startTime,
+        is_active: isActive
+      }]);
+      
+    if (insertError) {
+      console.error("Erro ao adicionar slot:", insertError);
+      return { success: false, error: insertError.message };
+    }
+  }
+
+  revalidatePath('/agendar');
+  return { success: true };
+}
+
+export async function resetSessionSlots(sessionId: string) {
+  await validateAdmin();
   const { error } = await getAdminClient()
     .from('schema_slots')
-    .insert([{ 
-      session_id: (sessionId === "" ? null : sessionId), 
-      day_of_week: dayOfWeek, 
-      start_time: startTime,
-      is_active: isActive
-    }]);
+    .delete()
+    .eq('session_id', sessionId);
     
   if (error) {
-    console.error("Erro ao adicionar slot:", error);
+    console.error("Erro ao restaurar slots da sessão:", error);
     return { success: false, error: error.message };
   }
 
@@ -1033,6 +1080,40 @@ export async function updateSiteSetting(key: string, value: string) {
   }
   revalidatePath('/agendar');
   return { success: true };
+}
+
+export async function getNatalConfigAdmin(): Promise<NatalConfig> {
+  const raw = await getSiteSetting('natal_seasonal_config');
+  if (!raw) {
+    return {
+      enabled: false,
+      startDate: "",
+      endDate: "",
+      defaultLocationOverride: 'all',
+      sessionRules: {}
+    };
+  }
+  try {
+    return JSON.parse(raw) as NatalConfig;
+  } catch {
+    return {
+      enabled: false,
+      startDate: "",
+      endDate: "",
+      defaultLocationOverride: 'all',
+      sessionRules: {}
+    };
+  }
+}
+
+export async function saveNatalConfigAdmin(config: NatalConfig) {
+  await validateAdmin();
+  const res = await updateSiteSetting('natal_seasonal_config', JSON.stringify(config));
+  if (res.success) {
+    revalidatePath('/agendar');
+    revalidatePath('/admin');
+  }
+  return res;
 }
 
 export async function blockSlot(date: string, time: string, reason: string) {

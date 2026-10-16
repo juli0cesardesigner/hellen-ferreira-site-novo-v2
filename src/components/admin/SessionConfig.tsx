@@ -4,11 +4,11 @@ import React, { useState, useEffect } from "react";
 import { 
   Plus, Trash2, Clock, CalendarDays, Loader2, Save, X, Edit2, 
   Settings, Database, 
-  Briefcase, CalendarClock, Globe
+  Briefcase, CalendarClock, Globe, Pause, Play, RotateCcw, AlertTriangle
 } from "lucide-react";
 import { 
   listSessions, createSession, updateSession, deleteSession,
-  listSchemaSlots, addSchemaSlot, getSiteSetting
+  listSchemaSlots, addSchemaSlot, resetSessionSlots, getSiteSetting
 } from "@/lib/actions/admin-actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSessionColor } from "@/lib/utils/colors";
@@ -18,6 +18,7 @@ import { Session, SlotDefinition } from "@/types/database";
 // Componentes Oficiais
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
+import { useToast } from "@/components/ui/Toast";
 
 const PRESET_COLORS = [
   "#7986CB", "#7DA0D1", "#8FA1F3", "#90CAF9", "#8ED1F5", "#4DB6AC",
@@ -40,6 +41,7 @@ const parseCurrencyBRL = (value: string): number => {
 };
 
 export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (editing: boolean) => void }) {
+  const { showToast } = useToast();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +61,10 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
   const [useCustomNotice, setUseCustomNotice] = useState(false);
   const [minNoticeHours, setMinNoticeHours] = useState<number | string>("");
   const [packageManagerSession, setPackageManagerSession] = useState<{ id: string; name: string } | null>(null);
+
+  const [isActiveSession, setIsActiveSession] = useState(true);
+  const [newCustomSlotTime, setNewCustomSlotTime] = useState("17:00");
+  const [addingSlotDay, setAddingSlotDay] = useState<number | null>(null);
 
   // System Modal State
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -111,6 +117,28 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
     loadSessions();
   }, [loadSessions]);
 
+  const handleToggleSessionStatus = async (session: Session) => {
+    const newStatus = !(session.is_active ?? true);
+    setIsSaving(true);
+    const res = await updateSession(session.id, { is_active: newStatus });
+    if (res.success) {
+      await loadSessions();
+      showToast(
+        newStatus ? `Ensaio "${session.name}" reativado para agendamentos!` : `Ensaio "${session.name}" pausado com sucesso!`,
+        newStatus ? "success" : "info"
+      );
+    } else {
+      showConfirm({
+        title: "Erro ao Atualizar",
+        message: "Não foi possível alterar o status do serviço: " + res.error,
+        confirmLabel: "OK",
+        onConfirm: closeConfirm,
+        variant: "warning"
+      });
+    }
+    setIsSaving(false);
+  };
+
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -126,7 +154,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
       setup_minutes: setupMinutes,
       cleanup_minutes: cleanupMinutes,
       min_notice_hours: useCustomNotice && minNoticeHours !== "" ? Number(minNoticeHours) : null,
-      is_active: true,
+      is_active: isActiveSession,
       slug: (formData.get("name") as string).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
     };
 
@@ -183,13 +211,59 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
     });
   };
 
-
   const handleToggleSlot = async (slot: SlotDefinition) => {
     if (!viewingMatrix) return;
     setIsSaving(true);
     await addSchemaSlot(slot.day_of_week, slot.start_time, viewingMatrix.id, !slot.is_active);
     await loadMatrix(viewingMatrix.id);
     setIsSaving(false);
+  };
+
+  const handleAddCustomSlot = async (dayOfWeek: number) => {
+    if (!viewingMatrix || !newCustomSlotTime) return;
+    setIsSaving(true);
+    const formattedTime = newCustomSlotTime.length === 5 ? `${newCustomSlotTime}:00` : newCustomSlotTime;
+    const res = await addSchemaSlot(dayOfWeek, formattedTime, viewingMatrix.id, true);
+    if (res.success) {
+      await loadMatrix(viewingMatrix.id);
+      setAddingSlotDay(null);
+    } else {
+      showConfirm({
+        title: "Erro ao Adicionar",
+        message: "Não foi possível adicionar o horário: " + res.error,
+        confirmLabel: "OK",
+        onConfirm: closeConfirm,
+        variant: "warning"
+      });
+    }
+    setIsSaving(false);
+  };
+
+  const handleResetMatrix = (session: Session) => {
+    showConfirm({
+      title: "Restaurar Horários Padrão?",
+      message: `Deseja remover todas as exceções de "${session.name}" e fazer este serviço voltar a seguir 100% a grade de horários globais do estúdio?`,
+      confirmLabel: "Sim, Restaurar Padrão",
+      cancelLabel: "Cancelar",
+      onConfirm: async () => {
+        setIsSaving(true);
+        const res = await resetSessionSlots(session.id);
+        if (res.success) {
+          await loadMatrix(session.id);
+          closeConfirm();
+        } else {
+          showConfirm({
+            title: "Erro ao Restaurar",
+            message: "Não foi possível restaurar os padrões: " + res.error,
+            confirmLabel: "OK",
+            onConfirm: closeConfirm,
+            variant: "warning"
+          });
+        }
+        setIsSaving(false);
+      },
+      variant: "warning"
+    });
   };
 
   return (
@@ -218,6 +292,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                 setEditingSession(null); 
                 setSelectedColor("#7986CB");
                 setIsPerpetual(true);
+                setIsActiveSession(true);
                 setStartDate("");
                 setEndDate("");
                 setDepositPrice(0);
@@ -249,19 +324,42 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
           {sessions.map((session) => {
             const colors = getSessionColor(session.name, session.theme_color);
             const customBg = colors.isCustom ? `${colors.customColor}25` : undefined;
+            const isPaused = session.is_active === false;
             
             return (
               <motion.div 
                 key={session.id} 
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className={`group p-6 lg:p-7 border border-[var(--color-admin-border)] rounded-[2rem] transition-all hover:scale-[1.02] shadow-sm relative overflow-hidden ${!colors.isCustom ? colors.bg : ''}`}
+                className={`group p-6 lg:p-7 border rounded-[2rem] transition-all hover:scale-[1.02] shadow-sm relative overflow-hidden ${
+                  isPaused 
+                    ? 'border-rose-500/30 opacity-75 grayscale-[0.3]' 
+                    : 'border-[var(--color-admin-border)]'
+                } ${!colors.isCustom ? colors.bg : ''}`}
                 style={{ backgroundColor: customBg }}
               >
                 <div className="flex justify-between items-center mb-5 relative z-10">
-                  <h3 className="text-[17px] font-black text-[var(--color-admin-text)] uppercase tracking-tight leading-none">
-                    {session.name}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[17px] font-black text-[var(--color-admin-text)] uppercase tracking-tight leading-none">
+                      {session.name}
+                    </h3>
+                    {isPaused && (
+                      <span className="bg-rose-500/10 text-rose-500 border border-rose-500/20 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Pausado
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleToggleSessionStatus(session)}
+                      className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all active:scale-90 shadow-sm ${
+                        isPaused 
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500 hover:text-white' 
+                          : 'bg-rose-500/10 border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white'
+                      }`}
+                      title={isPaused ? "Reativar Ensaio para Agendamentos" : "Pausar Ensaio Temporariamente"}
+                    >
+                      {isPaused ? <Play size={13} fill="currentColor" /> : <Pause size={13} fill="currentColor" />}
+                    </button>
                     <button 
                       onClick={() => { setPackageManagerSession({ id: session.id, name: session.name }); }}
                       className="w-9 h-9 rounded-xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] text-slate-400 flex items-center justify-center transition-all hover:text-emerald-500 hover:border-emerald-500/30 active:scale-90 shadow-sm"
@@ -281,6 +379,7 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                         setEditingSession(session); 
                         setSelectedColor(session.theme_color || "#7986CB");
                         setIsPerpetual(session.is_perpetual ?? true);
+                        setIsActiveSession(session.is_active ?? true);
                         setStartDate(session.start_date || "");
                         setEndDate(session.end_date || "");
                         setDepositPrice(session.deposit_price || 0);
@@ -309,6 +408,12 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                 </div>
 
                 <div className="space-y-3 pt-4 border-t border-[var(--color-admin-border)]/40 relative z-10">
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-slate-400">Status</span>
+                    <span className={`px-2.5 py-0.5 rounded-full font-bold ${session.is_active !== false ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                      {session.is_active !== false ? 'Ativo' : 'Pausado'}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
                     <span className="text-slate-400">Duração</span>
                     <span className="text-[var(--color-admin-text)]">{(session.duration_slots || 0) * 30} MIN</span>
@@ -406,6 +511,40 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                       placeholder="Ex: Ensaio Gestante"
                       className="w-full bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl px-6 py-4 text-[14px] font-black text-[var(--color-admin-text)] outline-none focus:border-[var(--color-admin-accent)] transition-all placeholder:text-slate-300" 
                     />
+                  </div>
+
+                  {/* ─── Status do Ensaio (Ativo / Pausado) ─── */}
+                  <div className="p-5 bg-[var(--color-admin-bg)] border-2 border-[var(--color-admin-border)] rounded-2xl flex items-center justify-between">
+                    <div>
+                      <span className="text-[12px] font-bold text-[var(--color-admin-text)] block">Disponibilidade para Reserva</span>
+                      <p className="text-[10px] text-[var(--color-admin-text-muted)] font-medium mt-0.5">
+                        {isActiveSession ? "Clientes podem selecionar e agendar este ensaio normalmente." : "Ensaio pausado. A página exibirá aviso que está temporariamente indisponível."}
+                      </p>
+                    </div>
+                    <div className="flex bg-[var(--color-admin-surface)] p-1 rounded-xl border border-[var(--color-admin-border)]">
+                      <button
+                        type="button"
+                        onClick={() => setIsActiveSession(true)}
+                        className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                          isActiveSession 
+                            ? 'bg-emerald-500 text-white shadow-sm' 
+                            : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'
+                        }`}
+                      >
+                        Ativo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsActiveSession(false)}
+                        className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                          !isActiveSession 
+                            ? 'bg-rose-500 text-white shadow-sm' 
+                            : 'text-[var(--color-admin-text-muted)] hover:text-[var(--color-admin-text)]'
+                        }`}
+                      >
+                        Pausado
+                      </button>
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-3">
@@ -699,26 +838,37 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
               initial={{ opacity: 0, scale: 0.9, y: 40 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 40 }}
               className="w-full max-w-5xl bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[3rem] shadow-[0_50px_200px_rgba(0,0,0,0.1)] relative z-10 overflow-y-auto custom-scrollbar max-h-[90vh] flex flex-col"
             >
-              <div className="p-10 lg:p-14 border-b border-[var(--color-admin-border)] shrink-0">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-[28px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none">
-                      Horários Específicos
-                    </h3>
-                    <p className="text-[11px] text-[var(--color-admin-accent)] font-bold uppercase tracking-wider mt-3">
-                      Serviço: {viewingMatrix.name}
-                    </p>
-                  </div>
+              <div className="p-8 lg:p-12 border-b border-[var(--color-admin-border)] shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h3 className="text-[24px] lg:text-[28px] font-black text-[var(--color-admin-text)] uppercase tracking-tighter leading-none">
+                    Horários do Ensaio
+                  </h3>
+                  <p className="text-[11px] text-[var(--color-admin-accent)] font-bold uppercase tracking-wider mt-2">
+                    Serviço: {viewingMatrix.name}
+                  </p>
+                  <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-1">
+                    Ative ou desative horários neste serviço. As alterações aqui sobrepõem os horários globais do estúdio.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleResetMatrix(viewingMatrix)}
+                    className="px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-white transition-all text-[11px] font-bold uppercase tracking-wider flex items-center gap-2 active:scale-95"
+                    title="Restaurar para seguir a grade padrão do estúdio"
+                  >
+                    <RotateCcw size={14} />
+                    Restaurar Padrão Geral
+                  </button>
                   <button 
                     onClick={() => setViewingMatrix(null)}
-                    className="w-14 h-14 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
+                    className="w-12 h-12 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-2xl flex items-center justify-center text-[var(--color-admin-text-muted)] active:scale-90"
                   >
-                    <X size={28} />
+                    <X size={24} />
                   </button>
                 </div>
               </div>
 
-              <div className="p-10 lg:p-14">
+              <div className="p-8 lg:p-12">
                 {isMatrixLoading ? (
                   <div className="flex flex-col items-center justify-center py-40 gap-6">
                     <Loader2 className="animate-spin text-[var(--color-admin-accent)]" size={48} />
@@ -728,33 +878,80 @@ export function SessionConfigSection({ onEditingChange }: { onEditingChange?: (e
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].map((dayName, dayIndex) => {
                       const daySlots = matrixSlots.filter(s => s.day_of_week === dayIndex);
+                      const isAdding = addingSlotDay === dayIndex;
                       
                       return (
-                        <div key={dayIndex} className="bg-[var(--color-admin-bg)]/50 border border-[var(--color-admin-border)] rounded-[2rem] p-8 space-y-6">
-                          <div className="flex justify-between items-center border-b border-[var(--color-admin-border)] pb-4">
-                            <span className="text-[11px] font-black text-[var(--color-admin-text)] uppercase tracking-widest">{dayName}</span>
-                            <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">{daySlots.length} HORÁRIOS</span>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            {daySlots.map((slot) => (
+                        <div key={dayIndex} className="bg-[var(--color-admin-bg)]/50 border border-[var(--color-admin-border)] rounded-[2rem] p-6 space-y-5">
+                          <div className="flex justify-between items-center border-b border-[var(--color-admin-border)] pb-3">
+                            <span className="text-[12px] font-black text-[var(--color-admin-text)] uppercase tracking-widest">{dayName}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold text-[var(--color-admin-text-muted)] uppercase tracking-wider">{daySlots.length} HORÁRIOS</span>
                               <button
-                                key={`${slot.day_of_week}-${slot.start_time}`}
-                                onClick={() => handleToggleSlot(slot)}
-                                className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all active:scale-95 ${
-                                  slot.is_active 
-                                    ? "bg-[var(--color-admin-accent)] text-white border-[var(--color-admin-accent)] shadow-lg" 
-                                    : "bg-[var(--color-admin-bg)] text-slate-400 border-[var(--color-admin-border)]"
+                                onClick={() => setAddingSlotDay(isAdding ? null : dayIndex)}
+                                className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all ${
+                                  isAdding 
+                                    ? 'bg-rose-500 text-white border-rose-500' 
+                                    : 'bg-[var(--color-admin-surface)] text-[var(--color-admin-text)] border-[var(--color-admin-border)] hover:border-[var(--color-admin-accent)]'
                                 }`}
+                                title={isAdding ? "Cancelar" : "Adicionar Horário neste dia"}
                               >
-                                <span className="text-[14px] font-bold">{slot.start_time.substring(0, 5)}</span>
-                                {slot.is_active ? (
-                                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                                ) : (
-                                  <div className="w-2 h-2 bg-slate-300 rounded-full" />
-                                )}
+                                {isAdding ? <X size={13} /> : <Plus size={13} />}
                               </button>
-                            ))}
+                            </div>
+                          </div>
+
+                          {isAdding && (
+                            <div className="p-4 bg-[var(--color-admin-surface)] border border-[var(--color-admin-accent)]/30 rounded-xl space-y-3 animate-in fade-in zoom-in-95">
+                              <span className="text-[10px] font-bold text-[var(--color-admin-accent)] uppercase tracking-wider block">Adicionar Horário:</span>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="time"
+                                  value={newCustomSlotTime}
+                                  onChange={(e) => setNewCustomSlotTime(e.target.value)}
+                                  className="flex-1 bg-[var(--color-admin-bg)] border border-[var(--color-admin-border)] rounded-lg px-3 py-2 text-[12px] font-black text-[var(--color-admin-text)] outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={isSaving}
+                                  onClick={() => handleAddCustomSlot(dayIndex)}
+                                  className="px-4 py-2 bg-[var(--color-admin-accent)] text-white text-[11px] font-bold rounded-lg uppercase tracking-wider hover:brightness-110 active:scale-95 disabled:opacity-50"
+                                >
+                                  Salvar
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="space-y-2.5">
+                            {daySlots.length === 0 ? (
+                              <p className="text-[11px] text-[var(--color-admin-text-muted)] py-4 text-center font-medium italic">
+                                Nenhum horário ativo neste dia
+                              </p>
+                            ) : (
+                              daySlots.map((slot) => (
+                                <button
+                                  key={`${slot.day_of_week}-${slot.start_time}`}
+                                  onClick={() => handleToggleSlot(slot)}
+                                  className={`w-full flex items-center justify-between p-3.5 rounded-xl border transition-all active:scale-95 ${
+                                    slot.is_active 
+                                      ? "bg-[var(--color-admin-accent)] text-white border-[var(--color-admin-accent)] shadow-sm" 
+                                      : "bg-[var(--color-admin-surface)] text-slate-400 border-[var(--color-admin-border)] hover:border-slate-300"
+                                  }`}
+                                >
+                                  <span className="text-[13px] font-bold tracking-tight">{slot.start_time.substring(0, 5)}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] font-black uppercase tracking-wider opacity-80">
+                                      {slot.is_active ? 'Disponível' : 'Desativado'}
+                                    </span>
+                                    {slot.is_active ? (
+                                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                    ) : (
+                                      <div className="w-2 h-2 bg-slate-400/50 rounded-full" />
+                                    )}
+                                  </div>
+                                </button>
+                              ))
+                            )}
                           </div>
                         </div>
                       );

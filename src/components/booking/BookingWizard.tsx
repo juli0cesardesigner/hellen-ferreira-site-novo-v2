@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Home, Trees, MapPin } from "lucide-react";
 import Link from "next/link";
-import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment } from "@/lib/actions/booking-actions";
+import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment, getNatalConfig } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
 import { fbEvent, fbInit } from "@/components/analytics/FacebookPixel";
 import { trackSiteEvent } from "@/components/analytics/SiteTracker";
@@ -121,8 +121,39 @@ export default function BookingWizard({
   // Determinar o pacote ativo baseado no Tier selecionado
   const activePackage = session?.session_packages?.find((p: Package) => p.tier_order === selectedTier) || session?.session_packages?.[0];
 
+  // Carregar regras de Natal para restrição de local
+  const [natalLocationOverride, setNatalLocationOverride] = useState<'all' | 'estudio' | 'externo' | null>(null);
+
+  useEffect(() => {
+    async function checkNatalLocation() {
+      if (!selectedDate) {
+        setNatalLocationOverride(null);
+        return;
+      }
+      const natal = await getNatalConfig();
+      if (
+        natal?.enabled &&
+        (!natal.startDate || selectedDate >= natal.startDate) &&
+        (!natal.endDate || selectedDate <= natal.endDate)
+      ) {
+        const rule = natal.sessionRules?.[sessionId];
+        const override = rule?.locationOverride || natal.defaultLocationOverride;
+        if (override && override !== 'all') {
+          setNatalLocationOverride(override);
+          setLocationType(override);
+        } else {
+          setNatalLocationOverride(null);
+        }
+      } else {
+        setNatalLocationOverride(null);
+      }
+    }
+    checkNatalLocation();
+  }, [selectedDate, sessionId]);
+
   // Sessões que permitem escolha entre Estúdio ou Externo (ex: Gestante, Feminino, Família, Revelação)
-  const supportsLocationChoice = !session?.slug || ['gestante', 'feminino', 'familia', 'revelacao'].includes(session.slug);
+  const baseSupportsLocation = !session?.slug || ['gestante', 'feminino', 'familia', 'revelacao'].includes(session.slug);
+  const supportsLocationChoice = baseSupportsLocation && (!natalLocationOverride || natalLocationOverride === 'all');
 
   // Carregar Detalhes da Sessão
   useEffect(() => {

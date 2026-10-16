@@ -4,7 +4,7 @@
 
 import crypto from "crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { type Session, type SlotDefinition, type Booking, type Package } from "@/types/database";
+import { type Session, type SlotDefinition, type Booking, type Package, type NatalConfig } from "@/types/database";
 import { SESSIONS_DATA } from "@/lib/data/sessions";
 
 // Lazy initialization of Supabase client to prevent crashes if env vars are missing during build/init
@@ -30,6 +30,16 @@ export async function getSiteSetting(key: string) {
     const { data, error } = await getSupabase().from('site_settings').select('value').eq('key', key).single();
     if (error) return null;
     return data.value;
+  } catch {
+    return null;
+  }
+}
+
+export async function getNatalConfig(): Promise<NatalConfig | null> {
+  try {
+    const raw = await getSiteSetting('natal_seasonal_config');
+    if (!raw) return null;
+    return JSON.parse(raw) as NatalConfig;
   } catch {
     return null;
   }
@@ -65,6 +75,18 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       return { slots: [], message: "Este serviço está temporariamente pausado." };
     }
 
+    // Regra Sazonal de Natal (se a data do agendamento estiver dentro do período)
+    const natalConfig = await getNatalConfig();
+    const isNatalActiveDate = natalConfig?.enabled && 
+      (!natalConfig.startDate || dateStr >= natalConfig.startDate) &&
+      (!natalConfig.endDate || dateStr <= natalConfig.endDate);
+
+    const natalRule = isNatalActiveDate ? natalConfig?.sessionRules?.[sessionId] : null;
+
+    if (isNatalActiveDate && natalRule?.paused) {
+      return { slots: [], message: "Este ensaio não está disponível durante a temporada de Natal." };
+    }
+
     // Verificar restrição de data para serviços sazonais
     if (!dbSession.is_perpetual) {
       if (dbSession.start_date && dateStr < dbSession.start_date) {
@@ -86,31 +108,50 @@ export async function getAvailableSlots(dateStr: string, sessionId: string, isAd
       return { slots: [], message: "Data bloqueada para agendamentos." };
     }
 
-    // 2. Buscar Slots Globais e Específicos para o dia
-    const [globalRes, specificRes] = await Promise.all([
-      getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).is('session_id', null).order('start_time'),
-      getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).eq('session_id', sessionId).order('start_time')
-    ]);
+    let schemaSlots: SlotDefinition[] = [];
 
-    const globalSlots = globalRes.data || [];
-    const specificSlots = specificRes.data || [];
+    // Se houver horários específicos de Natal configurados para este ensaio e data ativa de Natal
+    if (isNatalActiveDate && natalRule?.slots && natalRule.slots.length > 0) {
+      const dayNatalSlots = natalRule.slots.filter(s => s.day_of_week === dayOfWeek);
+      schemaSlots = dayNatalSlots.map(s => {
+        const [h, m] = s.time.split(':').map(Number);
+        const endMinutes = h * 60 + m + (dbSession.duration_slots || 1) * 30;
+        const endH = String(Math.floor(endMinutes / 60)).padStart(2, '0');
+        const endM = String(endMinutes % 60).padStart(2, '0');
+        return {
+          id: `natal-${sessionId}-${s.day_of_week}-${s.time}`,
+          day_of_week: s.day_of_week,
+          start_time: s.time.length === 5 ? `${s.time}:00` : s.time,
+          end_time: `${endH}:${endM}:00`,
+          session_id: sessionId,
+          is_active: true,
+          source: 'session' as const
+        };
+      }).sort((a, b) => a.start_time.localeCompare(b.start_time));
+    } else {
+      // 2. Buscar Slots Globais e Específicos para o dia (Modo Normal fora do Natal ou sem override de Natal)
+      const [globalRes, specificRes] = await Promise.all([
+        getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).is('session_id', null).order('start_time'),
+        getSupabase().from('schema_slots').select('*').eq('day_of_week', dayOfWeek).eq('session_id', sessionId).order('start_time')
+      ]);
 
-    // Criar um mapa de slots finais baseados no merge
-    // Slots específicos (Overrides) prevalecem sobre os Globais
-    const finalSlotsMap: Record<string, SlotDefinition> = {};
+      const globalSlots = globalRes.data || [];
+      const specificSlots = specificRes.data || [];
 
-    globalSlots.forEach((gs: SlotDefinition) => {
-      finalSlotsMap[gs.start_time] = gs;
-    });
+      const finalSlotsMap: Record<string, SlotDefinition> = {};
 
-    specificSlots.forEach((ss: SlotDefinition) => {
-      finalSlotsMap[ss.start_time] = ss;
-    });
+      globalSlots.forEach((gs: SlotDefinition) => {
+        finalSlotsMap[gs.start_time] = gs;
+      });
 
-    // Filtra apenas os que restaram ativos após o merge e ordena cronologicamente
-    const schemaSlots = Object.values(finalSlotsMap)
-      .filter((s: SlotDefinition) => s.is_active)
-      .sort((a, b) => a.start_time.localeCompare(b.start_time));
+      specificSlots.forEach((ss: SlotDefinition) => {
+        finalSlotsMap[ss.start_time] = ss;
+      });
+
+      schemaSlots = Object.values(finalSlotsMap)
+        .filter((s: SlotDefinition) => s.is_active)
+        .sort((a, b) => a.start_time.localeCompare(b.start_time));
+    }
 
     // 3. Pegar agendamentos existentes na data (apenas confirmados ou pendentes não expirados)
     const currentTime = new Date();
@@ -287,6 +328,10 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       finalSlotsMap[key] = ss;
     });
 
+    // Regra Sazonal de Natal
+    const natalConfig = await getNatalConfig();
+    const natalRule = natalConfig?.sessionRules?.[sessionId];
+
     // Build per-day master grids (sorted start_time arrays for each day_of_week)
     const masterGridByDay: Record<number, string[]> = {};
     Object.values(finalSlotsMap).forEach((s: SlotDefinition) => {
@@ -297,6 +342,19 @@ export async function getMonthAvailability(year: number, month: number, sessionI
     Object.keys(masterGridByDay).forEach((dow) => {
       masterGridByDay[Number(dow)].sort();
     });
+
+    // Master grid específico para o Natal se houver slots configurados
+    const natalMasterGridByDay: Record<number, string[]> = {};
+    if (natalRule?.slots && natalRule.slots.length > 0) {
+      natalRule.slots.forEach(s => {
+        if (!natalMasterGridByDay[s.day_of_week]) natalMasterGridByDay[s.day_of_week] = [];
+        const timeWithSec = s.time.length === 5 ? `${s.time}:00` : s.time;
+        natalMasterGridByDay[s.day_of_week].push(timeWithSec);
+      });
+      Object.keys(natalMasterGridByDay).forEach((dow) => {
+        natalMasterGridByDay[Number(dow)].sort();
+      });
+    }
 
     // 3. Bookings no período
     const currentTime = new Date();
@@ -337,6 +395,17 @@ export async function getMonthAvailability(year: number, month: number, sessionI
       const dateStr = date.toISOString().split('T')[0];
       const dayOfWeek = date.getDay(); // Local day-of-week, consistent with getAvailableSlots
 
+      // Verifica se a data atual cai no período de Natal
+      const isNatalActiveDate = natalConfig?.enabled && 
+        (!natalConfig.startDate || dateStr >= natalConfig.startDate) &&
+        (!natalConfig.endDate || dateStr <= natalConfig.endDate);
+
+      // Se a data estiver no Natal e o ensaio estiver configurado como pausado no Natal
+      if (isNatalActiveDate && natalRule?.paused) {
+        availabilityMap[dateStr] = false;
+        continue;
+      }
+
       // Check if day is blocked
       const isBlocked = blockedDays?.some((b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date);
 
@@ -346,7 +415,10 @@ export async function getMonthAvailability(year: number, month: number, sessionI
         (!session.end_date || dateStr <= session.end_date)
       );
 
-      const dayGrid = masterGridByDay[dayOfWeek];
+      // Seleciona a grade: Natal (se ativo na data e com override de slots) ou Normal
+      const hasNatalSlots = isNatalActiveDate && natalRule?.slots && natalRule.slots.length > 0;
+      const dayGrid = hasNatalSlots ? (natalMasterGridByDay[dayOfWeek] || []) : (masterGridByDay[dayOfWeek] || []);
+
       if (isBlocked || !dayGrid || dayGrid.length === 0 || !isWithinRange) {
         availabilityMap[dateStr] = false;
         continue;

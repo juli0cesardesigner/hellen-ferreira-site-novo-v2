@@ -17,6 +17,7 @@ import { ThumbnailManager } from "@/components/admin/ThumbnailManager";
 import { ChecklistManager } from "@/components/admin/ChecklistManager";
 import { LinksManager } from "@/components/admin/LinksManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { NatalSeasonalSection } from "@/components/admin/NatalSeasonal";
 
 import { getDashboardData, getFinanceDetailedStats, getFinanceSummary } from "@/lib/actions/admin-actions";
 import { logout } from "@/lib/actions/auth-actions";
@@ -27,12 +28,12 @@ import { EditBookingModal } from "@/components/admin/EditBookingModal";
 import { AnimatePresence, motion } from "framer-motion";
 import { Booking, SlotDefinition, BlockedDate } from "@/types/database";
 import { getSessionColor } from "@/lib/utils/colors";
-import { Ban, Camera, CheckSquare, Link2, Activity } from "lucide-react";
+import { Ban, Camera, CheckSquare, Link2, Activity, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { AdminBottomNav } from "@/components/layout/BottomNav";
 
 
-type TabType = 'calendar' | 'analytics' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails' | 'checklist' | 'links';
+type TabType = 'calendar' | 'natal' | 'analytics' | 'blocks' | 'slots' | 'finance' | 'sessions' | 'expenses' | 'clients' | 'thumbnails' | 'checklist' | 'links';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
@@ -329,6 +330,13 @@ export default function AdminDashboard() {
 
           <div className="px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-10 mb-2">Configurações</div>
           
+          <SidebarNavItem 
+            active={activeTab === 'natal'} 
+            disabled={isEditing}
+            onClick={() => handleTabChange('natal')} 
+            icon={<Sparkles size={20} className="text-rose-400" />} 
+            label="Natal 🎄" 
+          />
           <SidebarNavItem 
             active={activeTab === 'sessions'} 
             disabled={isEditing}
@@ -1126,6 +1134,9 @@ export default function AdminDashboard() {
             )}
             {activeTab === 'analytics' && (
               <AnalyticsDashboard onRefreshTrigger={crmRefreshTrigger} />
+            )}
+            {activeTab === 'natal' && (
+              <NatalSeasonalSection onEditingChange={setIsSectionEditing} />
             )}
             {activeTab === 'slots' && <StandardSlotsSection onEditingChange={setIsSectionEditing} />}
             {activeTab === 'sessions' && (
