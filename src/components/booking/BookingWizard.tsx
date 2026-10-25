@@ -45,11 +45,13 @@ interface MercadoPagoBrickSettings {
 interface BookingWizardProps {
   initialSessionId?: string;
   initialTier?: number;
+  initialModality?: 'digital' | 'print';
 }
 
 export default function BookingWizard({ 
   initialSessionId = "be68f0ac-d486-4cad-8ea4-3eed090ffada", 
-  initialTier = 1 
+  initialTier = 1,
+  initialModality = 'digital'
 }: BookingWizardProps) {
   const { showToast } = useToast();
 
@@ -70,7 +72,7 @@ export default function BookingWizard({
   const [locationDetails, setLocationDetails] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isDataAutoFilled, setIsDataAutoFilled] = useState(false);
-  const [packageType, setPackageType] = useState<'digital' | 'print'>('digital');
+  const [packageType, setPackageType] = useState<'digital' | 'print'>(initialModality);
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -159,7 +161,13 @@ export default function BookingWizard({
   useEffect(() => {
     async function loadSession() {
       const res = await fetchSessionDetails(sessionId);
-      if (res.session) setSession(res.session);
+      if (res.session) {
+        setSession(res.session);
+        if (res.session.start_date) {
+          const [sYear, sMonth] = res.session.start_date.split('-').map(Number);
+          setCurrentMonthDate(new Date(sYear, sMonth - 1, 1));
+        }
+      }
     }
     loadSession();
   }, [sessionId]);
@@ -401,19 +409,34 @@ export default function BookingWizard({
     }
   }, [selectedDate, sessionId]);
 
+  const canPrevMonth = () => {
+    if (session?.start_date) {
+      const [sYear, sMonth] = session.start_date.split('-').map(Number);
+      return new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth(), 1) > new Date(sYear, sMonth - 1, 1);
+    }
+    const today = new Date();
+    return currentMonthDate > new Date(today.getFullYear(), today.getMonth(), 1);
+  };
+
+  const canNextMonth = () => {
+    if (session?.end_date) {
+      const [eYear, eMonth] = session.end_date.split('-').map(Number);
+      return new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth(), 1) < new Date(eYear, eMonth - 1, 1);
+    }
+    return true;
+  };
+
   const handleNextMonth = () => {
+    if (!canNextMonth()) return;
     const next = new Date(currentMonthDate);
     next.setMonth(next.getMonth() + 1);
     setCurrentMonthDate(next);
   };
 
   const handlePrevMonth = () => {
+    if (!canPrevMonth()) return;
     const prev = new Date(currentMonthDate);
     prev.setMonth(prev.getMonth() - 1);
-    const today = new Date();
-    if (prev < new Date(today.getFullYear(), today.getMonth(), 1)) {
-      return;
-    }
     setCurrentMonthDate(prev);
   };
 
@@ -519,7 +542,12 @@ export default function BookingWizard({
                 className="space-y-12"
               >
                 <div className="flex items-center justify-between border-b border-[#E6DFD3]/30 pb-8">
-                  <button onClick={handlePrevMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]" aria-label="Mês anterior">
+                  <button 
+                    disabled={!canPrevMonth()} 
+                    onClick={handlePrevMonth} 
+                    className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681] disabled:opacity-20 disabled:cursor-not-allowed" 
+                    aria-label="Mês anterior"
+                  >
                     <ChevronLeft size={24} />
                   </button>
                   <h3 className="text-2xl font-serif italic text-[#2C2A29]">
@@ -531,7 +559,12 @@ export default function BookingWizard({
                     )}
                     <span className="text-blush opacity-30 mx-3">—</span> {monthNames[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
                   </h3>
-                  <button onClick={handleNextMonth} className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681]" aria-label="Próximo mês">
+                  <button 
+                    disabled={!canNextMonth()} 
+                    onClick={handleNextMonth} 
+                    className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681] disabled:opacity-20 disabled:cursor-not-allowed" 
+                    aria-label="Próximo mês"
+                  >
                     <ChevronRight size={24} />
                   </button>
                 </div>
@@ -551,6 +584,17 @@ export default function BookingWizard({
                       const isSelected = selectedDate === dateStr;
                       const isToday = new Date().toISOString().split('T')[0] === dateStr;
                       const isPast = date < new Date(new Date().setHours(0,0,0,0));
+
+                      // Para serviços sazonais com data de início e fim definida (ex: Natal),
+                      // os dias fora do período permitido ficam totalmente ocultos
+                      const isOutOfSeason = Boolean(
+                        (session?.start_date && dateStr < session.start_date) ||
+                        (session?.end_date && dateStr > session.end_date)
+                      );
+
+                      if (isOutOfSeason) {
+                        return <div key={`hidden-${dateStr}`} className="h-16 md:h-24 pointer-events-none" />;
+                      }
 
                       return (
                         <button

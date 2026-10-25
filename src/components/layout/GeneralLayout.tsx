@@ -18,14 +18,16 @@ export function GeneralLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isNatal = pathname?.startsWith("/natal");
+
   return (
     <ToastProvider>
-      <Navbar />
-      <main className="flex-grow pt-20">
+      {!isNatal && <Navbar />}
+      <main className={`flex-grow ${isNatal ? "" : "pt-20"}`}>
         {children}
       </main>
-      <Footer />
-      <WhatsAppWidget />
+      {!isNatal && <Footer />}
+      {!isNatal && <WhatsAppWidget />}
     </ToastProvider>
   );
 }

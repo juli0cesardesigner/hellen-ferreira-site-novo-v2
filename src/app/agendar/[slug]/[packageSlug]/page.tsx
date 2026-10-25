@@ -7,6 +7,7 @@ import { getCategoryDynamicMetadata } from "@/lib/seo-metadata";
 
 interface PageProps {
   params: Promise<{ slug: string; packageSlug: string }>;
+  searchParams?: Promise<{ modality?: string }>;
 }
 
 export const revalidate = 0;
@@ -30,8 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-export default async function AgendarPackagePage({ params }: PageProps) {
+export default async function AgendarPackagePage({ params, searchParams }: PageProps) {
   const { slug, packageSlug } = await params;
+  const sParams = await searchParams;
   
   const { session } = await fetchSessionBySlug(slug);
   
@@ -46,10 +48,13 @@ export default async function AgendarPackagePage({ params }: PageProps) {
     notFound();
   }
 
+  const initialModality = sParams?.modality === 'print' || sParams?.modality === 'impressa' ? 'print' : 'digital';
+
   return (
     <BookingWizard 
       initialSessionId={session.id} 
-      initialTier={pkg.tier_order} 
+      initialTier={pkg.tier_order}
+      initialModality={initialModality}
     />
   );
 }

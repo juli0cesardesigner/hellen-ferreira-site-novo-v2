@@ -353,6 +353,74 @@ export const SESSIONS_DATA: Record<string, Session> = {
         is_active: true
       }
     ]
+  },
+  "e7a1e0b2-3f4a-4b9e-9d2a-8b1e4c7d0a26": {
+    id: "e7a1e0b2-3f4a-4b9e-9d2a-8b1e4c7d0a26",
+    name: "Natal",
+    slug: "natal",
+    is_active: true,
+    duration_slots: 3,
+    deposit_price: 100,
+    theme_color: "#C41E3A",
+    is_perpetual: false,
+    start_date: "2026-11-14",
+    end_date: "2026-12-12",
+    setup_minutes: 0,
+    cleanup_minutes: 0,
+    min_notice_hours: 12,
+    session_packages: [
+      {
+        id: "e7a1e0b2-0001-4000-a000-000000000001",
+        name: "Mini Ensaio — somente o baby",
+        slug: "mini-ensaio-baby",
+        description: "10 fotos em alta resolução",
+        tier_order: 1,
+        price_digital: 450,
+        price_print: 500,
+        upgrade_label: "Digital + Impressa",
+        features: [
+          "10 Fotos digitais em alta resolução",
+          "Somente o baby",
+          "Cenário exclusivo de Natal 2026",
+          "Galeria online privada para download"
+        ],
+        is_active: true
+      },
+      {
+        id: "e7a1e0b2-0002-4000-a000-000000000002",
+        name: "Família — pais e irmãos",
+        slug: "familia-pais-irmaos",
+        description: "25 fotos em alta resolução",
+        tier_order: 2,
+        price_digital: 600,
+        price_print: 700,
+        upgrade_label: "Digital + Impressa",
+        features: [
+          "25 Fotos digitais em alta resolução",
+          "Pais e irmãos inclusos",
+          "Cenário exclusivo de Natal 2026",
+          "Galeria online privada para download"
+        ],
+        is_active: true
+      },
+      {
+        id: "e7a1e0b2-0003-4000-a000-000000000003",
+        name: "Completo — família + acompanhantes",
+        slug: "completo-familia-acompanhantes",
+        description: "50 fotos em alta resolução",
+        tier_order: 3,
+        price_digital: 800,
+        price_print: 900,
+        upgrade_label: "Digital + Impressa",
+        features: [
+          "50 Fotos digitais em alta resolução",
+          "Família completa + acompanhantes",
+          "Cenário exclusivo de Natal 2026",
+          "Galeria online privada para download"
+        ],
+        is_active: true
+      }
+    ]
   }
 };
 

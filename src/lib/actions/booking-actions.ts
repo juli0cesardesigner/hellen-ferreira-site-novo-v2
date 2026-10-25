@@ -953,3 +953,120 @@ export async function getClientProfileByEmail(email: string) {
   }
 }
 
+/**
+ * Retorna a disponibilidade real e dinâmica para o calendário da Dobra 2 de Natal
+ * Exibe apenas os dias que ainda possuem vagas abertas, cruzando com agendamentos de todos os serviços.
+ */
+export async function getNatalCalendarAvailability(): Promise<Record<string, boolean>> {
+  try {
+    const startDate = "2026-11-08";
+    const endDate = "2026-12-12";
+
+    // 1. Buscar bloqueios no período
+    const { data: blockedDays } = await getSupabase()
+      .from('blocked_dates')
+      .select('start_date, end_date')
+      .lte('start_date', endDate)
+      .gte('end_date', startDate);
+
+    // 2. Buscar agendamentos existentes (confirmados ou pendentes válidos) de qualquer serviço
+    const currentTime = new Date();
+    const { data: bookings } = await getSupabase()
+      .from('bookings')
+      .select('booking_date, start_time, end_time, status, expires_at')
+      .gte('booking_date', startDate)
+      .lte('booking_date', endDate)
+      .in('status', ['confirmed', 'pending']);
+
+    const activeBookings = (bookings || []).filter((b) => {
+      if (b.status === 'confirmed') return true;
+      if (b.status === 'pending') {
+        if (!b.expires_at) return true;
+        return new Date(b.expires_at as string) > currentTime;
+      }
+      return false;
+    });
+
+    // Grade oficial de Natal:
+    // Terça (2), Quarta (3) e Sexta (5): 9:30, 11, 14, 15:30 e 17
+    // Sábado (6): 8, 9:30, 11, 14 e 16
+    // Domingo (0): 8, 9:30 e 11
+    const natalSlotsByDay: Record<number, string[]> = {
+      0: ["08:00:00", "09:30:00", "11:00:00"],
+      2: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+      3: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+      5: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+      6: ["08:00:00", "09:30:00", "11:00:00", "14:00:00", "16:00:00"],
+    };
+
+    const durationMinutes = 90; // Duração de 1h30 por ensaio de Natal
+    const availabilityMap: Record<string, boolean> = {};
+
+    const curDate = new Date(2026, 10, 8); // 8 de Nov de 2026
+    const finalDate = new Date(2026, 11, 12); // 12 de Dez de 2026
+
+    while (curDate <= finalDate) {
+      const y = curDate.getFullYear();
+      const m = String(curDate.getMonth() + 1).padStart(2, '0');
+      const d = String(curDate.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${d}`;
+      const dayOfWeek = curDate.getDay();
+
+      // Temporada inicia em 14/11 e termina em 12/12 (dias fora deste intervalo ficam ocultos/indisponíveis)
+      if (dateStr < "2026-11-14" || dateStr > "2026-12-12") {
+        availabilityMap[dateStr] = false;
+        curDate.setDate(curDate.getDate() + 1);
+        continue;
+      }
+
+      // Segunda (1) e Quinta (4) não têm horários de Natal
+      const slots = natalSlotsByDay[dayOfWeek];
+      if (!slots || slots.length === 0) {
+        availabilityMap[dateStr] = false;
+        curDate.setDate(curDate.getDate() + 1);
+        continue;
+      }
+
+      // Bloqueio manual em massa
+      const isBlocked = blockedDays?.some((b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date);
+      if (isBlocked) {
+        availabilityMap[dateStr] = false;
+        curDate.setDate(curDate.getDate() + 1);
+        continue;
+      }
+
+      // Agendamentos deste dia
+      const dayBookings = activeBookings.filter((b) => b.booking_date === dateStr);
+
+      // Checa se há pelo menos 1 slot livre sem colisão de horário
+      let hasAvailableSlot = false;
+      for (const startTime of slots) {
+        const [sh, sm] = startTime.split(':').map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = startMin + durationMinutes;
+
+        const collides = dayBookings.some((b) => {
+          const [bStartH, bStartM] = b.start_time.split(':').map(Number);
+          const [bEndH, bEndM] = b.end_time.split(':').map(Number);
+          const bStartMin = bStartH * 60 + bStartM;
+          const bEndMin = bEndH * 60 + bEndM;
+          return startMin < bEndMin && endMin > bStartMin;
+        });
+
+        if (!collides) {
+          hasAvailableSlot = true;
+          break;
+        }
+      }
+
+      availabilityMap[dateStr] = hasAvailableSlot;
+      curDate.setDate(curDate.getDate() + 1);
+    }
+
+    return availabilityMap;
+  } catch (error) {
+    console.error("Erro ao verificar disponibilidade do calendário de Natal:", error);
+    return {};
+  }
+}
+
