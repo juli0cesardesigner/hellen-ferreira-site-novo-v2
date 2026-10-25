@@ -63,7 +63,7 @@ const PACKS: Pack[] = [
     cor: "#442f23",
     fotos: "10 fotos",
     precos: { digital: "R$ 450", impressa: "R$ 500" },
-    titulo: { src: `${BASE}/pack1/pack1_titulo.webp`, w: 203.02, h: 73.43 },
+    titulo: { src: `${BASE}/pack1/pack1_titulo.webp`, w: 220, h: 38.52 },
     fotosImg: { src: `${BASE}/pack1/pack1_fotos.webp`, w: 143.03, h: 61.83 },
     precoImg: {
       digital: { src: `${BASE}/pack1/pack1_preco_digital.webp`, w: 167.75, h: 100.95 },
@@ -76,7 +76,7 @@ const PACKS: Pack[] = [
     cor: "#194230",
     fotos: "25 fotos",
     precos: { digital: "R$ 600", impressa: "Preço impressa" },
-    titulo: { src: `${BASE}/pack2/pack2_titulo.webp`, w: 131.58, h: 57.24 },
+    titulo: { src: `${BASE}/pack2/pack2_titulo.webp`, w: 180, h: 41.14 },
     fotosImg: { src: `${BASE}/pack2/pack2_fotos.webp`, w: 143.28, h: 23.76 },
     precoImg: {
       digital: { src: `${BASE}/pack2/pack2_preco_digital.webp`, w: 176.23, h: 47.05 },
@@ -89,7 +89,7 @@ const PACKS: Pack[] = [
     cor: "#540b1c",
     fotos: "40 fotos",
     precos: { digital: "R$ 800", impressa: "Preço impressa" },
-    titulo: { src: `${BASE}/pack3/pack3_titulo.webp`, w: 224.32, h: 51.48 },
+    titulo: { src: `${BASE}/pack3/pack3_titulo.webp`, w: 240, h: 44.26 },
     fotosImg: { src: `${BASE}/pack3/pack3_fotos.webp`, w: 147.93, h: 23.76 },
     precoImg: {
       digital: { src: `${BASE}/pack3/pack3_preco_digital.webp`, w: 175.68, h: 47.05 },
@@ -166,7 +166,7 @@ function PriceCard({ pack, index }: { pack: Pack; index: number }) {
       {/* Título */}
       <Slot top={POS.titulo} w={pack.titulo.w} h={pack.titulo.h}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={pack.titulo.src} alt={pack.nome} className="w-full h-full" draggable={false} />
+        <img src={pack.titulo.src} alt={pack.nome} className="w-full h-full object-contain" draggable={false} />
       </Slot>
 
       {/* Quantidade de fotos */}
