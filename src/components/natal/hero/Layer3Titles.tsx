@@ -82,7 +82,7 @@ export function Layer3Titles({
             className="group relative block w-[280px] sm:w-[320px] md:w-[360px] aspect-[502.06/66.13] transition-transform duration-300 ease-out hover:scale-[1.04] active:scale-[0.98] drop-shadow-[0_10px_24px_rgba(0,0,0,0.5)] hover:drop-shadow-[0_16px_32px_rgba(0,0,0,0.7)] focus:outline-none"
           >
             <Image
-              src="/natal/dobra1/dobra1_CTA.svg"
+              src="/natal/dobra1/dobra1_CTA.webp"
               alt="Garantir Minha Vaga"
               fill
               sizes="(max-width: 768px) 320px, 360px"

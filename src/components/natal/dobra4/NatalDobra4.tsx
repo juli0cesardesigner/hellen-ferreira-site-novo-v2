@@ -23,16 +23,16 @@ const CARD_RADIUS = 25.4; // rx original do packX_bg.svg
 
 const pct = (v: number, total: number) => `${(v / total) * 100}%`;
 
-// Textos de apoio (compartilhados entre os packs). O "ç" é codificado para evitar problemas de URL.
+// Textos de apoio (compartilhados entre os packs)
 const APOIO: Record<Modalidade, { src: string; w: number; h: number; alt: string }> = {
   digital: {
-    src: `${BASE}/apoio_sob_pre%C3%A7o_digital.svg`,
+    src: `${BASE}/apoio_sob_preco_digital.webp`,
     w: 206.26,
     h: 17.11,
     alt: "Otimizada para Redes Sociais",
   },
   impressa: {
-    src: `${BASE}/apoio_sob_pre%C3%A7o_impressa.svg`,
+    src: `${BASE}/apoio_sob_preco_impressa.webp`,
     w: 219.51,
     h: 35.53,
     alt: "Fotos impressas",
@@ -48,7 +48,7 @@ interface PackAsset {
 interface Pack {
   id: string;
   nome: string;
-  cor: string; // cor de fundo do card (mesma do packX_bg.svg)
+  cor: string;
   fotos: string;
   precos: Record<Modalidade, string>;
   titulo: PackAsset;
@@ -63,11 +63,11 @@ const PACKS: Pack[] = [
     cor: "#442f23",
     fotos: "10 fotos",
     precos: { digital: "R$ 450", impressa: "R$ 500" },
-    titulo: { src: `${BASE}/pack1/pack1_titulo.svg`, w: 203.02, h: 73.43 },
-    fotosImg: { src: `${BASE}/pack1/pack1_fotos.svg`, w: 143.03, h: 61.83 },
+    titulo: { src: `${BASE}/pack1/pack1_titulo.webp`, w: 203.02, h: 73.43 },
+    fotosImg: { src: `${BASE}/pack1/pack1_fotos.webp`, w: 143.03, h: 61.83 },
     precoImg: {
-      digital: { src: `${BASE}/pack1/pack1_preco_digital.svg`, w: 167.75, h: 100.95 },
-      impressa: { src: `${BASE}/pack1/pack1_preso_impressa.svg`, w: 174.75, h: 100.95 },
+      digital: { src: `${BASE}/pack1/pack1_preco_digital.webp`, w: 167.75, h: 100.95 },
+      impressa: { src: `${BASE}/pack1/pack1_preso_impressa.webp`, w: 174.75, h: 100.95 },
     },
   },
   {
@@ -76,24 +76,24 @@ const PACKS: Pack[] = [
     cor: "#194230",
     fotos: "25 fotos",
     precos: { digital: "R$ 600", impressa: "Preço impressa" },
-    titulo: { src: `${BASE}/pack2/pack2_titulo.svg`, w: 131.58, h: 57.24 },
-    fotosImg: { src: `${BASE}/pack2/pack2_fotos.svg`, w: 143.28, h: 23.76 },
+    titulo: { src: `${BASE}/pack2/pack2_titulo.webp`, w: 131.58, h: 57.24 },
+    fotosImg: { src: `${BASE}/pack2/pack2_fotos.webp`, w: 143.28, h: 23.76 },
     precoImg: {
-      digital: { src: `${BASE}/pack2/pack2_preco_digital.svg`, w: 176.23, h: 47.05 },
-      impressa: { src: `${BASE}/pack2/pack2_preco_impressa.svg`, w: 166.53, h: 47.05 },
+      digital: { src: `${BASE}/pack2/pack2_preco_digital.webp`, w: 176.23, h: 47.05 },
+      impressa: { src: `${BASE}/pack2/pack2_preco_impressa.webp`, w: 166.53, h: 47.05 },
     },
   },
   {
     id: "pack3",
     nome: "Completo — família + acompanhantes",
     cor: "#540b1c",
-    fotos: "50 fotos",
+    fotos: "40 fotos",
     precos: { digital: "R$ 800", impressa: "Preço impressa" },
-    titulo: { src: `${BASE}/pack3/pack3_titulo.svg`, w: 224.32, h: 51.48 },
-    fotosImg: { src: `${BASE}/pack3/pack3_fotos.svg`, w: 147.93, h: 23.76 },
+    titulo: { src: `${BASE}/pack3/pack3_titulo.webp`, w: 224.32, h: 51.48 },
+    fotosImg: { src: `${BASE}/pack3/pack3_fotos.webp`, w: 147.93, h: 23.76 },
     precoImg: {
-      digital: { src: `${BASE}/pack3/pack3_preco_digital.svg`, w: 175.68, h: 47.05 },
-      impressa: { src: `${BASE}/pack3/pack3_preco_impressa.svg`, w: 167.88, h: 47.05 },
+      digital: { src: `${BASE}/pack3/pack3_preco_digital.webp`, w: 175.68, h: 47.05 },
+      impressa: { src: `${BASE}/pack3/pack3_preco_impressa.webp`, w: 167.88, h: 47.05 },
     },
   },
 ];
@@ -195,7 +195,7 @@ function PriceCard({ pack, index }: { pack: Pack; index: number }) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`${BASE}/${pack.id}/${pack.id}_${m}.svg`}
+                  src={`${BASE}/${pack.id}/${pack.id}_${m}.webp`}
                   alt={m === "digital" ? "Digital" : "Impressa"}
                   className="w-full h-full block"
                   draggable={false}
@@ -239,7 +239,7 @@ function PriceCard({ pack, index }: { pack: Pack; index: number }) {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`${BASE}/${pack.id}/${pack.id}_agendar.svg`}
+            src={`${BASE}/${pack.id}/${pack.id}_agendar.webp`}
             alt="Agendar"
             className="w-full h-full block"
             draggable={false}

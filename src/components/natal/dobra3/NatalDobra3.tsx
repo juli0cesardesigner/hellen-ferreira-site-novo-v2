@@ -52,7 +52,7 @@ export function NatalDobra3() {
         {/* Título: GUIA DE CORES */}
         <div className="relative w-full max-w-[340px] sm:max-w-[480px] md:max-w-[560px] aspect-[635/49] mb-8 md:mb-12">
           <Image
-            src="/natal/dobra3/titulo_mobile_dobra3.svg"
+            src="/natal/dobra3/titulo_mobile_dobra3.webp"
             alt="Guia de Cores - Especial de Natal"
             fill
             className="object-contain"

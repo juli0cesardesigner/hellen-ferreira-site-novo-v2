@@ -407,13 +407,13 @@ export const SESSIONS_DATA: Record<string, Session> = {
         id: "e7a1e0b2-0003-4000-a000-000000000003",
         name: "Completo — família + acompanhantes",
         slug: "completo-familia-acompanhantes",
-        description: "50 fotos em alta resolução",
+        description: "40 fotos em alta resolução",
         tier_order: 3,
         price_digital: 800,
         price_print: 900,
         upgrade_label: "Digital + Impressa",
         features: [
-          "50 Fotos digitais em alta resolução",
+          "40 Fotos digitais em alta resolução",
           "Família completa + acompanhantes",
           "Cenário exclusivo de Natal 2026",
           "Galeria online privada para download"
