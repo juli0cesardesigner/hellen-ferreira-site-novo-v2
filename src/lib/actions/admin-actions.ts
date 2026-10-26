@@ -1116,6 +1116,178 @@ export async function saveNatalConfigAdmin(config: NatalConfig) {
   return res;
 }
 
+export async function getNatalSlotsSummaryStats() {
+  await validateAdmin();
+  const admin = getAdminClient();
+
+  // 1. Obter configuração do Natal
+  const natalConfig = await getNatalConfigAdmin();
+  
+  // Datas padrão da temporada de Natal se não configuradas
+  const startDate = natalConfig.startDate || "2026-11-14";
+  const endDate = natalConfig.endDate || "2026-12-12";
+
+  // Grade oficial padrão da Temporada de Natal:
+  // Terça (2), Quarta (3) e Sexta (5): 9:30, 11, 14, 15:30 e 17 (5 slots/dia)
+  // Sábado (6): 8, 9:30, 11, 14 e 16 (5 slots/dia)
+  // Domingo (0): 8, 9:30 e 11 (3 slots/dia)
+  const natalSlotsByDay: Record<number, string[]> = {
+    0: ["08:00:00", "09:30:00", "11:00:00"],
+    2: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+    3: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+    5: ["09:30:00", "11:00:00", "14:00:00", "15:30:00", "17:00:00"],
+    6: ["08:00:00", "09:30:00", "11:00:00", "14:00:00", "16:00:00"],
+  };
+
+  const durationMinutes = 90; // 1h30 por sessão
+
+  // 2. Buscar bloqueios no período
+  const { data: blockedDays } = await admin
+    .from('blocked_dates')
+    .select('start_date, end_date')
+    .lte('start_date', endDate)
+    .gte('end_date', startDate);
+
+  // 3. Buscar agendamentos existentes (confirmados ou pendentes não expirados) no período com dados da sessão
+  const currentTime = new Date();
+  const { data: bookings } = await admin
+    .from('bookings')
+    .select(`
+      booking_date, 
+      start_time, 
+      end_time, 
+      status, 
+      expires_at, 
+      customer_name, 
+      package_type,
+      sessions (
+        name,
+        slug
+      )
+    `)
+    .gte('booking_date', startDate)
+    .lte('booking_date', endDate)
+    .in('status', ['confirmed', 'pending']);
+
+  type BookingWithSession = {
+    booking_date: string;
+    start_time: string;
+    end_time: string;
+    status: string;
+    expires_at?: string | null;
+    customer_name?: string | null;
+    package_type?: string | null;
+    sessions?: { name?: string; slug?: string } | null;
+  };
+
+  const activeBookings: BookingWithSession[] = ((bookings || []) as unknown as BookingWithSession[]).filter((b) => {
+    if (b.status === 'confirmed') return true;
+    if (b.status === 'pending') {
+      if (!b.expires_at) return true;
+      return new Date(b.expires_at as string) > currentTime;
+    }
+    return false;
+  });
+
+  let totalSlots = 0;
+  let natalBookedSlots = 0;
+  let otherBookedSlots = 0;
+  let blockedSlots = 0;
+
+  // Percorrer cada data do período determinado
+  const [startY, startM, startD] = startDate.split('-').map(Number);
+  const [endY, endM, endD] = endDate.split('-').map(Number);
+
+  const curDate = new Date(startY, startM - 1, startD);
+  const finalDate = new Date(endY, endM - 1, endD);
+
+  while (curDate <= finalDate) {
+    const y = curDate.getFullYear();
+    const m = String(curDate.getMonth() + 1).padStart(2, '0');
+    const d = String(curDate.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${d}`;
+    const dayOfWeek = curDate.getDay();
+
+    const slots = natalSlotsByDay[dayOfWeek];
+
+    if (slots && slots.length > 0) {
+      // Verificar se o dia inteiro está bloqueado em bloqueios em massa
+      const isDateBlocked = blockedDays?.some((b: { start_date: string; end_date: string }) => dateStr >= b.start_date && dateStr <= b.end_date);
+
+      const dayBookings = activeBookings.filter((b) => b.booking_date === dateStr);
+
+      for (const startTime of slots) {
+        totalSlots++;
+
+        if (isDateBlocked) {
+          blockedSlots++;
+          continue;
+        }
+
+        const [sh, sm] = startTime.split(':').map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = startMin + durationMinutes;
+
+        // Identificar colisão com agendamentos do dia
+        const collidingBooking = dayBookings.find((b) => {
+          const [bStartH, bStartM] = b.start_time.split(':').map(Number);
+          const [bEndH, bEndM] = b.end_time.split(':').map(Number);
+          const bStartMin = bStartH * 60 + bStartM;
+          const bEndMin = bEndH * 60 + bEndM;
+          return startMin < bEndMin && endMin > bStartMin;
+        });
+
+        if (collidingBooking) {
+          const isManualBlock = 
+            collidingBooking.customer_name?.startsWith('BLOQUEIO:') || 
+            collidingBooking.package_type?.toLowerCase().includes('bloqueio');
+
+          if (isManualBlock) {
+            blockedSlots++;
+          } else {
+            const slug = collidingBooking.sessions?.slug?.toLowerCase() || "";
+            const sessionName = collidingBooking.sessions?.name?.toLowerCase() || "";
+            const pkgName = collidingBooking.package_type?.toLowerCase() || "";
+
+            const isNatal = 
+              slug === 'natal' || 
+              sessionName.includes('natal') || 
+              pkgName.includes('natal') ||
+              pkgName.includes('mini-ensaio-baby') ||
+              pkgName.includes('pais e irmãos') ||
+              pkgName.includes('acompanhantes');
+
+            if (isNatal) {
+              natalBookedSlots++;
+            } else {
+              otherBookedSlots++;
+            }
+          }
+        }
+      }
+    }
+
+    curDate.setDate(curDate.getDate() + 1);
+  }
+
+  const bookedSlots = natalBookedSlots + otherBookedSlots;
+  const totalOccupied = bookedSlots + blockedSlots;
+  const availableSlots = Math.max(0, totalSlots - totalOccupied);
+  const occupancyRate = totalSlots > 0 ? Math.round((totalOccupied / totalSlots) * 100) : 0;
+
+  return {
+    totalSlots,
+    bookedSlots,
+    natalBookedSlots,
+    otherBookedSlots,
+    blockedSlots,
+    availableSlots,
+    occupancyRate,
+    startDate,
+    endDate
+  };
+}
+
 export async function blockSlot(date: string, time: string, reason: string) {
   await validateAdmin();
   const admin = getAdminClient();

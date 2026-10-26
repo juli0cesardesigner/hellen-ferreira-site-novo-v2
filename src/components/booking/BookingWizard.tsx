@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Home, Trees, MapPin } from "lucide-react";
+import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Home, Trees, MapPin, X, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { getAvailableSlots, createBooking, fetchSessionDetails, getMonthAvailability, processPayment, getNatalConfig } from "@/lib/actions/booking-actions";
 import { useToast } from "@/components/ui/Toast";
@@ -440,6 +440,78 @@ export default function BookingWizard({
     setCurrentMonthDate(prev);
   };
 
+  // Funções de navegação dia a dia dentro do popup de horários
+  const parseSelectedDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+
+  const formatDateToString = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const canPrevDay = () => {
+    if (!selectedDate) return false;
+    const cur = parseSelectedDate(selectedDate);
+    const prev = new Date(cur);
+    prev.setDate(prev.getDate() - 1);
+    
+    // Limite mínimo: hoje (não permitir agendamentos no passado)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (prev < today) return false;
+
+    // Se o serviço tiver data de início definida
+    if (session?.start_date) {
+      const startLimit = parseSelectedDate(session.start_date);
+      if (prev < startLimit) return false;
+    }
+    return true;
+  };
+
+  const canNextDay = () => {
+    if (!selectedDate) return false;
+    const cur = parseSelectedDate(selectedDate);
+    const next = new Date(cur);
+    next.setDate(next.getDate() + 1);
+
+    // Se o serviço tiver data de término definida
+    if (session?.end_date) {
+      const endLimit = parseSelectedDate(session.end_date);
+      if (next > endLimit) return false;
+    }
+    return true;
+  };
+
+  const handlePrevDay = () => {
+    if (!canPrevDay()) return;
+    const cur = parseSelectedDate(selectedDate);
+    cur.setDate(cur.getDate() - 1);
+    const newDateStr = formatDateToString(cur);
+    setSelectedDate(newDateStr);
+    setSelectedTime("");
+    // Se mudou de mês, sincroniza o calendário ao fundo
+    if (cur.getMonth() !== currentMonthDate.getMonth() || cur.getFullYear() !== currentMonthDate.getFullYear()) {
+      setCurrentMonthDate(new Date(cur.getFullYear(), cur.getMonth(), 1));
+    }
+  };
+
+  const handleNextDay = () => {
+    if (!canNextDay()) return;
+    const cur = parseSelectedDate(selectedDate);
+    cur.setDate(cur.getDate() + 1);
+    const newDateStr = formatDateToString(cur);
+    setSelectedDate(newDateStr);
+    setSelectedTime("");
+    // Se mudou de mês, sincroniza o calendário ao fundo
+    if (cur.getMonth() !== currentMonthDate.getMonth() || cur.getFullYear() !== currentMonthDate.getFullYear()) {
+      setCurrentMonthDate(new Date(cur.getFullYear(), cur.getMonth(), 1));
+    }
+  };
+
   const getCalendarDays = () => {
     const year = currentMonthDate.getFullYear();
     const month = currentMonthDate.getMonth();
@@ -521,17 +593,18 @@ export default function BookingWizard({
   const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
   return (
-    <div className="min-h-screen bg-[#FCFBF9] pt-32 pb-20 px-4">
+    <div className="min-h-screen bg-[#FCFBF9] pt-10 md:pt-28 pb-10 px-3 sm:px-6">
       <div className="max-w-4xl mx-auto">
         
-        <div className="text-center mb-16 space-y-4">
-          <h1 className="text-5xl md:text-6xl font-serif text-[#2C2A29] italic underline decoration-blush/20 decoration-8 underline-offset-[-2px]">
+        <div className="text-center mb-4 md:mb-8 space-y-1">
+          <h1 className="text-3xl md:text-5xl font-serif text-[#2C2A29] italic underline decoration-blush/20 decoration-6 md:decoration-8 underline-offset-[-2px]">
             Agenda
           </h1>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#8C8681] font-light">Selecione seu momento</p>
+          <p className="text-[10px] md:text-xs uppercase tracking-[0.35em] text-[#8C8681] font-light">Selecione seu momento</p>
         </div>
 
-        <div className="bg-white rounded-lg p-6 md:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-[#E6DFD3]/50">
+        {/* Container sem box/borda no mobile, preservando o card elegante em desktop */}
+        <div className="bg-transparent md:bg-white rounded-none md:rounded-3xl p-0 md:p-10 shadow-none md:shadow-[0_10px_40px_rgba(0,0,0,0.03)] border-0 md:border md:border-[#E6DFD3]/50">
           
           <AnimatePresence mode="wait">
             
@@ -539,46 +612,63 @@ export default function BookingWizard({
               <motion.div 
                 key="schedule"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="space-y-12"
+                className="space-y-4 md:space-y-8"
               >
-                <div className="flex items-center justify-between border-b border-[#E6DFD3]/30 pb-8">
-                  <button 
-                    disabled={!canPrevMonth()} 
-                    onClick={handlePrevMonth} 
-                    className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681] disabled:opacity-20 disabled:cursor-not-allowed" 
-                    aria-label="Mês anterior"
-                  >
-                    <ChevronLeft size={24} />
-                  </button>
-                  <h3 className="text-2xl font-serif italic text-[#2C2A29]">
-                    {session?.name || "Carregando..."} 
-                    {(session?.session_packages?.length ?? 0) > 1 && (
-                      <span className="text-blush text-lg ml-2">
-                        — {activePackage?.name}
-                      </span>
+                {/* ─── Cabeçalho Elegante e Otimizado para Mobile ─── */}
+                <div className="border-b border-[#E6DFD3]/60 pb-3 md:pb-6 space-y-2 text-center">
+                  {/* Identificação do Serviço e Pacote Selecionado */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white md:bg-[#FBF9F5] border border-[#E6DFD3]/70 rounded-full shadow-sm max-w-full">
+                    <span className="text-[11px] md:text-xs font-serif italic text-[#2C2A29] truncate">
+                      {session?.name || "Carregando..."}
+                    </span>
+                    {(session?.session_packages?.length ?? 0) > 1 && activePackage && (
+                      <>
+                        <span className="text-[#8C8681]/40">•</span>
+                        <span className="text-[10px] md:text-[11px] font-sans font-bold uppercase tracking-wider text-blush truncate">
+                          {activePackage.name}
+                        </span>
+                      </>
                     )}
-                    <span className="text-blush opacity-30 mx-3">—</span> {monthNames[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
-                  </h3>
-                  <button 
-                    disabled={!canNextMonth()} 
-                    onClick={handleNextMonth} 
-                    className="p-2 hover:bg-[#F5F2EC] rounded-full transition-colors text-[#8C8681] disabled:opacity-20 disabled:cursor-not-allowed" 
-                    aria-label="Próximo mês"
-                  >
-                    <ChevronRight size={24} />
-                  </button>
+                  </div>
+
+                  {/* Controle e Navegação de Mês / Ano */}
+                  <div className="flex items-center justify-between max-w-sm mx-auto px-2">
+                    <button 
+                      disabled={!canPrevMonth()} 
+                      onClick={handlePrevMonth} 
+                      className="w-10 h-10 hover:bg-[#F5F2EC] active:scale-90 rounded-full transition-all text-[#2C2A29] flex items-center justify-center disabled:opacity-20 disabled:cursor-not-allowed" 
+                      aria-label="Mês anterior"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+
+                    <h3 className="text-xl md:text-2xl font-serif italic text-[#2C2A29] tracking-tight">
+                      {monthNames[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
+                    </h3>
+
+                    <button 
+                      disabled={!canNextMonth()} 
+                      onClick={handleNextMonth} 
+                      className="w-10 h-10 hover:bg-[#F5F2EC] active:scale-90 rounded-full transition-all text-[#2C2A29] flex items-center justify-center disabled:opacity-20 disabled:cursor-not-allowed" 
+                      aria-label="Próximo mês"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="grid grid-cols-7 gap-1 mb-4 text-center">
+                <div className="space-y-1">
+                  {/* Cabeçalho dos dias da semana (DOM, SEG, TER...) com maior nitidez */}
+                  <div className="grid grid-cols-7 gap-1 mb-2 text-center">
                     {dayNamesShort.map(d => (
-                      <div key={d} className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681] py-2">{d}</div>
+                      <div key={d} className="text-[11px] md:text-[12px] uppercase tracking-wider font-extrabold text-[#736E6A] py-1">{d}</div>
                     ))}
                   </div>
                   
+                  {/* Grade de dias com fontes grandes e excelente contraste */}
                   <div className="grid grid-cols-7 gap-1">
                     {getCalendarDays().map((date, idx) => {
-                      if (!date) return <div key={`empty-${idx}`} className="h-16 md:h-24" />;
+                      if (!date) return <div key={`empty-${idx}`} className="h-12 sm:h-14 md:h-20" />;
                       const dateStr = date.toISOString().split('T')[0];
                       const isAvailable = monthAvailability[dateStr];
                       const isSelected = selectedDate === dateStr;
@@ -593,7 +683,7 @@ export default function BookingWizard({
                       );
 
                       if (isOutOfSeason) {
-                        return <div key={`hidden-${dateStr}`} className="h-16 md:h-24 pointer-events-none" />;
+                        return <div key={`hidden-${dateStr}`} className="h-12 sm:h-14 md:h-20 pointer-events-none" />;
                       }
 
                       return (
@@ -604,15 +694,17 @@ export default function BookingWizard({
                             setSelectedDate(dateStr);
                             setSelectedTime("");
                           }}
-                          className={`relative h-16 md:h-24 flex flex-col items-center justify-center rounded-sm transition-all duration-300 group
-                            ${isSelected ? 'bg-blush text-white shadow-lg z-10 scale-[1.02]' : 'hover:bg-[#F5F2EC]'}
+                          className={`relative h-12 sm:h-14 md:h-20 flex flex-col items-center justify-center rounded-xl transition-all duration-200 group
+                            ${isSelected ? 'bg-blush text-white shadow-md z-10 scale-[1.04]' : 'hover:bg-[#F5F2EC]/80 active:bg-[#F5F2EC]'}
                             ${(!isAvailable || isPast) ? 'opacity-20 cursor-not-allowed' : 'cursor-pointer'}
-                            ${isToday && !isSelected ? 'text-blush font-bold' : 'text-[#2C2A29]'}
+                            ${isToday && !isSelected ? 'text-blush font-bold' : 'text-[#1F1E1D] font-normal'}
                           `}
                         >
-                          <span className="text-xl md:text-2xl font-serif">{date.getDate()}</span>
+                          <span className="text-xl sm:text-2xl md:text-3xl font-serif leading-none tracking-tight">
+                            {date.getDate()}
+                          </span>
                           {isAvailable && !isSelected && !isPast && (
-                            <span className="w-1 h-1 bg-blush/40 rounded-full mt-1 group-hover:bg-blush transition-colors" />
+                            <span className="w-1.5 h-1.5 bg-blush rounded-full mt-1 group-hover:scale-125 transition-transform" />
                           )}
                         </button>
                       );
@@ -620,60 +712,132 @@ export default function BookingWizard({
                   </div>
 
                 {!isLoading && Object.keys(monthAvailability).length > 0 && !Object.values(monthAvailability).some(Boolean) && (
-                  <div className="text-center py-10 space-y-3">
+                  <div className="text-center py-6 space-y-2">
                     <p className="text-sm italic font-serif text-[#8C8681]">Sem datas disponíveis neste mês.</p>
                     <p className="text-[10px] uppercase tracking-[0.3em] text-[#8C8681]/60">Navegue para o próximo mês →</p>
                   </div>
                 )}
                 </div>
 
-                {selectedDate && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="pt-10 border-t border-[#E6DFD3] space-y-8"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                       <span className="text-[10px] uppercase tracking-[0.3em] text-[#8C8681]">Horários para o dia</span>
-                       <h4 className="text-2xl font-serif italic text-[#2C2A29]">
-                         {new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
-                       </h4>
-                    </div>
+                {/* ─── Popup Glassmorphism de Escolha de Horários ─── */}
+                <AnimatePresence>
+                  {selectedDate && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                      {/* Backdrop com desfoque suave (Glassmorphism) */}
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        onClick={() => setSelectedDate("")}
+                        className="absolute inset-0 bg-black/40 backdrop-blur-md"
+                      />
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
-                      {isSlotsLoading ? (
-                        [1,2,3,4].map(i => <div key={i} className="h-14 bg-[#F5F1EE] animate-pulse rounded-sm" />)
-                      ) : selectedDateSlots.filter(s => s.available).length > 0 ? (
-                        selectedDateSlots.filter(s => s.available).map((slot) => (
-                          <button
-                            key={slot.time}
-                            onClick={() => setSelectedTime(slot.time)}
-                            className={`py-4 rounded-sm text-[11px] uppercase tracking-widest font-bold border transition-all
-                              ${selectedTime === slot.time 
-                                ? 'bg-[#2C2A29] text-white border-[#2C2A29] shadow-lg' 
-                                : 'bg-white text-[#595552] border-[#E6DFD3] hover:border-blush hover:text-blush'}
-                            `}
-                          >
-                            {slot.time.substring(0, 5)}
-                          </button>
-                        ))
-                      ) : (
-                        <div className="col-span-full text-center py-8 text-sm italic text-[#8C8681]">
-                          Não há horários disponíveis para este dia.
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col items-center pt-8">
-                       <button 
-                        disabled={!selectedTime || !selectedDate}
-                        onClick={() => setStep('details')}
-                        className="group flex items-center gap-6 px-16 py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.4em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-2xl"
+                      {/* Modal Card Glassmorphism */}
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.94, y: 16 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+                        transition={{ type: "spring", damping: 26, stiffness: 320 }}
+                        className="relative z-10 w-full max-w-lg bg-white/90 dark:bg-[#1E1B18]/90 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] rounded-3xl p-6 sm:p-8 overflow-hidden"
                       >
-                        Próximo Passo <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
-                      </button>
+                        {/* Botão Fechar X */}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDate("")}
+                          aria-label="Fechar horários e voltar ao calendário"
+                          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[#595552] dark:text-[#D1CBC5] hover:text-[#2C2A29] dark:hover:text-white flex items-center justify-center transition-all duration-200 active:scale-90"
+                        >
+                          <X size={18} />
+                        </button>
+
+                        {/* Cabeçalho do Popup (Com Navegadores de Dia Anterior e Posterior) */}
+                        <div className="text-center space-y-1.5 mb-6 pt-2">
+                          <div className="inline-flex items-center justify-center gap-2 text-blush text-[10px] font-bold uppercase tracking-[0.25em]">
+                            <Clock size={13} />
+                            <span>Horários Disponíveis</span>
+                          </div>
+
+                          {/* Linha com Setas Navegadoras e a Data por extenso */}
+                          <div className="flex items-center justify-between gap-2 px-1 sm:px-2 pt-1">
+                            <button
+                              type="button"
+                              disabled={!canPrevDay()}
+                              onClick={handlePrevDay}
+                              aria-label="Dia anterior"
+                              className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[#2C2A29] dark:text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed active:scale-90 shrink-0"
+                              title="Ver dia anterior"
+                            >
+                              <ChevronLeft size={20} />
+                            </button>
+
+                            <h4 className="text-lg sm:text-2xl font-serif italic text-[#2C2A29] dark:text-[#F5F2EC] capitalize truncate leading-tight">
+                              {new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long' 
+                              })}
+                            </h4>
+
+                            <button
+                              type="button"
+                              disabled={!canNextDay()}
+                              onClick={handleNextDay}
+                              aria-label="Próximo dia"
+                              className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[#2C2A29] dark:text-white flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed active:scale-90 shrink-0"
+                              title="Ver próximo dia"
+                            >
+                              <ChevronRight size={20} />
+                            </button>
+                          </div>
+
+                          <p className="text-[11px] text-[#8C8681] dark:text-[#A8A29D]">
+                            Selecione o horário desejado ou navegue pelas datas.
+                          </p>
+                        </div>
+
+                        {/* Lista de Horários Alinhada Verticalmente (Um abaixo do outro) */}
+                        <div className="max-h-[55vh] overflow-y-auto pr-1 -mr-1 custom-scrollbar">
+                          {isSlotsLoading ? (
+                            <div className="py-12 flex flex-col items-center justify-center gap-3">
+                              <Loader2 className="animate-spin text-blush" size={32} />
+                              <span className="text-[11px] uppercase tracking-widest font-bold text-[#8C8681]">
+                                Consultando horários...
+                              </span>
+                            </div>
+                          ) : selectedDateSlots.filter(s => s.available).length > 0 ? (
+                            <div className="flex flex-col gap-2.5 max-w-sm mx-auto">
+                              {selectedDateSlots.filter(s => s.available).map((slot) => (
+                                <button
+                                  key={slot.time}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedTime(slot.time);
+                                    setStep('details');
+                                  }}
+                                  className="group relative w-full py-3.5 px-6 rounded-2xl text-[14px] font-mono font-bold tracking-wider border border-[#E6DFD3]/80 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:bg-blush hover:text-white hover:border-blush dark:hover:bg-blush dark:hover:border-blush text-[#2C2A29] dark:text-[#F5F2EC] transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md flex items-center justify-between"
+                                >
+                                  <span className="w-4" /> {/* Espaçador para manter o texto centralizado */}
+                                  <span className="text-center">{slot.time.substring(0, 5)}h</span>
+                                  <ArrowRight size={15} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-white" />
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-12 px-4 space-y-2">
+                              <p className="text-base font-serif italic text-[#8C8681]">
+                                Nenhum horário disponível nesta data.
+                              </p>
+                              <p className="text-[11px] text-[#8C8681]/70">
+                                Por favor, feche e escolha outro dia no calendário.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
                     </div>
-                  </motion.div>
-                )}
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 

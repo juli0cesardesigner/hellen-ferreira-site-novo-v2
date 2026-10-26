@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Session, NatalConfig, NatalSlot } from "@/types/database";
-import { listSessions, getNatalConfigAdmin, saveNatalConfigAdmin } from "@/lib/actions/admin-actions";
+import { listSessions, getNatalConfigAdmin, saveNatalConfigAdmin, getNatalSlotsSummaryStats } from "@/lib/actions/admin-actions";
 import { useToast } from "@/components/ui/Toast";
 import { InternalDatePicker } from "@/components/ui/InternalDatePicker";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -27,6 +27,17 @@ export function NatalSeasonalSection({ onEditingChange }: { onEditingChange?: (e
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [slotsSummary, setSlotsSummary] = useState<{
+    totalSlots: number;
+    bookedSlots: number;
+    natalBookedSlots: number;
+    otherBookedSlots: number;
+    blockedSlots: number;
+    availableSlots: number;
+    occupancyRate: number;
+    startDate: string;
+    endDate: string;
+  } | null>(null);
 
   // Estado da configuração de Natal
   const [config, setConfig] = useState<NatalConfig>({
@@ -60,13 +71,20 @@ export function NatalSeasonalSection({ onEditingChange }: { onEditingChange?: (e
 
   const loadData = React.useCallback(async () => {
     setIsLoading(true);
-    const [sessRes, natalRes] = await Promise.all([
-      listSessions(),
-      getNatalConfigAdmin()
-    ]);
-    setSessions(sessRes.sessions || []);
-    setConfig(natalRes);
-    setIsLoading(false);
+    try {
+      const [sessRes, natalRes, summaryRes] = await Promise.all([
+        listSessions(),
+        getNatalConfigAdmin(),
+        getNatalSlotsSummaryStats()
+      ]);
+      setSessions(sessRes.sessions || []);
+      setConfig(natalRes);
+      setSlotsSummary(summaryRes);
+    } catch (err) {
+      console.error("Erro ao carregar dados do Natal:", err);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -78,6 +96,9 @@ export function NatalSeasonalSection({ onEditingChange }: { onEditingChange?: (e
     const res = await saveNatalConfigAdmin(updatedConfig);
     if (res.success) {
       setConfig(updatedConfig);
+      // Recalcular métricas de horários com base nas novas datas
+      const summaryRes = await getNatalSlotsSummaryStats();
+      setSlotsSummary(summaryRes);
       showToast("Configurações da Temporada de Natal salvas com sucesso!", "success");
     } else {
       showToast("Erro ao salvar regras de Natal: " + res.error, "error");
@@ -247,6 +268,127 @@ export function NatalSeasonalSection({ onEditingChange }: { onEditingChange?: (e
           </div>
         </div>
       </div>
+
+      {/* ─── Cards de Resumo: Horários e Vagas Disponíveis ─── */}
+      {slotsSummary && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Card: Horários Disponíveis */}
+          <div className="bg-[var(--color-admin-surface)] border border-emerald-500/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:border-emerald-500/40 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-500">
+                Horários Disponíveis
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                <Clock size={20} />
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl lg:text-4xl font-black text-[var(--color-admin-text)] tracking-tight">
+                {slotsSummary.availableSlots}
+              </div>
+              <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-1">
+                Vagas ainda abertas para reserva
+              </p>
+            </div>
+          </div>
+
+          {/* Card: Vagas Preenchidas (com separação: Natal, Outros ensaios e Bloqueios) */}
+          <div className="bg-[var(--color-admin-surface)] border border-rose-500/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:border-rose-500/40 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-black uppercase tracking-wider text-rose-500">
+                Vagas Preenchidas
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+                <CheckCircle2 size={20} />
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl lg:text-4xl font-black text-[var(--color-admin-text)] tracking-tight">
+                  {slotsSummary.bookedSlots + slotsSummary.blockedSlots}
+                </span>
+                <span className="text-[11px] font-bold text-[var(--color-admin-text-muted)]">
+                  ocupadas no total
+                </span>
+              </div>
+
+              {/* Separação: Natal, Outros Ensaios e Bloqueios */}
+              <div className="pt-2 border-t border-[var(--color-admin-border)]/60 grid grid-cols-3 gap-1.5 text-center">
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl py-1.5 px-1">
+                  <div className="text-[13px] font-black text-rose-500 leading-none">
+                    {slotsSummary.natalBookedSlots}
+                  </div>
+                  <div className="text-[8px] font-extrabold uppercase tracking-tight text-rose-600/80 mt-1">
+                    Natal
+                  </div>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl py-1.5 px-1">
+                  <div className="text-[13px] font-black text-amber-500 leading-none">
+                    {slotsSummary.otherBookedSlots}
+                  </div>
+                  <div className="text-[8px] font-extrabold uppercase tracking-tight text-amber-600/80 mt-1">
+                    Outros
+                  </div>
+                </div>
+
+                <div className="bg-slate-500/10 border border-slate-500/20 rounded-xl py-1.5 px-1">
+                  <div className="text-[13px] font-black text-slate-400 leading-none">
+                    {slotsSummary.blockedSlots}
+                  </div>
+                  <div className="text-[8px] font-extrabold uppercase tracking-tight text-slate-500 mt-1">
+                    Bloqueios
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card: Total de Horários da Temporada */}
+          <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2rem] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:border-slate-400/40 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[var(--color-admin-text-muted)]">
+                Total de Vagas
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-slate-500/10 text-slate-400 flex items-center justify-center">
+                <Calendar size={20} />
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl lg:text-4xl font-black text-[var(--color-admin-text)] tracking-tight">
+                {slotsSummary.totalSlots}
+              </div>
+              <p className="text-[11px] text-[var(--color-admin-text-muted)] font-medium mt-1">
+                No período determinado
+              </p>
+            </div>
+          </div>
+
+          {/* Card: Taxa de Ocupação */}
+          <div className="bg-[var(--color-admin-surface)] border border-amber-500/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden flex flex-col justify-between group hover:border-amber-500/40 transition-all">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-500">
+                Ocupação da Temporada
+              </span>
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                <Sparkles size={20} />
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl lg:text-4xl font-black text-[var(--color-admin-text)] tracking-tight">
+                {slotsSummary.occupancyRate}%
+              </div>
+              <div className="w-full bg-[var(--color-admin-bg)] h-2 rounded-full mt-3 overflow-hidden border border-[var(--color-admin-border)]">
+                <div 
+                  className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min(100, slotsSummary.occupancyRate)}%` }} 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── Período da Temporada (Datas) ─── */}
       <div className="bg-[var(--color-admin-surface)] border border-[var(--color-admin-border)] rounded-[2.5rem] p-8 lg:p-10 shadow-sm space-y-6">
