@@ -88,11 +88,19 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
       const deltaX = e.touches[0].clientX - touchState.current.startX;
       const deltaY = e.touches[0].clientY - touchState.current.startY;
 
-      const percentDeltaX = -(deltaX / rect.width) * 80;
-      const percentDeltaY = -(deltaY / rect.height) * 80;
+      const currentZoom = adjustments.zoom || 100;
+      // Quando zoom = 100%, o range de movimento permitido é 0 (imagem ocupa 100% da máscara).
+      // Quando zoom > 100%, o deslocamento máximo permitido antes de vazar a borda é (zoom - 100) / (2 * zoom).
+      // Em coordenadas percentuais de (x, y) centradas em 50:
+      const maxOffset = Math.max(0, (currentZoom - 100) / 2);
+      const minBound = 50 - maxOffset;
+      const maxBound = 50 + maxOffset;
 
-      const newX = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosX + percentDeltaX)));
-      const newY = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosY + percentDeltaY)));
+      const percentDeltaX = -(deltaX / rect.width) * 50;
+      const percentDeltaY = -(deltaY / rect.height) * 50;
+
+      const newX = Math.min(maxBound, Math.max(minBound, Math.round(touchState.current.initialPosX + percentDeltaX)));
+      const newY = Math.min(maxBound, Math.max(minBound, Math.round(touchState.current.initialPosY + percentDeltaY)));
 
       onUpdateAdjustments({
         ...adjustments,

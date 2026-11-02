@@ -24,7 +24,7 @@ export default function CarouselStudioPage() {
   const [isControlsVisible, setIsControlsVisible] = useState<boolean>(true);
 
   // Estados de Home e Projetos
-  const [isHomeOpen, setIsHomeOpen] = useState<boolean>(false);
+  const [isHomeOpen, setIsHomeOpen] = useState<boolean>(true);
   const [isSlidePickerOpen, setIsSlidePickerOpen] = useState<boolean>(false);
   const [dialogConfig, setDialogConfig] = useState<InternalModalConfig>({
     isOpen: false,
@@ -737,7 +737,7 @@ export default function CarouselStudioPage() {
                     }}
                     className="flex-1 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500 disabled:opacity-40"
                   />
-                  <span className="text-[11px] font-mono text-slate-300 w-9 text-right shrink-0">
+                  <span className="text-[10px] font-mono text-slate-300 w-8 text-right shrink-0 mr-1">
                     {activeSlotData?.adjustments.zoom ?? 100}%
                   </span>
                 </div>

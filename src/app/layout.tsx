@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Carrossel",
+    title: "AGENDA",
   },
   openGraph: {
     title: "Hellen Ferreira Fotografia | Newborn, Gestante e Família",
