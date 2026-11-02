@@ -1,31 +1,32 @@
 {
-  "name": "AGENDA",
-  "short_name": "AGENDA",
-  "description": "Gestão de Fotografia - Hellen Ferreira",
-  "start_url": "/admin",
+  "name": "Carrossel",
+  "short_name": "Carrossel",
+  "description": "Estúdio de Carrossel Fotográfico - Hellen Ferreira",
+  "start_url": "/admin/carrossel",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
-  "categories": ["business", "productivity"],
+  "background_color": "#0A0D14",
+  "theme_color": "#0A0D14",
+  "categories": ["business", "productivity", "photo"],
   "icons": [
     {
-      "src": "/brand/white.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "/icons/carrossel.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "/brand/white.png",
+      "src": "/icons/carrossel-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     },
     {
-      "src": "/icons/192x192.png",
+      "src": "/icons/carrossel-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
