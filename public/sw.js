@@ -32,7 +32,8 @@ self.addEventListener('notificationclick', function (event) {
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
       for (const client of clientList) {
         const clientUrl = new URL(client.url);
-        if (clientUrl.pathname.startsWith('/admin') && 'focus' in client) {
+        // Não interceptar janelas do Carrossel se a notificação for da Agenda
+        if (clientUrl.pathname.startsWith('/admin') && !clientUrl.pathname.startsWith('/admin/carrossel') && 'focus' in client) {
           client.navigate(urlToOpen);
           return client.focus();
         }

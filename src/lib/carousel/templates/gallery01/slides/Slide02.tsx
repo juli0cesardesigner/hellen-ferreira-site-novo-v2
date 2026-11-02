@@ -101,17 +101,18 @@ export const Slide02: React.FC<SlideProps> = ({
         }}
       >
         <div
-          className="w-full h-full"
-          style={{
-            transform: `scale(${polaroidSlot.adjustments.zoom / 100}) translate(${50 - polaroidSlot.adjustments.x}%, ${50 - polaroidSlot.adjustments.y}%)`,
-            transformOrigin: 'center center'
-          }}
+          className="w-full h-full relative"
         >
           <img
             src={polaroidSlot.imageUrl || '/images/hero-newborn.jpg'}
             alt=""
             draggable={false}
             className="w-full h-full object-cover"
+            style={{
+              transform: `scale(${polaroidSlot.adjustments.zoom / 100})`,
+              transformOrigin: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`,
+              objectPosition: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`
+            }}
           />
         </div>
       </div>

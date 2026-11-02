@@ -1,4 +1,5 @@
 {
+  "id": "/admin/carrossel",
   "name": "Carrossel",
   "short_name": "Carrossel",
   "description": "Estúdio de Carrossel Fotográfico - Hellen Ferreira",
@@ -30,3 +31,4 @@
     }
   ]
 }
+
