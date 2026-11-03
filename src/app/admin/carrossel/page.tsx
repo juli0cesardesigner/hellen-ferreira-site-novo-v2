@@ -8,6 +8,7 @@ import { DesktopControlsPanel } from '@/components/carousel/DesktopControlsPanel
 import { HomeModal } from '@/components/carousel/HomeModal';
 import { SlidePickerModal } from '@/components/carousel/SlidePickerModal';
 import { InternalDialogModal, InternalModalConfig } from '@/components/carousel/InternalDialogModal';
+import { SlideSlotsChecklist } from '@/components/carousel/SlideSlotsChecklist';
 import { CatalogSlideItem, CATALOG_SLIDES } from '@/lib/carousel/templates/catalog';
 import { exportSlidesSequentially } from '@/lib/carousel/exporter';
 import { loadAllSlotData, saveSlotData, clearAllSlotData, saveProject, loadAllProjects, deleteProject } from '@/lib/carousel/storage';
@@ -221,6 +222,31 @@ export default function CarouselStudioPage() {
   };
 
   // Criação de Template / Projeto Personalizado em Branco
+  // Aplicação de Carrossel Gerado pelo Modo Aleatório (Opção 1 ou 2)
+  const handleApplyRandomProject = async (
+    randomTemplate: CarouselTemplate,
+    initialSlotsData: Record<string, PhotoSlotData>
+  ) => {
+    setCurrentTemplate(randomTemplate);
+    const projId = `proj_rand_${Date.now()}`;
+    setCurrentProjectId(projId);
+    setCurrentProjectName(randomTemplate.name);
+    setCurrentSlideIndex(0);
+    setSlotsData(initialSlotsData);
+
+    await clearAllSlotData();
+    for (const [slotId, data] of Object.entries(initialSlotsData)) {
+      saveSlotData(slotId, data.imageUrl, data.adjustments);
+    }
+
+    if (randomTemplate.slides[0]?.slots[0]) {
+      setActiveSlotId(randomTemplate.slides[0].slots[0].id);
+    }
+
+    triggerAutoSaveProject(initialSlotsData);
+    setIsHomeOpen(false);
+  };
+
   const handleCreateCustomTemplate = async () => {
     const customTemplate: CarouselTemplate = {
       id: `custom_${Date.now()}`,
@@ -478,7 +504,7 @@ export default function CarouselStudioPage() {
     });
   };
 
-  const handleExport = async () => {
+  const executeExport = async () => {
     setIsExporting(true);
     setExportProgress({ current: 0, total: currentTemplate.slides.length, slide: 1 });
 
@@ -508,6 +534,37 @@ export default function CarouselStudioPage() {
       setIsExporting(false);
       setExportProgress(null);
     }
+  };
+
+  const handleExport = async () => {
+    // Coleta todos os slots únicos de todas as lâminas
+    const uniqueSlotIds = new Set<string>();
+    currentTemplate.slides.forEach((slide) => {
+      slide.slots.forEach((s) => uniqueSlotIds.add(s.id));
+    });
+
+    const emptySlotsCount = Array.from(uniqueSlotIds).filter(
+      (slotId) => !slotsData[slotId]?.imageUrl
+    ).length;
+
+    if (emptySlotsCount > 0) {
+      setDialogConfig({
+        isOpen: true,
+        type: 'confirm',
+        title: 'Fotos Pendentes',
+        message: `Atenção: Existem ${emptySlotsCount} ${emptySlotsCount === 1 ? 'foto não carregada' : 'fotos não carregadas'} no carrossel. Deseja exportar assim mesmo?`,
+        confirmLabel: 'Exportar Mesmo Assim',
+        cancelLabel: 'Voltar e Preencher',
+        onConfirm: () => {
+          setDialogConfig((prev) => ({ ...prev, isOpen: false }));
+          executeExport();
+        },
+        onCancel: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
+      });
+      return;
+    }
+
+    await executeExport();
   };
 
   const activeSlide = currentTemplate.slides[currentSlideIndex];
@@ -542,23 +599,13 @@ export default function CarouselStudioPage() {
           {/* Status / Botão Salvar Projeto */}
           <button
             onClick={handleSaveCurrentProject}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
-              isSavedFeedback
-                ? 'bg-emerald-600/30 border-emerald-500/80 text-emerald-300'
-                : 'bg-slate-900 border-slate-700/80 text-slate-300 hover:text-white hover:border-slate-600'
-            }`}
-            title="Salvo automaticamente a cada alteração"
+            className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg active:scale-95 transition-all"
+            title="Salvar Projeto Manualmente (Salvo automaticamente em segundo plano)"
           >
             {isSavedFeedback ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[11px] font-mono">Salvo auto</span>
-              </>
+              <Check className="w-4 h-4 text-emerald-400" />
             ) : (
-              <>
-                <Save className="w-3.5 h-3.5 text-amber-500" />
-                <span className="hidden xs:inline">Salvar</span>
-              </>
+              <Save className="w-4 h-4 text-slate-400 hover:text-amber-400" />
             )}
           </button>
 
@@ -582,6 +629,29 @@ export default function CarouselStudioPage() {
           </button>
         </div>
       </header>
+
+      {/* Barra Fixa Superior com todas as fotos do carrossel */}
+      {currentTemplate.slides.length > 0 && (
+        <div className="bg-[#0D111A] border-b border-slate-800/80 w-full z-20 shrink-0">
+          <SlideSlotsChecklist
+            slides={currentTemplate.slides}
+            currentSlideIndex={currentSlideIndex}
+            slotsData={slotsData}
+            activeSlotId={activeSlotId}
+            onSelectSlot={(id, slideIdx) => {
+              setActiveSlotId(id);
+              if (typeof slideIdx === 'number' && slideIdx !== currentSlideIndex) {
+                const belongsToCurrent = activeSlide?.slots.some((s) => s.id === id);
+                if (!belongsToCurrent) {
+                  setCurrentSlideIndex(slideIdx);
+                }
+              }
+              triggerActivity();
+            }}
+            onPickImage={handleTriggerPickImage}
+          />
+        </div>
+      )}
 
       {/* Overlay de Progresso */}
       {isExporting && exportProgress && (
@@ -638,11 +708,14 @@ export default function CarouselStudioPage() {
             aria-hidden="true"
             className="fixed pointer-events-none opacity-0"
             style={{
-              left: '-99999px',
-              top: '-99999px',
+              position: 'fixed',
+              left: 0,
+              top: 0,
               width: `${ASPECT_RATIOS[aspectRatio].width}px`,
               height: `${ASPECT_RATIOS[aspectRatio].height}px`,
-              zIndex: -9999
+              opacity: 0,
+              pointerEvents: 'none',
+              zIndex: -50
             }}
           >
             {currentTemplate.slides.map((slide) => (
@@ -778,7 +851,7 @@ export default function CarouselStudioPage() {
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2 overflow-x-auto py-1">
+          <div className="flex items-center gap-2.5 overflow-x-auto px-2 py-2.5">
             {currentTemplate.slides.map((s, idx) => (
               <div key={s.id} className="relative group">
                 <button
@@ -850,6 +923,7 @@ export default function CarouselStudioPage() {
         onCreateCustomTemplate={handleCreateCustomTemplate}
         onOpenProject={handleOpenProject}
         onDeleteProject={handleDeleteProject}
+        onApplyRandomProject={handleApplyRandomProject}
       />
 
       {/* Modal Grade de Lâminas Disponíveis */}

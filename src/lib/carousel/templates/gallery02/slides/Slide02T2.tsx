@@ -34,7 +34,7 @@ export const Slide02T2: React.FC<SlideProps> = ({
         <InteractivePhotoSlot
           slotId="t2_s2_base"
           imageUrl={baseSlot.imageUrl}
-          defaultPlaceholder="/images/hero-newborn.jpg"
+          defaultPlaceholder=""
           adjustments={baseSlot.adjustments}
           isActive={activeSlotId === 't2_s2_base'}
           onSelectSlot={() => onSelectSlot('t2_s2_base')}
@@ -56,7 +56,7 @@ export const Slide02T2: React.FC<SlideProps> = ({
         <InteractivePhotoSlot
           slotId="t2_s2_overlay"
           imageUrl={overlaySlot.imageUrl}
-          defaultPlaceholder="/images/hero-newborn.jpg"
+          defaultPlaceholder=""
           adjustments={overlaySlot.adjustments}
           isActive={activeSlotId === 't2_s2_overlay'}
           onSelectSlot={() => onSelectSlot('t2_s2_overlay')}

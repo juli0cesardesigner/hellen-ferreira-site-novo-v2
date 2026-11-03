@@ -69,7 +69,7 @@ export const Slide01: React.FC<SlideProps> = ({
               <InteractivePhotoSlot
                 slotId={slot.id}
                 imageUrl={data.imageUrl}
-                defaultPlaceholder="/images/hero-newborn.jpg"
+                defaultPlaceholder=""
                 adjustments={data.adjustments}
                 isActive={activeSlotId === slot.id}
                 onSelectSlot={() => onSelectSlot(slot.id)}

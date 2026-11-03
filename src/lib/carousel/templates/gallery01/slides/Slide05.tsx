@@ -24,7 +24,7 @@ export const Slide05: React.FC<SlideProps> = ({
       <InteractivePhotoSlot
         slotId={slotId}
         imageUrl={data.imageUrl}
-        defaultPlaceholder="/images/hero-newborn.jpg"
+        defaultPlaceholder=""
         adjustments={data.adjustments}
         isActive={activeSlotId === slotId}
         onSelectSlot={() => onSelectSlot(slotId)}

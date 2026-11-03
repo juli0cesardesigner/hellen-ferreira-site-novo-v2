@@ -15,9 +15,9 @@ export const GALLERY_02_TEMPLATE: CarouselTemplate = {
       thumbnailSvg: '/templates-thumbs/T02_L01.svg',
       component: Slide01T2,
       slots: [
-        { id: 't2_s1_left', label: 'Retângulo Esquerdo (300x620)', defaultPlaceholder: '/images/hero-newborn.jpg' },
-        { id: 't2_s1_center', label: 'Retângulo Central (412x835)', defaultPlaceholder: '/images/hero-newborn.jpg' },
-        { id: 't2_s1_right', label: 'Retângulo Direito (300x620)', defaultPlaceholder: '/images/hero-newborn.jpg' }
+        { id: 't2_s1_left', label: 'Foto 01 (Esquerda)', defaultPlaceholder: '' },
+        { id: 't2_s1_center', label: 'Foto 02 (Central)', defaultPlaceholder: '' },
+        { id: 't2_s1_right', label: 'Foto 03 (Direita)', defaultPlaceholder: '' }
       ]
     },
     {
@@ -26,8 +26,8 @@ export const GALLERY_02_TEMPLATE: CarouselTemplate = {
       thumbnailSvg: '/templates-thumbs/T02_L02.svg',
       component: Slide02T2,
       slots: [
-        { id: 't2_s2_base', label: 'Retângulo Base (1080x740)', defaultPlaceholder: '/images/hero-newborn.jpg' },
-        { id: 't2_s2_overlay', label: 'Retângulo Sobreposto (870x590)', defaultPlaceholder: '/images/hero-newborn.jpg' }
+        { id: 't2_s2_base', label: 'Foto 04 (Base)', defaultPlaceholder: '' },
+        { id: 't2_s2_overlay', label: 'Foto 05 (Sobreposta)', defaultPlaceholder: '' }
       ]
     },
     {
@@ -36,8 +36,8 @@ export const GALLERY_02_TEMPLATE: CarouselTemplate = {
       thumbnailSvg: '/templates-thumbs/T02_L03.svg',
       component: Slide03T2,
       slots: [
-        { id: 't2_s3_rect', label: 'Retângulo Superior (490x690)', defaultPlaceholder: '/images/hero-newborn.jpg' },
-        { id: 't2_seamless', label: 'Foto Contínua Seamless (860x1350)', defaultPlaceholder: '/images/hero-newborn.jpg' }
+        { id: 't2_s3_rect', label: 'Foto 06 (Superior)', defaultPlaceholder: '' },
+        { id: 't2_seamless', label: 'Foto 07 (Seamless L3-L4)', defaultPlaceholder: '' }
       ]
     },
     {
@@ -46,10 +46,9 @@ export const GALLERY_02_TEMPLATE: CarouselTemplate = {
       thumbnailSvg: '/templates-thumbs/T02_L04.svg',
       component: Slide04T2,
       slots: [
-        { id: 't2_seamless', label: 'Foto Contínua Seamless (860x1350)', defaultPlaceholder: '/images/hero-newborn.jpg' },
-        { id: 't2_s4_rect', label: 'Retângulo Inferior (710x970)', defaultPlaceholder: '/images/hero-newborn.jpg' }
+        { id: 't2_seamless', label: 'Foto 07 (Seamless L3-L4)', defaultPlaceholder: '' },
+        { id: 't2_s4_rect', label: 'Foto 08 (Inferior)', defaultPlaceholder: '' }
       ]
     }
   ]
 };
-

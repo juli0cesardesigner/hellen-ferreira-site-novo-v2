@@ -2,11 +2,12 @@
 
 import React, { useRef } from 'react';
 import { PhotoSlotAdjustment } from '@/lib/carousel/types';
+import { Plus } from 'lucide-react';
 
 interface InteractivePhotoSlotProps {
   slotId: string;
   imageUrl?: string;
-  defaultPlaceholder: string;
+  defaultPlaceholder?: string;
   adjustments: PhotoSlotAdjustment;
   isActive?: boolean;
   onSelectSlot: () => void;
@@ -49,18 +50,24 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
     lastTap: 0
   });
 
-  const getDistance = (touches: React.TouchList) => {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.hypot(dx, dy);
+  const getDistance = (t1: React.Touch, t2: React.Touch) => {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (isExport) return;
     onSelectSlot();
 
+    const now = Date.now();
+    if (now - touchState.current.lastTap < 300) {
+      onPickImage();
+    }
+    touchState.current.lastTap = now;
+
     if (e.touches.length === 2) {
-      touchState.current.initialDistance = getDistance(e.touches);
+      touchState.current.initialDistance = getDistance(e.touches[0], e.touches[1]);
       touchState.current.initialZoom = adjustments.zoom;
     } else if (e.touches.length === 1) {
       touchState.current.isDragging = true;
@@ -72,28 +79,28 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (isExport) return;
-    if (e.touches.length === 2 && touchState.current.initialDistance > 0) {
-      e.preventDefault();
-      const currentDist = getDistance(e.touches);
-      const scaleFactor = currentDist / touchState.current.initialDistance;
-      const newZoom = Math.min(400, Math.max(100, Math.round(touchState.current.initialZoom * scaleFactor)));
+    if (isExport || !containerRef.current) return;
 
-      onUpdateAdjustments({
-        ...adjustments,
-        zoom: newZoom
-      });
-    } else if (e.touches.length === 1 && touchState.current.isDragging && containerRef.current) {
+    if (e.touches.length === 2) {
+      const currentDist = getDistance(e.touches[0], e.touches[1]);
+      if (touchState.current.initialDistance > 0) {
+        const factor = currentDist / touchState.current.initialDistance;
+        const newZoom = Math.min(400, Math.max(100, Math.round(touchState.current.initialZoom * factor)));
+        onUpdateAdjustments({
+          ...adjustments,
+          zoom: newZoom
+        });
+      }
+    } else if (e.touches.length === 1 && touchState.current.isDragging) {
       const rect = containerRef.current.getBoundingClientRect();
-      const deltaX = e.touches[0].clientX - touchState.current.startX;
-      const deltaY = e.touches[0].clientY - touchState.current.startY;
+      const dx = e.touches[0].clientX - touchState.current.startX;
+      const dy = e.touches[0].clientY - touchState.current.startY;
 
-      // Movimentação livre (pan) de 0% a 100% da imagem, permitindo explorar qualquer foto (vertical ou horizontal)
-      const percentDeltaX = -(deltaX / rect.width) * 60;
-      const percentDeltaY = -(deltaY / rect.height) * 60;
+      const pxChange = -(dx / rect.width) * 100;
+      const pyChange = -(dy / rect.height) * 100;
 
-      const newX = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosX + percentDeltaX)));
-      const newY = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosY + percentDeltaY)));
+      const newX = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosX + pxChange)));
+      const newY = Math.min(100, Math.max(0, Math.round(touchState.current.initialPosY + pyChange)));
 
       onUpdateAdjustments({
         ...adjustments,
@@ -108,6 +115,8 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
     touchState.current.isDragging = false;
     touchState.current.initialDistance = 0;
   };
+
+  const hasImage = Boolean(imageUrl || (defaultPlaceholder && defaultPlaceholder.startsWith('data:')));
 
   return (
     <div
@@ -126,20 +135,48 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
         !isExport && isActive ? 'ring-2 ring-amber-500 ring-inset shadow-inner' : ''
       }`}
     >
-      <div
-        className="w-full h-full relative"
-      >
-        <img
-          src={imageUrl || defaultPlaceholder}
-          alt=""
-          draggable={false}
-          className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
-          style={{
-            transform: `scale(${adjustments.zoom / 100})`,
-            transformOrigin: `${adjustments.x}% ${adjustments.y}%`,
-            objectPosition: `${adjustments.x}% ${adjustments.y}%`
-          }}
-        />
+      <div className="w-full h-full relative">
+        {hasImage ? (
+          <img
+            src={imageUrl || defaultPlaceholder}
+            alt=""
+            draggable={false}
+            className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
+            style={{
+              transform: `scale(${adjustments.zoom / 100})`,
+              transformOrigin: `${adjustments.x}% ${adjustments.y}%`,
+              objectPosition: `${adjustments.x}% ${adjustments.y}%`
+            }}
+          />
+        ) : (
+          /* Slot Vazio: Fundo neutro limpo, 100% autossuficiente e sem requisição de rede */
+          <div
+            className={`w-full h-full flex flex-col items-center justify-center transition-colors ${
+              isExport
+                ? 'bg-[#EAEAEA]'
+                : isActive
+                ? 'bg-amber-500/10 hover:bg-amber-500/15'
+                : 'bg-slate-200/80 hover:bg-slate-300/80'
+            }`}
+          >
+            {!isExport && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPickImage();
+                }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                  isActive
+                    ? 'bg-amber-500 text-slate-950 shadow-md scale-105'
+                    : 'bg-slate-300/80 text-slate-600 hover:bg-slate-400/80'
+                }`}
+                title="Toque para carregar foto"
+              >
+                <Plus className="w-5 h-5 stroke-[2.5]" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

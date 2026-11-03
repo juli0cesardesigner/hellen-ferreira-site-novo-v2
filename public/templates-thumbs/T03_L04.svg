@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <style>
+      .cls-bg { fill: #fff; }
+      .cls-dark { fill: #141414; }
+      .cls-soft { fill: #737373; }
+    </style>
+    <clipPath id="clip-t3b-l04">
+      <rect width="1080" height="1350"/>
+    </clipPath>
+      <filter id="filter-shadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="10" dy="10" stdDeviation="7.5" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <g clip-path="url(#clip-t3b-l04)">
+    <!-- Foto 1 Fundo Seamless -->
+    <rect id="foto1_fundo" class="cls-bg" width="1080" height="1350"/>
+    <!-- Foto 7 Seamless L3-L4-L5 (atravessa 1080px) -->
+    <rect id="foto7" class="cls-dark" x="-163" y="0" width="1670" height="1350"/>
+    <!-- Foto 5 Seamless L3-L4 (finaliza aos 175px) -->
+    <rect id="foto5" class="cls-soft" x="-575" y="293" width="750" height="550" filter="url(#filter-shadow)"/>
+  </g>
+</svg>
+

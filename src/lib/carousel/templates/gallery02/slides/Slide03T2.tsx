@@ -39,7 +39,7 @@ export const Slide03T2: React.FC<SlideProps> = ({
         <InteractivePhotoSlot
           slotId="t2_s3_rect"
           imageUrl={rectSlot.imageUrl}
-          defaultPlaceholder="/images/hero-newborn.jpg"
+          defaultPlaceholder=""
           adjustments={rectSlot.adjustments}
           isActive={activeSlotId === 't2_s3_rect'}
           onSelectSlot={() => onSelectSlot('t2_s3_rect')}
@@ -73,7 +73,7 @@ export const Slide03T2: React.FC<SlideProps> = ({
           <InteractivePhotoSlot
             slotId="t2_seamless"
             imageUrl={seamlessSlot.imageUrl}
-            defaultPlaceholder="/images/hero-newborn.jpg"
+            defaultPlaceholder=""
             adjustments={seamlessSlot.adjustments}
             isActive={activeSlotId === 't2_seamless'}
             onSelectSlot={() => onSelectSlot('t2_seamless')}
