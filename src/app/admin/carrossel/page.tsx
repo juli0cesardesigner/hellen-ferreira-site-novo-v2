@@ -12,7 +12,9 @@ import { SlideSlotsChecklist } from '@/components/carousel/SlideSlotsChecklist';
 import { CatalogSlideItem, CATALOG_SLIDES } from '@/lib/carousel/templates/catalog';
 import { exportSlidesSequentially } from '@/lib/carousel/exporter';
 import { loadAllSlotData, saveSlotData, clearAllSlotData, saveProject, loadAllProjects, deleteProject } from '@/lib/carousel/storage';
-import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2 } from 'lucide-react';
+import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2, Terminal } from 'lucide-react';
+import { addCarouselLog, initCarouselLogger } from '@/lib/carousel/logger';
+import { CarouselLogsModal } from '@/components/carousel/CarouselLogsModal';
 
 export default function CarouselStudioPage() {
   const [currentTemplate, setCurrentTemplate] = useState<CarouselTemplate>(AVAILABLE_TEMPLATES[0]);
@@ -24,9 +26,10 @@ export default function CarouselStudioPage() {
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number; slide: number } | null>(null);
   const [isControlsVisible, setIsControlsVisible] = useState<boolean>(true);
 
-  // Estados de Home e Projetos
+  // Estados de Home, Projetos e Logs
   const [isHomeOpen, setIsHomeOpen] = useState<boolean>(true);
   const [isSlidePickerOpen, setIsSlidePickerOpen] = useState<boolean>(false);
+  const [isLogsOpen, setIsLogsOpen] = useState<boolean>(false);
   const [dialogConfig, setDialogConfig] = useState<InternalModalConfig>({
     isOpen: false,
     message: '',
@@ -56,11 +59,36 @@ export default function CarouselStudioPage() {
     };
   }, [activeSlotId, currentSlideIndex]);
 
+  // Captura erros globais, rejeições assíncronas e console silenciosamente para depuração no iPhone
+  useEffect(() => {
+    initCarouselLogger();
+
+    const handleError = (event: ErrorEvent) => {
+      addCarouselLog('error', `Erro de script: ${event.message}`, {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      }, event.error);
+    };
+
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      addCarouselLog('error', `Promise rejeitada: ${String(event.reason)}`, undefined, event.reason);
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleRejection);
+    };
+  }, []);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingSlotPickRef = useRef<string>('');
   const slideRefs = useRef<Record<string, HTMLElement>>({});
 
-  // Carrega estado persistido e lista de projetos do IndexedDB
+  // Carrega estado persistido e lista de projetos do IndexedDB apenas no carregamento inicial
   useEffect(() => {
     async function initStorage() {
       const projects = await loadAllProjects();
@@ -95,7 +123,7 @@ export default function CarouselStudioPage() {
     }
 
     initStorage();
-  }, [currentTemplate]);
+  }, []);
 
   // Formatação para nomes automáticos: AAAA-MM-DD_HH-MM-SS
   const formatTimestampName = (date: Date = new Date()) => {
@@ -218,6 +246,7 @@ export default function CarouselStudioPage() {
     if (template.slides[0]?.slots[0]) {
       setActiveSlotId(template.slides[0].slots[0].id);
     }
+    addCarouselLog('info', `Template fixo selecionado: ${template.name}`, { templateId: template.id, slideCount: template.slides.length });
     setIsHomeOpen(false);
   };
 
@@ -244,6 +273,7 @@ export default function CarouselStudioPage() {
     }
 
     triggerAutoSaveProject(initialSlotsData);
+    addCarouselLog('info', `Projeto aleatório aplicado: ${randomTemplate.name}`, { slideCount: randomTemplate.slides.length });
     setIsHomeOpen(false);
   };
 
@@ -261,6 +291,7 @@ export default function CarouselStudioPage() {
     setActiveSlotId('');
     setSlotsData({});
     await clearAllSlotData();
+    addCarouselLog('info', 'Criado novo carrossel personalizado em branco.');
     setIsHomeOpen(false);
   };
 
@@ -269,16 +300,28 @@ export default function CarouselStudioPage() {
     let updatedSlides = [...currentTemplate.slides];
     const newSlotsDataMap: Record<string, PhotoSlotData> = { ...slotsData };
     let firstNewSlotId = '';
+    const slotIdMap = new Map<string, string>();
 
     for (const item of itemsToAdd) {
       const nextNumber = updatedSlides.length + 1;
       const uniqueSlideId = `custom_slide_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
-      // Gera IDs únicos para TODOS os slots da nova lâmina para nunca reaproveitar fotos antigas
-      const newSlots = item.slideDefinition.slots.map((s, idx) => ({
-        ...s,
-        id: `${uniqueSlideId}_slot_${idx}`
-      }));
+      // Gera IDs únicos para os slots da nova lâmina para isolar fotos,
+      // preservando o compartilhamento apenas se lâminas seamless consecutivas forem adicionadas juntas
+      const newSlots = item.slideDefinition.slots.map((s, idx) => {
+        const isSeamless = s.id.includes('seamless');
+        let newId = isSeamless ? slotIdMap.get(s.id) : undefined;
+        if (!newId) {
+          newId = `${uniqueSlideId}_slot_${idx}`;
+          if (isSeamless) {
+            slotIdMap.set(s.id, newId);
+          }
+        }
+        return {
+          ...s,
+          id: newId
+        };
+      });
 
       const newSlideDefinition = {
         ...item.slideDefinition,
@@ -291,13 +334,15 @@ export default function CarouselStudioPage() {
 
       // Sempre inicializa a lâmina em branco (sem herdar fotos anteriores)
       for (const slot of newSlots) {
-        newSlotsDataMap[slot.id] = {
-          id: slot.id,
-          label: slot.label,
-          imageUrl: undefined,
-          adjustments: { zoom: 100, x: 50, y: 50 }
-        };
-        saveSlotData(slot.id, undefined, { zoom: 100, x: 50, y: 50 });
+        if (!newSlotsDataMap[slot.id]) {
+          newSlotsDataMap[slot.id] = {
+            id: slot.id,
+            label: slot.label,
+            imageUrl: undefined,
+            adjustments: { zoom: 100, x: 50, y: 50 }
+          };
+          saveSlotData(slot.id, undefined, { zoom: 100, x: 50, y: 50 });
+        }
       }
 
       if (!firstNewSlotId && newSlots[0]) {
@@ -319,6 +364,7 @@ export default function CarouselStudioPage() {
       setActiveSlotId(firstNewSlotId);
     }
 
+    addCarouselLog('info', `Inseridas ${itemsToAdd.length} lâmina(s) no carrossel personalizado. Total de lâminas: ${updatedSlides.length}`);
     setIsSlidePickerOpen(false);
   };
 
@@ -455,6 +501,12 @@ export default function CarouselStudioPage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
+      addCarouselLog('info', `Foto carregada para o slot "${targetSlotId}"`, {
+        fileName: file.name,
+        fileSizeBytes: file.size,
+        fileType: file.type
+      });
+
       setSlotsData((prev) => {
         const existing = prev[targetSlotId] || {
           id: targetSlotId,
@@ -499,6 +551,7 @@ export default function CarouselStudioPage() {
           }
         }
         setSlotsData(resetMap);
+        addCarouselLog('info', 'Todas as fotos e ajustes foram limpos.');
       },
       onCancel: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
     });
@@ -517,11 +570,29 @@ export default function CarouselStudioPage() {
         }))
         .filter((item) => item.element);
 
-      await exportSlidesSequentially(itemsToExport, aspectRatio, (curr, tot, sNum) => {
+      if (itemsToExport.length === 0) {
+        addCarouselLog('warn', 'Nenhuma lâmina disponível para exportar (elementos DOM não encontrados).');
+        setDialogConfig({
+          isOpen: true,
+          type: 'alert',
+          title: 'Aviso',
+          message: 'Nenhuma lâmina encontrada para exportação. Adicione pelo menos uma lâmina ao carrossel.',
+          confirmLabel: 'OK',
+          onConfirm: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
+        });
+        return;
+      }
+
+      addCarouselLog('info', `Iniciando executeExport: ${itemsToExport.length} elementos encontrados para renderizar.`);
+
+      const rendered = await exportSlidesSequentially(itemsToExport, aspectRatio, (curr, tot, sNum) => {
         setExportProgress({ current: curr, total: tot, slide: sNum });
       });
+
+      addCarouselLog('info', `Download direto disparado para ${rendered.length} lâminas.`);
     } catch (err) {
       console.error('Falha na exportação:', err);
+      addCarouselLog('error', `Falha em executeExport: ${err instanceof Error ? err.message : String(err)}`, undefined, err);
       setDialogConfig({
         isOpen: true,
         type: 'alert',
@@ -543,9 +614,14 @@ export default function CarouselStudioPage() {
       slide.slots.forEach((s) => uniqueSlotIds.add(s.id));
     });
 
-    const emptySlotsCount = Array.from(uniqueSlotIds).filter(
+    const emptySlots = Array.from(uniqueSlotIds).filter(
       (slotId) => !slotsData[slotId]?.imageUrl
-    ).length;
+    );
+    const emptySlotsCount = emptySlots.length;
+
+    addCarouselLog('info', `Tentativa de exportação: ${uniqueSlotIds.size} slots no carrossel, ${emptySlotsCount} pendentes`, {
+      emptySlotIds: emptySlots
+    });
 
     if (emptySlotsCount > 0) {
       setDialogConfig({
@@ -592,6 +668,16 @@ export default function CarouselStudioPage() {
           >
             <Home className="w-4 h-4 text-amber-500" />
             <span className="font-bold">Home</span>
+          </button>
+
+          {/* Botão Logs de Diagnóstico (iPhone / Debug) */}
+          <button
+            onClick={() => setIsLogsOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95"
+            title="Ver logs silenciosos de erros e exportação no iPhone"
+          >
+            <Terminal className="w-3.5 h-3.5 text-amber-500" />
+            <span className="font-bold text-xs text-slate-200">Logs</span>
           </button>
         </div>
 
@@ -924,6 +1010,7 @@ export default function CarouselStudioPage() {
         onOpenProject={handleOpenProject}
         onDeleteProject={handleDeleteProject}
         onApplyRandomProject={handleApplyRandomProject}
+        onOpenLogs={() => setIsLogsOpen(true)}
       />
 
       {/* Modal Grade de Lâminas Disponíveis */}
@@ -935,6 +1022,12 @@ export default function CarouselStudioPage() {
 
       {/* Diálogo Interno do Sistema (Substitui confirm/alert do navegador) */}
       <InternalDialogModal config={dialogConfig} />
+
+      {/* Modal de Logs Silenciosos (iPhone / Depuração) */}
+      <CarouselLogsModal
+        isOpen={isLogsOpen}
+        onClose={() => setIsLogsOpen(false)}
+      />
     </div>
   );
 }

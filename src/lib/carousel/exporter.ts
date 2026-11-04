@@ -1,5 +1,6 @@
 import { toPng } from 'html-to-image';
 import { AspectRatio, ASPECT_RATIOS } from './types';
+import { addCarouselLog } from './logger';
 
 export interface ExportProgressCallback {
   (current: number, total: number, slideNumber: number): void;
@@ -13,29 +14,40 @@ export const DEFAULT_FALLBACK_PLACEHOLDER =
   );
 
 export function dataUrlToBlob(dataUrl: string): Blob {
-  const parts = dataUrl.split(';base64,');
-  const contentType = parts[0].split(':')[1] || 'image/png';
-  const raw = window.atob(parts[1]);
-  const rawLength = raw.length;
-  const uInt8Array = new Uint8Array(rawLength);
+  try {
+    const parts = dataUrl.split(';base64,');
+    if (parts.length < 2) {
+      return new Blob([], { type: 'image/png' });
+    }
+    const contentType = parts[0].split(':')[1] || 'image/png';
+    const raw = window.atob(parts[1]);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
 
-  for (let i = 0; i < rawLength; ++i) {
-    uInt8Array[i] = raw.charCodeAt(i);
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  } catch (err) {
+    console.error('Falha ao converter dataUrl em Blob:', err);
+    return new Blob([], { type: 'image/png' });
   }
-
-  return new Blob([uInt8Array], { type: contentType });
 }
 
-export function triggerDownload(dataUrl: string, filename: string) {
+export function triggerDownload(dataUrl: string, filename: string): string {
   const blob = dataUrlToBlob(dataUrl);
   const blobUrl = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.download = filename;
   link.href = blobUrl;
+  link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+  // Mantém a URL ativa por 60 segundos para garantir tempo suficiente para confirmação de download no Safari/iOS
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+  return blobUrl;
 }
 
 /**
@@ -67,16 +79,27 @@ export async function renderSlideToImage(
   });
 }
 
+export interface RenderedSlideResult {
+  number: number;
+  filename: string;
+  dataUrl: string;
+  blob: Blob;
+}
+
 /**
- * Exporta todas as lâminas. No iOS/Safari mobile, tenta usar o Web Share API
- * para permitir salvar diretamente no Rolo da Câmera (Fotos do iPhone).
+ * Exporta todas as lâminas via download direto sequencial (sem abrir folha de compartilhamento nativa).
  */
 export async function exportSlidesSequentially(
   slideElements: { id: string; number: number; element: HTMLElement }[],
   aspectRatio: AspectRatio,
   onProgress?: ExportProgressCallback
-) {
-  const renderedSlides: { number: number; filename: string; dataUrl: string; blob: Blob }[] = [];
+): Promise<RenderedSlideResult[]> {
+  addCarouselLog('info', `Iniciando renderização de ${slideElements.length} lâminas para download direto`, {
+    aspectRatio,
+    slides: slideElements.map((s) => ({ id: s.id, number: s.number }))
+  });
+
+  const renderedSlides: RenderedSlideResult[] = [];
 
   // 1. Renderiza sequencialmente todas as lâminas
   for (let i = 0; i < slideElements.length; i++) {
@@ -85,53 +108,49 @@ export async function exportSlidesSequentially(
       onProgress(i + 1, slideElements.length, item.number);
     }
 
-    const dataUrl = await renderSlideToImage(item.element, aspectRatio);
-    const filename = `hellen-ferreira-lamina-${String(item.number).padStart(2, '0')}-${aspectRatio.replace(':', 'x')}.png`;
-    const blob = dataUrlToBlob(dataUrl);
+    try {
+      addCarouselLog('debug', `Renderizando lâmina #${item.number} (${i + 1}/${slideElements.length})...`);
+      const startTime = performance.now();
+      const dataUrl = await renderSlideToImage(item.element, aspectRatio);
+      const renderDuration = Math.round(performance.now() - startTime);
 
-    renderedSlides.push({
-      number: item.number,
-      filename,
-      dataUrl,
-      blob
-    });
+      const filename = `hellen-ferreira-lamina-${String(item.number).padStart(2, '0')}-${aspectRatio.replace(':', 'x')}.png`;
+      const blob = dataUrlToBlob(dataUrl);
+
+      renderedSlides.push({
+        number: item.number,
+        filename,
+        dataUrl,
+        blob
+      });
+
+      addCarouselLog('info', `Lâmina #${item.number} renderizada com sucesso em ${renderDuration}ms`, {
+        filename,
+        blobSizeKb: Math.round(blob.size / 1024)
+      });
+    } catch (renderError) {
+      addCarouselLog('error', `Erro ao renderizar lâmina #${item.number}`, { slideId: item.id }, renderError);
+      throw renderError;
+    }
 
     // Pausa preventiva entre renderizações para desafogar o canvas/rasterizer do Safari
     await new Promise((resolve) => setTimeout(resolve, 300));
   }
 
-  // 2. Tenta compartilhar via Web Share API se suportado com arquivos (iOS Safari / iPadOS / Android)
-  let sharedSuccessfully = false;
-
-  if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+  // 2. Download direto via Blob URL (sem folha de compartilhamento/share sheet)
+  addCarouselLog('info', `Disparando download direto de ${renderedSlides.length} arquivos...`);
+  for (let i = 0; i < renderedSlides.length; i++) {
+    const item = renderedSlides[i];
     try {
-      const files = renderedSlides.map(
-        (s) => new File([s.blob], s.filename, { type: 'image/png' })
-      );
-
-      if (navigator.canShare && navigator.canShare({ files })) {
-        await navigator.share({
-          files,
-          title: 'Carrossel Hellen Ferreira',
-          text: 'Lâminas geradas para o Instagram'
-        });
-        sharedSuccessfully = true;
-      }
-    } catch (err: unknown) {
-      // Se o usuário cancelou o menu de compartilhar (AbortError), encerra o fluxo sem forçar fallback de cliques
-      if (err instanceof Error && err.name === 'AbortError') {
-        return;
-      }
-      console.warn('Falha no Web Share API, recorrendo a download padrão:', err);
-    }
-  }
-
-  // 3. Fallback: Download via Blob URL para navegadores desktop ou quando share falhar
-  if (!sharedSuccessfully) {
-    for (let i = 0; i < renderedSlides.length; i++) {
-      const item = renderedSlides[i];
+      addCarouselLog('debug', `Baixando arquivo ${i + 1}/${renderedSlides.length}: ${item.filename}`);
       triggerDownload(item.dataUrl, item.filename);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Intervalo de 600ms para permitir que o navegador processe o download de cada arquivo
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    } catch (downloadError) {
+      addCarouselLog('error', `Falha ao acionar download de ${item.filename}`, undefined, downloadError);
     }
   }
+
+  addCarouselLog('info', `Exportação e download direto concluídos com sucesso para ${renderedSlides.length} lâminas.`);
+  return renderedSlides;
 }

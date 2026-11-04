@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/boost",
+        destination: "/admin/carrossel",
+        permanent: false,
+      },
+      {
         source: "/servicos",
         destination: "/ensaios",
         permanent: true,

@@ -74,6 +74,7 @@ export const SlideView: React.FC<SlideViewProps> = ({
         onUpdateAdjustments={onUpdateAdjustments}
         onPickImage={onPickImage}
         isExport={isExport}
+        slots={slide.slots}
       />
     </div>
   );

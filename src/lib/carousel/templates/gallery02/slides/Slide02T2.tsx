@@ -17,10 +17,14 @@ export const Slide02T2: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const baseSlot = slotsData['t2_s2_base'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const overlaySlot = slotsData['t2_s2_overlay'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const baseId = propSlots?.[0]?.id || 't2_s2_base';
+  const overlayId = propSlots?.[1]?.id || 't2_s2_overlay';
+
+  const baseSlot = slotsData[baseId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const overlaySlot = slotsData[overlayId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
 
   return (
     <div className="w-full h-full relative bg-white overflow-hidden select-none">
@@ -32,14 +36,14 @@ export const Slide02T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s2_base"
+          slotId={baseId}
           imageUrl={baseSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={baseSlot.adjustments}
-          isActive={activeSlotId === 't2_s2_base'}
-          onSelectSlot={() => onSelectSlot('t2_s2_base')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s2_base', adj)}
-          onPickImage={() => onPickImage('t2_s2_base')}
+          isActive={activeSlotId === baseId}
+          onSelectSlot={() => onSelectSlot(baseId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(baseId, adj)}
+          onPickImage={() => onPickImage(baseId)}
           isExport={isExport}
         />
       </div>
@@ -54,14 +58,14 @@ export const Slide02T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s2_overlay"
+          slotId={overlayId}
           imageUrl={overlaySlot.imageUrl}
           defaultPlaceholder=""
           adjustments={overlaySlot.adjustments}
-          isActive={activeSlotId === 't2_s2_overlay'}
-          onSelectSlot={() => onSelectSlot('t2_s2_overlay')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s2_overlay', adj)}
-          onPickImage={() => onPickImage('t2_s2_overlay')}
+          isActive={activeSlotId === overlayId}
+          onSelectSlot={() => onSelectSlot(overlayId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(overlayId, adj)}
+          onPickImage={() => onPickImage(overlayId)}
           isExport={isExport}
         />
       </div>

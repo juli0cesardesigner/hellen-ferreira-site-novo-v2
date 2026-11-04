@@ -52,6 +52,7 @@ export interface SlideProps {
   onUpdateAdjustments: (slotId: string, adj: PhotoSlotAdjustment) => void;
   onPickImage: (slotId: string) => void;
   isExport?: boolean;
+  slots?: SlideSlotDefinition[];
 }
 
 export interface SlideDefinition {

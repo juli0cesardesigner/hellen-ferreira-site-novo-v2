@@ -10,12 +10,13 @@ export const Slide03: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
   const slots = [
-    { id: 's3_top', label: 'Foto 1 (Superior)' },
-    { id: 's3_center', label: 'Foto 2 (Centro)' },
-    { id: 's3_bottom', label: 'Foto 3 (Inferior)' }
+    { id: propSlots?.[0]?.id || 's3_top', label: propSlots?.[0]?.label || 'Foto 1 (Superior)' },
+    { id: propSlots?.[1]?.id || 's3_center', label: propSlots?.[1]?.label || 'Foto 2 (Centro)' },
+    { id: propSlots?.[2]?.id || 's3_bottom', label: propSlots?.[2]?.label || 'Foto 3 (Inferior)' }
   ];
 
   /*

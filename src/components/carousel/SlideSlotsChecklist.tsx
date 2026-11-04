@@ -60,7 +60,13 @@ export const SlideSlotsChecklist: React.FC<SlideSlotsChecklistProps> = ({
           return (
             <button
               key={item.id}
-              onClick={() => onSelectSlot(item.id, item.firstSlideIndex)}
+              onClick={() => {
+                if (isActive) {
+                  onPickImage(item.id);
+                } else {
+                  onSelectSlot(item.id, item.firstSlideIndex);
+                }
+              }}
               onDoubleClick={() => onPickImage(item.id)}
               className={`py-1.5 px-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all text-center truncate cursor-pointer ${
                 hasImage
@@ -71,6 +77,7 @@ export const SlideSlotsChecklist: React.FC<SlideSlotsChecklistProps> = ({
                   ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-[1.03] z-10'
                   : 'opacity-90 hover:opacity-100'
               }`}
+              title={isActive ? 'Toque novamente para carregar foto' : `Ir para ${item.displayLabel}`}
             >
               {item.displayLabel}
             </button>

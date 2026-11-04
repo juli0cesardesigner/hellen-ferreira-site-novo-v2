@@ -11,23 +11,28 @@ export const Slide02: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const topSlot = slotsData['s2_top'] || {
-    id: 's2_top',
-    label: 'Foto 1 (Superior)',
+  const topId = propSlots?.[0]?.id || 's2_top';
+  const bottomId = propSlots?.[1]?.id || 's2_bottom';
+  const polaroidId = propSlots?.[2]?.id || 's2_polaroid';
+
+  const topSlot = slotsData[topId] || {
+    id: topId,
+    label: propSlots?.[0]?.label || 'Foto 1 (Superior)',
     adjustments: { zoom: 100, x: 50, y: 50 }
   };
 
-  const bottomSlot = slotsData['s2_bottom'] || {
-    id: 's2_bottom',
-    label: 'Foto 2 (Inferior)',
+  const bottomSlot = slotsData[bottomId] || {
+    id: bottomId,
+    label: propSlots?.[1]?.label || 'Foto 2 (Inferior)',
     adjustments: { zoom: 100, x: 50, y: 50 }
   };
 
-  const polaroidSlot = slotsData['s2_polaroid'] || {
-    id: 's2_polaroid',
-    label: 'Foto Polaroid (Centro)',
+  const polaroidSlot = slotsData[polaroidId] || {
+    id: polaroidId,
+    label: propSlots?.[2]?.label || 'Foto Polaroid (Centro)',
     adjustments: { zoom: 100, x: 50, y: 50 }
   };
 
@@ -57,14 +62,14 @@ export const Slide02: React.FC<SlideProps> = ({
       {/* Metade Superior: Foto 1 */}
       <div className="w-full h-1/2 relative overflow-hidden">
         <InteractivePhotoSlot
-          slotId="s2_top"
+          slotId={topId}
           imageUrl={topSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={topSlot.adjustments}
-          isActive={activeSlotId === 's2_top'}
-          onSelectSlot={() => onSelectSlot('s2_top')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('s2_top', adj)}
-          onPickImage={() => onPickImage('s2_top')}
+          isActive={activeSlotId === topId}
+          onSelectSlot={() => onSelectSlot(topId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(topId, adj)}
+          onPickImage={() => onPickImage(topId)}
           isExport={isExport}
         />
       </div>
@@ -72,50 +77,50 @@ export const Slide02: React.FC<SlideProps> = ({
       {/* Metade Inferior: Foto 2 */}
       <div className="w-full h-1/2 relative overflow-hidden">
         <InteractivePhotoSlot
-          slotId="s2_bottom"
+          slotId={bottomId}
           imageUrl={bottomSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={bottomSlot.adjustments}
-          isActive={activeSlotId === 's2_bottom'}
-          onSelectSlot={() => onSelectSlot('s2_bottom')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('s2_bottom', adj)}
-          onPickImage={() => onPickImage('s2_bottom')}
+          isActive={activeSlotId === bottomId}
+          onSelectSlot={() => onSelectSlot(bottomId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(bottomId, adj)}
+          onPickImage={() => onPickImage(bottomId)}
           isExport={isExport}
         />
       </div>
 
       {/* Glow Ambiente da Polaroid (Backdrop Glow fiel ao CSS: filter: blur(40px) saturate(1.8); scale: 1.1) */}
-      {/* Dimensão e alinhamento idênticos à janela interna da foto da Polaroid */}
-      <div
-        aria-hidden="true"
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none scale-110 overflow-hidden"
-        style={{
-          width: `${(490 / 1080) * 100}%`,
-          height: isStories
-            ? `${(315 / 1920) * 100}%`
-            : `${(315 / 1350) * 100}%`,
-          marginTop: isStories
-            ? `${(-27.5 / 1920) * 100}%`
-            : `${(-27.5 / 1350) * 100}%`,
-          filter: 'blur(40px) saturate(1.8)'
-        }}
-      >
+      {/* Renderizado apenas quando a foto da Polaroid estiver carregada, evitando 404 de imagem fantasma */}
+      {polaroidSlot.imageUrl && (
         <div
-          className="w-full h-full relative"
+          aria-hidden="true"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none select-none scale-110 overflow-hidden"
+          style={{
+            width: `${(490 / 1080) * 100}%`,
+            height: isStories
+              ? `${(315 / 1920) * 100}%`
+              : `${(315 / 1350) * 100}%`,
+            marginTop: isStories
+              ? `${(-27.5 / 1920) * 100}%`
+              : `${(-27.5 / 1350) * 100}%`,
+            filter: 'blur(40px) saturate(1.8)'
+          }}
         >
-          <img
-            src={polaroidSlot.imageUrl || '/images/hero-newborn.jpg'}
-            alt=""
-            draggable={false}
-            className="w-full h-full object-cover"
-            style={{
-              transform: `scale(${polaroidSlot.adjustments.zoom / 100})`,
-              transformOrigin: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`,
-              objectPosition: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`
-            }}
-          />
+          <div className="w-full h-full relative">
+            <img
+              src={polaroidSlot.imageUrl}
+              alt=""
+              draggable={false}
+              className="w-full h-full object-cover"
+              style={{
+                transform: `scale(${polaroidSlot.adjustments.zoom / 100})`,
+                transformOrigin: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`,
+                objectPosition: `${polaroidSlot.adjustments.x}% ${polaroidSlot.adjustments.y}%`
+              }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* No Meio: Card Central Estilo Polaroid (Sem box-shadow tradicional) */}
       <div
@@ -137,14 +142,14 @@ export const Slide02: React.FC<SlideProps> = ({
           }}
         >
           <InteractivePhotoSlot
-            slotId="s2_polaroid"
+            slotId={polaroidId}
             imageUrl={polaroidSlot.imageUrl}
             defaultPlaceholder=""
             adjustments={polaroidSlot.adjustments}
-            isActive={activeSlotId === 's2_polaroid'}
-            onSelectSlot={() => onSelectSlot('s2_polaroid')}
-            onUpdateAdjustments={(adj) => onUpdateAdjustments('s2_polaroid', adj)}
-            onPickImage={() => onPickImage('s2_polaroid')}
+            isActive={activeSlotId === polaroidId}
+            onSelectSlot={() => onSelectSlot(polaroidId)}
+            onUpdateAdjustments={(adj) => onUpdateAdjustments(polaroidId, adj)}
+            onPickImage={() => onPickImage(polaroidId)}
             isExport={isExport}
           />
         </div>

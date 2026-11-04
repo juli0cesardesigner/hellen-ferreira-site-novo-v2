@@ -19,10 +19,14 @@ export const Slide03T2: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const rectSlot = slotsData['t2_s3_rect'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const seamlessSlot = slotsData['t2_seamless'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const rectId = propSlots?.[0]?.id || 't2_s3_rect';
+  const seamlessId = propSlots?.[1]?.id || 't2_seamless';
+
+  const rectSlot = slotsData[rectId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const seamlessSlot = slotsData[seamlessId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
 
   return (
     <div className="w-full h-full relative bg-white overflow-hidden select-none">
@@ -37,14 +41,14 @@ export const Slide03T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s3_rect"
+          slotId={rectId}
           imageUrl={rectSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={rectSlot.adjustments}
-          isActive={activeSlotId === 't2_s3_rect'}
-          onSelectSlot={() => onSelectSlot('t2_s3_rect')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s3_rect', adj)}
-          onPickImage={() => onPickImage('t2_s3_rect')}
+          isActive={activeSlotId === rectId}
+          onSelectSlot={() => onSelectSlot(rectId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(rectId, adj)}
+          onPickImage={() => onPickImage(rectId)}
           isExport={isExport}
         />
       </div>
@@ -59,7 +63,7 @@ export const Slide03T2: React.FC<SlideProps> = ({
         onClick={(e) => {
           if (isExport) return;
           e.stopPropagation();
-          onSelectSlot('t2_seamless');
+          onSelectSlot(seamlessId);
         }}
       >
         {/* Janela virtual com os 860px totais do seamless */}
@@ -71,14 +75,14 @@ export const Slide03T2: React.FC<SlideProps> = ({
           }}
         >
           <InteractivePhotoSlot
-            slotId="t2_seamless"
+            slotId={seamlessId}
             imageUrl={seamlessSlot.imageUrl}
             defaultPlaceholder=""
             adjustments={seamlessSlot.adjustments}
-            isActive={activeSlotId === 't2_seamless'}
-            onSelectSlot={() => onSelectSlot('t2_seamless')}
-            onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_seamless', adj)}
-            onPickImage={() => onPickImage('t2_seamless')}
+            isActive={activeSlotId === seamlessId}
+            onSelectSlot={() => onSelectSlot(seamlessId)}
+            onUpdateAdjustments={(adj) => onUpdateAdjustments(seamlessId, adj)}
+            onPickImage={() => onPickImage(seamlessId)}
             isExport={isExport}
           />
         </div>

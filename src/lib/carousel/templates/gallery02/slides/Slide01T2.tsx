@@ -17,11 +17,16 @@ export const Slide01T2: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const leftSlot = slotsData['t2_s1_left'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const centerSlot = slotsData['t2_s1_center'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const rightSlot = slotsData['t2_s1_right'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const leftId = propSlots?.[0]?.id || 't2_s1_left';
+  const centerId = propSlots?.[1]?.id || 't2_s1_center';
+  const rightId = propSlots?.[2]?.id || 't2_s1_right';
+
+  const leftSlot = slotsData[leftId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const centerSlot = slotsData[centerId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const rightSlot = slotsData[rightId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
 
   return (
     <div className="w-full h-full relative bg-white overflow-hidden select-none">
@@ -34,14 +39,14 @@ export const Slide01T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s1_left"
+          slotId={leftId}
           imageUrl={leftSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={leftSlot.adjustments}
-          isActive={activeSlotId === 't2_s1_left'}
-          onSelectSlot={() => onSelectSlot('t2_s1_left')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s1_left', adj)}
-          onPickImage={() => onPickImage('t2_s1_left')}
+          isActive={activeSlotId === leftId}
+          onSelectSlot={() => onSelectSlot(leftId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(leftId, adj)}
+          onPickImage={() => onPickImage(leftId)}
           isExport={isExport}
         />
       </div>
@@ -55,14 +60,14 @@ export const Slide01T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s1_center"
+          slotId={centerId}
           imageUrl={centerSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={centerSlot.adjustments}
-          isActive={activeSlotId === 't2_s1_center'}
-          onSelectSlot={() => onSelectSlot('t2_s1_center')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s1_center', adj)}
-          onPickImage={() => onPickImage('t2_s1_center')}
+          isActive={activeSlotId === centerId}
+          onSelectSlot={() => onSelectSlot(centerId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(centerId, adj)}
+          onPickImage={() => onPickImage(centerId)}
           isExport={isExport}
         />
       </div>
@@ -76,14 +81,14 @@ export const Slide01T2: React.FC<SlideProps> = ({
         }}
       >
         <InteractivePhotoSlot
-          slotId="t2_s1_right"
+          slotId={rightId}
           imageUrl={rightSlot.imageUrl}
           defaultPlaceholder=""
           adjustments={rightSlot.adjustments}
-          isActive={activeSlotId === 't2_s1_right'}
-          onSelectSlot={() => onSelectSlot('t2_s1_right')}
-          onUpdateAdjustments={(adj) => onUpdateAdjustments('t2_s1_right', adj)}
-          onPickImage={() => onPickImage('t2_s1_right')}
+          isActive={activeSlotId === rightId}
+          onSelectSlot={() => onSelectSlot(rightId)}
+          onUpdateAdjustments={(adj) => onUpdateAdjustments(rightId, adj)}
+          onPickImage={() => onPickImage(rightId)}
           isExport={isExport}
         />
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CarouselTemplate, CarouselProject, PhotoSlotData } from '@/lib/carousel/types';
-import { Plus, Trash2, Clock, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Clock, Image as ImageIcon, Terminal } from 'lucide-react';
 import { InternalDialogModal, InternalModalConfig } from './InternalDialogModal';
 import { RandomizerModal } from './RandomizerModal';
 
@@ -17,6 +17,7 @@ interface HomeModalProps {
   onOpenProject: (project: CarouselProject) => void;
   onDeleteProject: (projectId: string) => void;
   onApplyRandomProject: (template: CarouselTemplate, slotsData: Record<string, PhotoSlotData>) => void;
+  onOpenLogs?: () => void;
 }
 
 export function HomeModal({
@@ -29,7 +30,8 @@ export function HomeModal({
   onCreateCustomTemplate,
   onOpenProject,
   onDeleteProject,
-  onApplyRandomProject
+  onApplyRandomProject,
+  onOpenLogs
 }: HomeModalProps) {
   const [activeTab, setActiveTab] = useState<'templates' | 'projects'>('templates');
   const [isRandomizerOpen, setIsRandomizerOpen] = useState<boolean>(false);
@@ -45,12 +47,12 @@ export function HomeModal({
     <>
       <div className="fixed inset-0 z-50 flex flex-col bg-[#0A0D14] text-slate-100 animate-in fade-in duration-200">
         <div className="w-full h-full flex flex-col overflow-hidden max-w-4xl mx-auto">
-          {/* Header Superior: APENAS Personalizado | Aleatório | Editor */}
+          {/* Header Superior: Personalizado | Aleatório | Editor | Logs */}
           <div className="p-3.5 sm:p-5 border-b border-slate-800/90 bg-[#0F1420]/80 backdrop-blur-md flex items-center justify-center shrink-0">
-            <div className="w-full max-w-sm flex items-center justify-between gap-2.5">
+            <div className="w-full max-w-sm flex items-center justify-between gap-2">
               <button
                 onClick={onCreateCustomTemplate}
-                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold rounded-xl text-center shadow-sm transition-all active:scale-95 cursor-pointer"
+                className="flex-1 py-2 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold rounded-xl text-center shadow-sm transition-all active:scale-95 cursor-pointer"
                 title="Criar carrossel em branco e escolher lâminas"
               >
                 Personalizado
@@ -58,7 +60,7 @@ export function HomeModal({
 
               <button
                 onClick={() => setIsRandomizerOpen(true)}
-                className="flex-1 py-2 px-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-bold rounded-xl text-center shadow-md shadow-amber-500/10 transition-all active:scale-95 cursor-pointer"
+                className="flex-1 py-2 px-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-bold rounded-xl text-center shadow-md shadow-amber-500/10 transition-all active:scale-95 cursor-pointer"
                 title="Criar carrossel com distribuição aleatória"
               >
                 Aleatório
@@ -66,11 +68,22 @@ export function HomeModal({
 
               <button
                 onClick={onClose}
-                className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold rounded-xl text-center transition-all cursor-pointer"
+                className="flex-1 py-2 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold rounded-xl text-center transition-all cursor-pointer"
                 title="Voltar ao Editor"
               >
                 Editor
               </button>
+
+              {onOpenLogs && (
+                <button
+                  onClick={onOpenLogs}
+                  className="py-2 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold rounded-xl text-center transition-all cursor-pointer flex items-center justify-center gap-1"
+                  title="Logs de Diagnóstico no iPhone"
+                >
+                  <Terminal className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="font-bold text-[11px]">Logs</span>
+                </button>
+              )}
             </div>
           </div>
 

@@ -18,13 +18,24 @@ function shuffleArray<T>(arr: T[]): T[] {
 export function instantiateCatalogSlide(
   catalogItem: CatalogSlideItem,
   slideNumber: number,
-  customSlideId?: string
+  customSlideId?: string,
+  slotIdMap?: Map<string, string>
 ): SlideDefinition {
   const slideId = customSlideId || uid();
-  const newSlots = catalogItem.slideDefinition.slots.map((s, idx) => ({
-    ...s,
-    id: `${slideId}_slot_${idx}`
-  }));
+  const newSlots = catalogItem.slideDefinition.slots.map((s, idx) => {
+    const isSeamless = s.id.includes('seamless');
+    let newId = isSeamless ? slotIdMap?.get(s.id) : undefined;
+    if (!newId) {
+      newId = `${slideId}_slot_${idx}`;
+      if (slotIdMap && isSeamless) {
+        slotIdMap.set(s.id, newId);
+      }
+    }
+    return {
+      ...s,
+      id: newId
+    };
+  });
 
   return {
     ...catalogItem.slideDefinition,
@@ -52,27 +63,27 @@ export function generateRandomProjectByImages(
   const availableTemplates = shuffleArray([...catalog]);
 
   const chosenSlides: SlideDefinition[] = [];
+  const sharedSlotMap = new Map<string, string>();
   let totalSlots = 0;
   let slideNum = 1;
 
   // Enquanto a capacidade de slots for menor que o número de fotos
   while (totalSlots < targetSlotsCount && chosenSlides.length < 15) {
-    // Pega uma lâmina aleatória do catálogo
     const randomItem = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
 
     // Se a lâmina tiver par seamless e couber bem, tenta incluir o par para continuidade perfeita
     if (randomItem.seamlessPairId && Math.random() > 0.4) {
       const pair = catalog.find((c) => c.id === randomItem.seamlessPairId);
       if (pair) {
-        const s1 = instantiateCatalogSlide(randomItem, slideNum++);
-        const s2 = instantiateCatalogSlide(pair, slideNum++);
+        const s1 = instantiateCatalogSlide(randomItem, slideNum++, undefined, sharedSlotMap);
+        const s2 = instantiateCatalogSlide(pair, slideNum++, undefined, sharedSlotMap);
         chosenSlides.push(s1, s2);
         totalSlots += s1.slots.length + s2.slots.length;
         continue;
       }
     }
 
-    const singleSlide = instantiateCatalogSlide(randomItem, slideNum++);
+    const singleSlide = instantiateCatalogSlide(randomItem, slideNum++, undefined, sharedSlotMap);
     chosenSlides.push(singleSlide);
     totalSlots += singleSlide.slots.length;
   }
@@ -83,6 +94,9 @@ export function generateRandomProjectByImages(
 
   chosenSlides.forEach((slide) => {
     slide.slots.forEach((slot) => {
+      // Se já foi preenchido por um par seamless anterior, não sobrescreve
+      if (slotsData[slot.id]) return;
+
       const img = images[imgIndex];
       slotsData[slot.id] = {
         id: slot.id,
@@ -114,6 +128,7 @@ export function generateRandomProjectBySlideCount(
 } {
   const chosenSlides: SlideDefinition[] = [];
   const slotsData: Record<string, PhotoSlotData> = {};
+  const sharedSlotMap = new Map<string, string>();
   let currentNum = 1;
 
   while (chosenSlides.length < slideCount) {
@@ -127,26 +142,28 @@ export function generateRandomProjectBySlideCount(
     ) {
       const pair = catalog.find((c) => c.id === randomItem.seamlessPairId);
       if (pair) {
-        const s1 = instantiateCatalogSlide(randomItem, currentNum++);
-        const s2 = instantiateCatalogSlide(pair, currentNum++);
+        const s1 = instantiateCatalogSlide(randomItem, currentNum++, undefined, sharedSlotMap);
+        const s2 = instantiateCatalogSlide(pair, currentNum++, undefined, sharedSlotMap);
         chosenSlides.push(s1, s2);
         continue;
       }
     }
 
-    const single = instantiateCatalogSlide(randomItem, currentNum++);
+    const single = instantiateCatalogSlide(randomItem, currentNum++, undefined, sharedSlotMap);
     chosenSlides.push(single);
   }
 
   // Inicializa os slots em branco prontos para edição
   chosenSlides.forEach((slide) => {
     slide.slots.forEach((slot) => {
-      slotsData[slot.id] = {
-        id: slot.id,
-        label: slot.label,
-        imageUrl: undefined,
-        adjustments: { zoom: 100, x: 50, y: 50 }
-      };
+      if (!slotsData[slot.id]) {
+        slotsData[slot.id] = {
+          id: slot.id,
+          label: slot.label,
+          imageUrl: undefined,
+          adjustments: { zoom: 100, x: 50, y: 50 }
+        };
+      }
     });
   });
 
@@ -155,4 +172,3 @@ export function generateRandomProjectBySlideCount(
     slotsData
   };
 }
-

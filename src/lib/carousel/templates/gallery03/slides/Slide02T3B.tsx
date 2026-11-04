@@ -17,11 +17,16 @@ export const Slide02T3B: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const bgSeamless = slotsData['t3b_bg_seamless'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const foto3Seamless = slotsData['t3b_foto3_seamless'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
-  const foto4Seamless = slotsData['t3b_foto4_seamless'] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const bgId = propSlots?.[0]?.id || 't3b_bg_seamless';
+  const foto3Id = propSlots?.[1]?.id || 't3b_foto3_seamless';
+  const foto4Id = propSlots?.[2]?.id || 't3b_foto4_seamless';
+
+  const bgSeamless = slotsData[bgId] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const foto3Seamless = slotsData[foto3Id] || { adjustments: { zoom: 100, x: 50, y: 50 } };
+  const foto4Seamless = slotsData[foto4Id] || { adjustments: { zoom: 100, x: 50, y: 50 } };
 
   return (
     <div className="w-full h-full relative bg-white overflow-hidden select-none">
@@ -31,7 +36,7 @@ export const Slide02T3B: React.FC<SlideProps> = ({
         onClick={(e) => {
           if (isExport) return;
           e.stopPropagation();
-          onSelectSlot('t3b_bg_seamless');
+          onSelectSlot(bgId);
         }}
       >
         <div
@@ -42,14 +47,14 @@ export const Slide02T3B: React.FC<SlideProps> = ({
           }}
         >
           <InteractivePhotoSlot
-            slotId="t3b_bg_seamless"
+            slotId={bgId}
             imageUrl={bgSeamless.imageUrl}
             defaultPlaceholder=""
             adjustments={bgSeamless.adjustments}
-            isActive={activeSlotId === 't3b_bg_seamless'}
-            onSelectSlot={() => onSelectSlot('t3b_bg_seamless')}
-            onUpdateAdjustments={(adj) => onUpdateAdjustments('t3b_bg_seamless', adj)}
-            onPickImage={() => onPickImage('t3b_bg_seamless')}
+            isActive={activeSlotId === bgId}
+            onSelectSlot={() => onSelectSlot(bgId)}
+            onUpdateAdjustments={(adj) => onUpdateAdjustments(bgId, adj)}
+            onPickImage={() => onPickImage(bgId)}
             isExport={isExport}
           />
         </div>
@@ -61,7 +66,7 @@ export const Slide02T3B: React.FC<SlideProps> = ({
         onClick={(e) => {
           if (isExport) return;
           e.stopPropagation();
-          onSelectSlot('t3b_foto3_seamless');
+          onSelectSlot(foto3Id);
         }}
       >
         <div
@@ -69,14 +74,14 @@ export const Slide02T3B: React.FC<SlideProps> = ({
           style={{ width: `${(1500 / 1080) * 100}%` }}
         >
           <InteractivePhotoSlot
-            slotId="t3b_foto3_seamless"
+            slotId={foto3Id}
             imageUrl={foto3Seamless.imageUrl}
             defaultPlaceholder=""
             adjustments={foto3Seamless.adjustments}
-            isActive={activeSlotId === 't3b_foto3_seamless'}
-            onSelectSlot={() => onSelectSlot('t3b_foto3_seamless')}
-            onUpdateAdjustments={(adj) => onUpdateAdjustments('t3b_foto3_seamless', adj)}
-            onPickImage={() => onPickImage('t3b_foto3_seamless')}
+            isActive={activeSlotId === foto3Id}
+            onSelectSlot={() => onSelectSlot(foto3Id)}
+            onUpdateAdjustments={(adj) => onUpdateAdjustments(foto3Id, adj)}
+            onPickImage={() => onPickImage(foto3Id)}
             isExport={isExport}
           />
         </div>
@@ -94,7 +99,7 @@ export const Slide02T3B: React.FC<SlideProps> = ({
         onClick={(e) => {
           if (isExport) return;
           e.stopPropagation();
-          onSelectSlot('t3b_foto4_seamless');
+          onSelectSlot(foto4Id);
         }}
       >
         <div
@@ -105,14 +110,14 @@ export const Slide02T3B: React.FC<SlideProps> = ({
           }}
         >
           <InteractivePhotoSlot
-            slotId="t3b_foto4_seamless"
+            slotId={foto4Id}
             imageUrl={foto4Seamless.imageUrl}
             defaultPlaceholder=""
             adjustments={foto4Seamless.adjustments}
-            isActive={activeSlotId === 't3b_foto4_seamless'}
-            onSelectSlot={() => onSelectSlot('t3b_foto4_seamless')}
-            onUpdateAdjustments={(adj) => onUpdateAdjustments('t3b_foto4_seamless', adj)}
-            onPickImage={() => onPickImage('t3b_foto4_seamless')}
+            isActive={activeSlotId === foto4Id}
+            onSelectSlot={() => onSelectSlot(foto4Id)}
+            onUpdateAdjustments={(adj) => onUpdateAdjustments(foto4Id, adj)}
+            onPickImage={() => onPickImage(foto4Id)}
             isExport={isExport}
           />
         </div>

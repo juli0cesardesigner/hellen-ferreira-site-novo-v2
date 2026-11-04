@@ -10,12 +10,13 @@ export const Slide05: React.FC<SlideProps> = ({
   onSelectSlot,
   onUpdateAdjustments,
   onPickImage,
-  isExport = false
+  isExport = false,
+  slots: propSlots
 }) => {
-  const slotId = 's5_slot1';
+  const slotId = propSlots?.[0]?.id || 's5_slot1';
   const data = slotsData[slotId] || {
     id: slotId,
-    label: 'Slot 1',
+    label: propSlots?.[0]?.label || 'Slot 1',
     adjustments: { zoom: 100, x: 50, y: 50 }
   };
 
