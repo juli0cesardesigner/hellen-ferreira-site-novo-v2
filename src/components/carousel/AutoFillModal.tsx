@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CarouselTemplate, PhotoSlotData } from '@/lib/carousel/types';
 import { getTemplateUniqueSlots, applyAutoFillToTemplate } from '@/lib/carousel/auto-fill';
 import { DEMO_PHOTOS } from '@/lib/carousel/demo-photos';
-import { X, Sparkles, Upload, Image as ImageIcon, Loader2, ArrowRight } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Loader2, ArrowRight } from 'lucide-react';
 
 interface AutoFillModalProps {
   isOpen: boolean;
@@ -22,6 +22,18 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
   const [selectedPhotos, setSelectedPhotos] = useState<{ dataUrl: string; name: string }[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fecha com a tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -79,16 +91,23 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="autofill-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+    >
       <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col text-slate-100">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <Sparkles className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base text-white">Auto-Preenchimento</h3>
+              <h3 id="autofill-title" className="font-bold text-sm sm:text-base text-white">
+                Auto-Preenchimento
+              </h3>
               <p className="text-[11px] text-slate-400">
                 {template.name} ({totalSlotsNeeded} vagas de fotos)
               </p>
@@ -96,9 +115,10 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer"
+            aria-label="Fechar janela de auto-preenchimento"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -161,7 +181,7 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
                 onClick={handleUseDemo}
                 className="w-full py-2.5 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-amber-400" />
+                <ImageIcon className="w-4 h-4 text-amber-400" />
                 <span>Preencher com Fotos Demo ({totalSlotsNeeded} fotos)</span>
               </button>
             </div>
@@ -205,7 +225,7 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
         <div className="px-5 py-3.5 border-t border-slate-800 flex items-center justify-between bg-slate-950/40 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
             Cancelar
           </button>
@@ -213,7 +233,7 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
           <button
             onClick={handleApply}
             disabled={selectedPhotos.length === 0}
-            className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer"
+            className="min-h-[44px] px-5 py-2.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 disabled:opacity-40 disabled:pointer-events-none text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
             <span>Carregar Fotos no Template</span>
             <ArrowRight className="w-3.5 h-3.5" />

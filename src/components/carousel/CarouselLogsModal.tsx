@@ -30,6 +30,18 @@ export const CarouselLogsModal: React.FC<CarouselLogsModalProps> = ({ isOpen, on
     }
   }, [isOpen]);
 
+  // Fecha modal com a tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const filteredLogs = logs.filter((l) => {
@@ -75,7 +87,12 @@ export const CarouselLogsModal: React.FC<CarouselLogsModalProps> = ({ isOpen, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 select-none">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="logs-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 motion-reduce:animate-none select-none"
+    >
       <div
         className="relative w-full max-w-2xl bg-[#0F1420] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col max-h-[88vh] overflow-hidden text-slate-100"
         onClick={(e) => e.stopPropagation()}
@@ -87,7 +104,7 @@ export const CarouselLogsModal: React.FC<CarouselLogsModalProps> = ({ isOpen, on
               <Terminal className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <h2 id="logs-modal-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                 Logs do Estúdio
                 {errorCount > 0 && (
                   <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
@@ -102,14 +119,16 @@ export const CarouselLogsModal: React.FC<CarouselLogsModalProps> = ({ isOpen, on
           <div className="flex items-center gap-1.5">
             <button
               onClick={refreshLogs}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg active:bg-slate-800 transition-colors"
+              aria-label="Recarregar logs"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg active:bg-slate-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
               title="Recarregar logs"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg active:bg-slate-800 transition-colors"
+              aria-label="Fechar janela de logs"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg active:bg-slate-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
               title="Fechar"
             >
               <X className="w-5 h-5" />

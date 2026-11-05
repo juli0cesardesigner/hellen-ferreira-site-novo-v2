@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RenderedSlideResult, triggerDownload } from '@/lib/carousel/exporter';
-import { X, Download, Check, Sparkles, Image as ImageIcon, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
+import { X, Download, Check, Image as ImageIcon, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 
 interface ExportResultModalProps {
   isOpen: boolean;
@@ -18,6 +18,18 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [downloadedMap, setDownloadedMap] = useState<Record<number, boolean>>({});
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+
+  // Fecha com a tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen || results.length === 0) return null;
 
@@ -42,16 +54,23 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
   const currentSizeKb = Math.round(currentItem.blob.size / 1024);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="export-result-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+    >
       <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[92vh] shadow-2xl flex flex-col text-slate-100 overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <Sparkles className="w-5 h-5" />
+              <Check className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base text-white">Carrossel Pronto!</h3>
+              <h3 id="export-result-title" className="font-bold text-sm sm:text-base text-white">
+                Carrossel Pronto!
+              </h3>
               <p className="text-[11px] text-slate-400">
                 {results.length} lâminas renderizadas em alta resolução (1080p)
               </p>
@@ -59,7 +78,8 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer"
+            aria-label="Fechar prévia de exportação"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             title="Fechar"
           >
             <X className="w-5 h-5" />
@@ -76,22 +96,24 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
               className="w-full h-full object-contain"
             />
 
-            {/* Navegação entre lâminas */}
+            {/* Navegação entre lâminas com touch targets confortáveis */}
             {results.length > 1 && (
               <>
                 <button
                   onClick={() => setSelectedIndex((prev) => (prev > 0 ? prev - 1 : results.length - 1))}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm transition-all"
+                  aria-label="Lâmina anterior"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 active:scale-95 text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
                   title="Anterior"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={() => setSelectedIndex((prev) => (prev < results.length - 1 ? prev + 1 : 0))}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm transition-all"
+                  aria-label="Próxima lâmina"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full bg-black/60 hover:bg-black/90 active:scale-95 text-white flex items-center justify-center backdrop-blur-sm transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
                   title="Próxima"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </button>
               </>
             )}

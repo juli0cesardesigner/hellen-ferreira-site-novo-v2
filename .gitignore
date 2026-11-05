@@ -57,3 +57,7 @@ lint_results*.txt
 *.csv
 agendamentos*.json
 payload*.json
+
+graphipy-out
+graphify-out/
+

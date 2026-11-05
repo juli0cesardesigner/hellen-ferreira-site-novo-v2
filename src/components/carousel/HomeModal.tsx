@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CarouselTemplate, CarouselProject, PhotoSlotData } from '@/lib/carousel/types';
-import { Plus, Trash2, Clock, Image as ImageIcon, Terminal, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Clock, Image as ImageIcon, Terminal, Layers } from 'lucide-react';
 import { InternalDialogModal, InternalModalConfig } from './InternalDialogModal';
 import { RandomizerModal } from './RandomizerModal';
 import { AutoFillModal } from './AutoFillModal';
@@ -47,11 +47,28 @@ export function HomeModal({
     onConfirm: () => {}
   });
 
+  // Fecha modal com a tecla Escape (padrão de usabilidade Apple HIG / Desktop)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex flex-col bg-[#0A0D14] text-slate-100 animate-in fade-in duration-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Gerenciador de Templates e Projetos"
+        className="fixed inset-0 z-50 flex flex-col bg-[#0A0D14] text-slate-100 animate-in fade-in duration-200 motion-reduce:animate-none"
+      >
         <div className="w-full h-full flex flex-col overflow-hidden max-w-4xl mx-auto">
           {/* Header Superior: Personalizado | Aleatório | Editor | Logs */}
           <div className="p-3.5 sm:p-5 border-b border-slate-800/90 bg-[#0F1420]/80 backdrop-blur-md flex items-center justify-center shrink-0">
@@ -101,7 +118,7 @@ export function HomeModal({
                 <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
-                      <Sparkles className="w-4 h-4" />
+                      <Layers className="w-4 h-4" />
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-slate-200">Auto-Preenchimento</h4>
@@ -151,10 +168,9 @@ export function HomeModal({
                             <button
                               type="button"
                               onClick={() => setAutoFillTargetTemplate(tpl)}
-                              className="py-1.5 sm:py-2 px-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
+                              className="py-1.5 sm:py-2 px-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-white rounded-xl text-xs font-bold flex items-center justify-center transition-all shadow-sm shrink-0 cursor-pointer"
                               title="Auto-preenchimento: escolher todas as fotos deste template de uma vez"
                             >
-                              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
                               <span>Auto</span>
                             </button>
 
@@ -234,8 +250,17 @@ export function HomeModal({
                       return (
                         <div
                           key={proj.id}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Abrir projeto ${proj.name}, salvo em ${dateStr}`}
                           onClick={() => onOpenProject(proj)}
-                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between group ${
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onOpenProject(proj);
+                            }
+                          }}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between group focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden ${
                             isCurrent
                               ? 'border-amber-500 bg-amber-500/10'
                               : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-900'
@@ -258,7 +283,7 @@ export function HomeModal({
                               {proj.coverThumbnail ? (
                                 <img
                                   src={proj.coverThumbnail}
-                                  alt="Capa do Carrossel"
+                                  alt={`Capa do carrossel ${proj.name}`}
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
@@ -274,6 +299,7 @@ export function HomeModal({
                             </span>
 
                             <button
+                              type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setDialogConfig({
@@ -290,10 +316,11 @@ export function HomeModal({
                                   onCancel: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
                                 });
                               }}
-                              className="p-1 text-slate-500 hover:text-red-400 rounded transition-colors"
+                              aria-label={`Excluir projeto ${proj.name}`}
+                              className="min-w-[36px] min-h-[36px] p-2 flex items-center justify-center text-slate-400 hover:text-red-400 rounded-lg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-hidden"
                               title="Excluir projeto"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>

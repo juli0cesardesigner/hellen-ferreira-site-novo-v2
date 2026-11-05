@@ -13,7 +13,7 @@ import { SlideSlotsChecklist } from '@/components/carousel/SlideSlotsChecklist';
 import { CatalogSlideItem, CATALOG_SLIDES } from '@/lib/carousel/templates/catalog';
 import { exportSlidesSequentially } from '@/lib/carousel/exporter';
 import { loadAllSlotData, saveSlotData, clearAllSlotData, saveProject, loadAllProjects, deleteProject } from '@/lib/carousel/storage';
-import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2, Terminal, Sparkles } from 'lucide-react';
+import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2, Terminal } from 'lucide-react';
 import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 import { addCarouselLog, initCarouselLogger } from '@/lib/carousel/logger';
 import { CarouselLogsModal } from '@/components/carousel/CarouselLogsModal';
@@ -505,15 +505,24 @@ export default function CarouselStudioPage() {
     goToSlide(currentSlideIndex + 1);
   };
 
-  // Garante que o botão da lâmina ativa sempre role para dentro do viewport visível
+  // Garante que o botão da lâmina ativa role DENTRO do container sem mover a janela/página
   useEffect(() => {
+    const container = slideNavContainerRef.current;
     const activeButton = slideButtonRefs.current[currentSlideIndex];
-    if (activeButton && slideNavContainerRef.current) {
-      activeButton.scrollIntoView({
-        behavior: 'smooth',
-        inline: 'center',
-        block: 'nearest'
-      });
+    if (activeButton && container) {
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      const relativeLeft = buttonRect.left - containerRect.left + container.scrollLeft;
+      const targetScrollLeft = relativeLeft - (container.clientWidth / 2) + (buttonRect.width / 2);
+
+      if (typeof container.scrollTo === 'function') {
+        container.scrollTo({
+          left: Math.max(0, targetScrollLeft),
+          behavior: 'smooth'
+        });
+      } else {
+        container.scrollLeft = Math.max(0, targetScrollLeft);
+      }
     }
   }, [currentSlideIndex, currentTemplate.slides.length]);
 
@@ -793,7 +802,7 @@ export default function CarouselStudioPage() {
   const activeSlotData = activeSlotId ? slotsData[activeSlotId] : undefined;
 
   return (
-    <div className="h-[100dvh] bg-[#0A0D14] text-slate-100 flex flex-col font-sans overflow-hidden select-none">
+    <div className="h-[100dvh] w-full max-w-full bg-[#0A0D14] text-slate-100 flex flex-col font-sans overflow-x-hidden overflow-y-hidden select-none">
       <input
         type="file"
         ref={fileInputRef}
@@ -805,44 +814,53 @@ export default function CarouselStudioPage() {
       />
 
       {/* Header Limpo com Janela Home e Salvar Projeto */}
-      <header className="h-14 border-b border-slate-800 bg-[#10141E] px-3 sm:px-6 flex items-center justify-between z-20 shrink-0">
-        <div className="flex items-center gap-2 sm:gap-3">
+      <header
+        className="w-full max-w-full overflow-hidden border-b border-slate-800 bg-[#10141E] px-2 sm:px-4 flex items-center justify-between z-20 shrink-0"
+        style={{
+          paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0px))',
+          minHeight: 'calc(3.5rem + env(safe-area-inset-top, 0px))'
+        }}
+      >
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           {/* Botão Janela Home */}
           <button
             onClick={() => setIsHomeOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+            aria-label="Abrir Templates e Projetos"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 min-h-[38px] rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden shrink-0"
             title="Abrir Templates e Projetos"
           >
-            <Home className="w-4 h-4 text-amber-500" />
+            <Home className="w-4 h-4 text-amber-500 shrink-0" />
             <span className="font-bold">Home</span>
           </button>
 
-          {/* Botão Auto (Preenchimento Rápido no Editor) */}
+          {/* Botão Auto (Preenchimento Rápido no Editor) - Sem ícone de sparkles */}
           <button
             onClick={() => setIsAutoFillEditorOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+            aria-label="Auto-preenchimento de fotos no template"
+            className="flex items-center justify-center px-2.5 sm:px-3 py-1.5 min-h-[38px] rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden shrink-0"
             title="Auto-preenchimento: carregar todas as fotos deste template de uma vez"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span className="font-bold text-xs">Auto</span>
           </button>
 
           {/* Botão Logs de Diagnóstico (iPhone / Debug) */}
           <button
             onClick={() => setIsLogsOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+            aria-label="Ver logs de diagnóstico"
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 min-h-[38px] rounded-lg bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden shrink-0"
             title="Ver logs silenciosos de erros e exportação no iPhone"
           >
-            <Terminal className="w-3.5 h-3.5 text-amber-500" />
+            <Terminal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span className="font-bold text-xs text-slate-200">Logs</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Status / Botão Salvar Projeto */}
           <button
             onClick={handleSaveCurrentProject}
-            className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg active:scale-95 transition-all"
+            aria-label={isSavedFeedback ? 'Projeto salvo com sucesso' : 'Salvar Projeto'}
+            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg active:scale-95 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden shrink-0"
             title="Salvar Projeto Manualmente (Salvo automaticamente em segundo plano)"
           >
             {isSavedFeedback ? (
@@ -854,21 +872,26 @@ export default function CarouselStudioPage() {
 
           <button
             onClick={handleResetAll}
-            className="p-2 text-slate-400 hover:text-white rounded-lg active:bg-slate-800"
+            aria-label="Limpar fotos e ajustes do carrossel"
+            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-slate-400 hover:text-white rounded-lg active:bg-slate-800 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden shrink-0"
             title="Limpar fotos e ajustes"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
 
+          {/* Botão Exportar - Nunca fica oculto */}
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className={`px-3 sm:px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5 transition-all ${
+            aria-label="Exportar lâminas em alta resolução"
+            className={`min-h-[38px] px-2.5 sm:px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1.5 transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden ${
               isExporting ? 'opacity-50' : ''
             }`}
           >
-            <Download className="w-4 h-4" />
-            <span>{isExporting ? 'Salvando...' : 'Exportar Lâminas'}</span>
+            <Download className="w-4 h-4 shrink-0" />
+            <span className="whitespace-nowrap">
+              {isExporting ? 'Salvando...' : (<>Exportar<span className="hidden sm:inline"> Lâminas</span></>)}
+            </span>
           </button>
         </div>
       </header>
@@ -898,7 +921,7 @@ export default function CarouselStudioPage() {
 
       {/* Overlay de Progresso */}
       {isExporting && exportProgress && (
-        <div className="bg-amber-950/95 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs flex items-center justify-between z-30 shrink-0 animate-pulse">
+        <div className="bg-amber-950/95 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs flex items-center justify-between z-30 shrink-0 animate-pulse motion-reduce:animate-none">
           <span>
             Baixando foto <strong>{exportProgress.slide}</strong> de {exportProgress.total}...
           </span>
@@ -1028,7 +1051,8 @@ export default function CarouselStudioPage() {
                 {/* Botão Adicionar ou Trocar Foto */}
                 <button
                   onClick={() => handleTriggerPickImage(activeSlotDefinition.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-lg text-xs font-semibold shrink-0 shadow-sm transition-colors cursor-pointer"
+                  aria-label={activeSlotData?.imageUrl ? 'Trocar Foto do slot selecionado' : 'Adicionar Foto ao slot selecionado'}
+                  className="flex items-center gap-1.5 px-3.5 py-2 min-h-[40px] bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-lg text-xs font-semibold shrink-0 shadow-sm transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
                   title={activeSlotData?.imageUrl ? 'Trocar Foto' : 'Adicionar Foto'}
                 >
                   {activeSlotData?.imageUrl ? (
@@ -1055,6 +1079,7 @@ export default function CarouselStudioPage() {
                     min="100"
                     max="400"
                     step="1"
+                    aria-label="Zoom da foto"
                     disabled={!activeSlotData?.imageUrl}
                     value={activeSlotData?.adjustments.zoom ?? 100}
                     onChange={(e) => {
@@ -1065,7 +1090,7 @@ export default function CarouselStudioPage() {
                         zoom: newZoom
                       });
                     }}
-                    className="flex-1 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500 disabled:opacity-40"
+                    className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500 disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
                   />
                   <span className="text-[10px] font-mono text-slate-300 w-8 text-right shrink-0 mr-1">
                     {activeSlotData?.adjustments.zoom ?? 100}%
@@ -1082,7 +1107,8 @@ export default function CarouselStudioPage() {
                     });
                   }}
                   disabled={!activeSlotData?.imageUrl}
-                  className="p-1.5 text-slate-400 hover:text-white active:bg-slate-800 disabled:opacity-30 rounded-lg transition-colors shrink-0 cursor-pointer"
+                  aria-label="Resetar Zoom e Posição da foto"
+                  className="min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:text-white active:bg-slate-800 disabled:opacity-30 rounded-lg transition-colors shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
                   title="Resetar Zoom e Posição"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -1093,11 +1119,12 @@ export default function CarouselStudioPage() {
         </div>
 
         {/* Indicador de Lâmina e Seletor */}
-        <div className="flex items-center justify-between gap-1.5 w-full">
+        <div className="flex items-center justify-between gap-2 w-full">
           <button
             onClick={goToPrevSlide}
             disabled={currentSlideIndex === 0}
-            className="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+            aria-label="Lâmina anterior"
+            className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             title="Lâmina anterior"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -1105,7 +1132,7 @@ export default function CarouselStudioPage() {
 
           <div
             ref={slideNavContainerRef}
-            className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto px-1 py-1.5 scroll-smooth no-scrollbar"
+            className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto px-3.5 py-2.5 scroll-smooth no-scrollbar"
             style={{
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
@@ -1113,13 +1140,14 @@ export default function CarouselStudioPage() {
             }}
           >
             {currentTemplate.slides.map((s, idx) => (
-              <div key={s.id} className="relative shrink-0">
+              <div key={s.id} className="relative shrink-0 group">
                 <button
                   ref={(el) => {
                     slideButtonRefs.current[idx] = el;
                   }}
                   onClick={() => goToSlide(idx)}
-                  className={`w-9 h-9 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                  aria-label={`Ir para lâmina #${idx + 1}`}
+                  className={`min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl font-bold text-sm flex items-center justify-center transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden ${
                     currentSlideIndex === idx
                       ? 'bg-amber-600 text-white shadow-lg scale-105 ring-2 ring-amber-400/50'
                       : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 active:bg-slate-700'
@@ -1129,19 +1157,20 @@ export default function CarouselStudioPage() {
                   {idx + 1}
                 </button>
 
-                {/* Botão de Excluir Lâmina (Aparece ao passar o mouse ou lâmina ativa com mais de 1 lâmina no total) */}
+                {/* Botão de Excluir Lâmina (Área acessível de toque com ícone seguro) */}
                 {currentTemplate.slides.length > 1 && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteCurrentSlide(idx);
                     }}
-                    className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-opacity shadow-sm z-30 cursor-pointer ${
+                    aria-label={`Excluir Lâmina #${idx + 1}`}
+                    className={`absolute -top-1.5 -right-1.5 min-w-[22px] min-h-[22px] w-6 h-6 rounded-full bg-red-600 hover:bg-red-500 active:scale-90 text-white flex items-center justify-center transition-all shadow-md z-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-hidden ${
                       currentSlideIndex === idx ? 'opacity-90 hover:opacity-100' : 'opacity-0 group-hover:opacity-100'
                     }`}
                     title={`Excluir Lâmina #${idx + 1}`}
                   >
-                    <Trash2 className="w-2.5 h-2.5" />
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 )}
               </div>
@@ -1153,17 +1182,19 @@ export default function CarouselStudioPage() {
                 slideButtonRefs.current[currentTemplate.slides.length] = el;
               }}
               onClick={() => setIsSlidePickerOpen(true)}
-              className="w-9 h-9 rounded-xl border border-dashed border-amber-500/70 hover:border-amber-400 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 flex items-center justify-center transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
+              aria-label="Adicionar Lâmina ao Carrossel"
+              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl border border-dashed border-amber-500/70 hover:border-amber-400 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 flex items-center justify-center transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
               title="Adicionar Lâmina ao Carrossel"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <Plus className="w-5 h-5 stroke-[2.5]" />
             </button>
           </div>
 
           <button
             onClick={goToNextSlide}
             disabled={currentSlideIndex >= currentTemplate.slides.length - 1}
-            className="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+            aria-label="Próxima lâmina"
+            className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             title="Próxima lâmina"
           >
             <ChevronRight className="w-5 h-5" />

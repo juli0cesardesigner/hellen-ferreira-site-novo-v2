@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Upload, Layers, ArrowRight, X, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, Layers, ArrowRight, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { DEMO_PHOTOS } from '@/lib/carousel/demo-photos';
 import { generateRandomProjectByImages, generateRandomProjectBySlideCount } from '@/lib/carousel/randomizer';
 import { SlideDefinition, PhotoSlotData, CarouselTemplate } from '@/lib/carousel/types';
@@ -22,6 +22,18 @@ export const RandomizerModal: React.FC<RandomizerModalProps> = ({
   const [uploadedPhotos, setUploadedPhotos] = useState<{ dataUrl: string; name: string }[]>([]);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fecha modal com a tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -81,19 +93,27 @@ export const RandomizerModal: React.FC<RandomizerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="randomizer-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 motion-reduce:animate-none"
+    >
       <div className="w-full max-w-lg bg-[#0F1420] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-slate-100">
-        {/* Header sem ícone de estrelas */}
+        {/* Header */}
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-sm text-white">Criar Carrossel Aleatório</h3>
+            <h3 id="randomizer-modal-title" className="font-bold text-sm text-white">
+              Criar Carrossel Aleatório
+            </h3>
             <p className="text-[11px] text-slate-400">Monte composições criativas automaticamente</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Fechar modo aleatório"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -204,7 +224,7 @@ export const RandomizerModal: React.FC<RandomizerModalProps> = ({
                     }}
                     className="w-full py-2.5 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <ImageIcon className="w-4 h-4 text-amber-400" />
                     <span>Carregar Fotos de Demonstração (8 fotos)</span>
                   </button>
                 </div>

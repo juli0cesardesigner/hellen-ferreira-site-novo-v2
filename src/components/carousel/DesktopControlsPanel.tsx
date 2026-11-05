@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PhotoSlotData, PhotoSlotAdjustment } from '@/lib/carousel/types';
-import { RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Image as ImageIcon } from 'lucide-react';
 import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 
 interface DesktopControlsPanelProps {
@@ -53,7 +53,8 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
           </div>
           <button
             onClick={handleResetAdjustments}
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors"
+            aria-label="Resetar enquadramento e zoom da foto"
+            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden rounded p-1"
             title="Resetar ajustes da foto"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -65,7 +66,8 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
         <div className="mb-6 space-y-2">
           <button
             onClick={onPickImage}
-            className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors"
+            aria-label="Escolher Arquivo de Foto do computador"
+            className="w-full min-h-[44px] py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
             <ImageIcon className="w-4 h-4 text-amber-400" />
             <span>Escolher Arquivo de Foto</span>
@@ -76,9 +78,10 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
               const demoUrl = getNextDemoPhoto();
               onChange({ ...data, imageUrl: demoUrl });
             }}
-            className="w-full py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            aria-label="Usar foto de demonstração rápida"
+            className="w-full min-h-[40px] py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <ImageIcon className="w-4 h-4 text-amber-400" />
             <span>Usar Foto de Teste (Demo)</span>
           </button>
         </div>
@@ -98,9 +101,10 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
               type="range"
               min={100}
               max={400}
+              aria-label="Zoom da Imagem"
               value={data.adjustments.zoom}
               onChange={(e) => updateAdjustment('zoom', Number(e.target.value))}
-              className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+              className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             />
           </div>
 
@@ -117,9 +121,10 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
               type="range"
               min={0}
               max={100}
+              aria-label="Posição Horizontal X"
               value={data.adjustments.x}
               onChange={(e) => updateAdjustment('x', Number(e.target.value))}
-              className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+              className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             />
           </div>
 
@@ -136,9 +141,10 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
               type="range"
               min={0}
               max={100}
+              aria-label="Posição Vertical Y"
               value={data.adjustments.y}
               onChange={(e) => updateAdjustment('y', Number(e.target.value))}
-              className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+              className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             />
           </div>
         </div>

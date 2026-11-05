@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { CATALOG_SLIDES, CatalogSlideItem } from '@/lib/carousel/templates/catalog';
 import { X, Plus } from 'lucide-react';
 
@@ -26,15 +26,34 @@ export function SlidePickerModal({
     return matches.length > 0 ? matches : CATALOG_SLIDES;
   }, [currentTemplateId]);
 
+  // Fecha com a tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="slide-picker-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+    >
       <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div>
-            <h3 className="font-bold text-base text-slate-100">Adicionar Lâmina</h3>
+            <h3 id="slide-picker-title" className="font-bold text-base text-slate-100">
+              Adicionar Lâmina
+            </h3>
             <p className="text-xs text-slate-400 mt-0.5">
               {currentTemplateName
                 ? `Lâminas disponíveis do template "${currentTemplateName}"`
@@ -43,7 +62,8 @@ export function SlidePickerModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer"
+            aria-label="Fechar seletor de lâminas"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           >
             <X className="w-5 h-5" />
           </button>
@@ -55,13 +75,14 @@ export function SlidePickerModal({
             <button
               key={item.id}
               onClick={() => onPickSlide(item)}
-              className="bg-slate-900 border border-slate-800 hover:border-amber-500 rounded-xl p-2.5 flex flex-col items-center transition-all group hover:scale-[1.03] shadow-sm hover:shadow-amber-500/20 cursor-pointer"
+              aria-label={`Adicionar lâmina #${item.slideNumber}${item.seamlessPairId ? ' contínua' : ''}`}
+              className="bg-slate-900 border border-slate-800 hover:border-amber-500 rounded-xl p-2.5 flex flex-col items-center transition-all group hover:scale-[1.03] shadow-sm hover:shadow-amber-500/20 cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             >
               <div className="w-full aspect-[4/5] bg-white rounded-lg overflow-hidden border border-slate-700/60 shadow-inner relative flex items-center justify-center">
                 {item.thumbnailSvg ? (
                   <img
                     src={item.thumbnailSvg}
-                    alt=""
+                    alt={`Miniatura da lâmina #${item.slideNumber}`}
                     className="w-full h-full object-contain pointer-events-none"
                   />
                 ) : (

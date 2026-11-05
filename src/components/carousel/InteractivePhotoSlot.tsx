@@ -121,6 +121,17 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
   return (
     <div
       ref={containerRef}
+      role={isExport ? undefined : 'button'}
+      tabIndex={isExport ? undefined : 0}
+      aria-label={`Slot ${slotId}: ${hasImage ? 'Foto preenchida. Pressione Enter para selecionar' : 'Slot vazio. Pressione Enter para carregar foto'}`}
+      onKeyDown={(e) => {
+        if (isExport) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelectSlot();
+          if (!hasImage) onPickImage();
+        }
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -129,7 +140,7 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
         e.stopPropagation();
         onSelectSlot();
       }}
-      className={`relative w-full h-full overflow-hidden select-none ${
+      className={`relative w-full h-full overflow-hidden select-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden ${
         isExport ? '' : 'touch-none cursor-pointer'
       } ${
         !isExport && isActive ? 'ring-2 ring-amber-500 ring-inset shadow-inner' : ''
@@ -139,7 +150,7 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
         {hasImage ? (
           <img
             src={imageUrl || defaultPlaceholder}
-            alt=""
+            alt={`Foto posicionada no slot ${slotId}`}
             draggable={false}
             className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
             style={{
@@ -160,12 +171,14 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
             }`}
           >
             {!isExport && (
-              <div
+              <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   onPickImage();
                 }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                aria-label={`Carregar foto no slot ${slotId}`}
+                className={`min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden ${
                   isActive
                     ? 'bg-amber-500 text-slate-950 shadow-md scale-105'
                     : 'bg-slate-300/80 text-slate-600 hover:bg-slate-400/80'
@@ -173,7 +186,7 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
                 title="Toque para carregar foto"
               >
                 <Plus className="w-5 h-5 stroke-[2.5]" />
-              </div>
+              </button>
             )}
           </div>
         )}

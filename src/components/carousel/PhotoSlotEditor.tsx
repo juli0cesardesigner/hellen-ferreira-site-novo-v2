@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { PhotoSlotData, PhotoSlotAdjustment } from '@/lib/carousel/types';
-import { Upload, RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Sparkles } from 'lucide-react';
+import { Upload, RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Image as ImageIcon } from 'lucide-react';
 import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 
 interface PhotoSlotEditorProps {
@@ -99,7 +99,8 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
           <div className="flex gap-2">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-medium flex items-center justify-center gap-2 transition-colors shadow-sm"
+              aria-label="Trocar Imagem do slot"
+              className="flex-1 min-h-[40px] py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-medium flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
             >
               <Upload className="w-4 h-4" />
               <span>Trocar Imagem</span>
@@ -110,10 +111,11 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
                 const demoUrl = getNextDemoPhoto();
                 onChange({ ...data, imageUrl: demoUrl });
               }}
-              className="py-2 px-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+              aria-label="Inserir foto de demonstração no slot"
+              className="min-h-[40px] py-2 px-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
               title="Inserir foto de teste"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
               <span>Foto Teste</span>
             </button>
           </div>
@@ -138,9 +140,10 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
             type="range"
             min={100}
             max={400}
+            aria-label="Zoom da imagem"
             value={data.adjustments.zoom}
             onChange={(e) => updateAdjustment('zoom', Number(e.target.value))}
-            className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           />
         </div>
 
@@ -157,9 +160,10 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
             type="range"
             min={0}
             max={100}
+            aria-label="Posição Horizontal X"
             value={data.adjustments.x}
             onChange={(e) => updateAdjustment('x', Number(e.target.value))}
-            className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           />
         </div>
 
@@ -176,9 +180,10 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
             type="range"
             min={0}
             max={100}
+            aria-label="Posição Vertical Y"
             value={data.adjustments.y}
             onChange={(e) => updateAdjustment('y', Number(e.target.value))}
-            className="w-full accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+            className="w-full accent-amber-500 h-2 bg-slate-700 rounded-lg cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-hidden"
           />
         </div>
       </div>
