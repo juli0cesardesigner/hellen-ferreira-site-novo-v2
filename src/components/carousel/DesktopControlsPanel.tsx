@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { PhotoSlotData, PhotoSlotAdjustment } from '@/lib/carousel/types';
-import { RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Image as ImageIcon } from 'lucide-react';
+import { RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 
 interface DesktopControlsPanelProps {
   activeSlot?: { id: string; label: string };
@@ -61,13 +62,24 @@ export const DesktopControlsPanel: React.FC<DesktopControlsPanelProps> = ({
         </div>
 
         {/* Botão de upload rápido na sidebar */}
-        <div className="mb-6">
+        <div className="mb-6 space-y-2">
           <button
             onClick={onPickImage}
             className="w-full py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors"
           >
             <ImageIcon className="w-4 h-4 text-amber-400" />
             <span>Escolher Arquivo de Foto</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const demoUrl = getNextDemoPhoto();
+              onChange({ ...data, imageUrl: demoUrl });
+            }}
+            className="w-full py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>Usar Foto de Teste (Demo)</span>
           </button>
         </div>
 

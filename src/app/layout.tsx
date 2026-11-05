@@ -6,6 +6,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 import { Cormorant_Garamond, Lato, Inter } from "next/font/google";
 import { GeneralLayout } from "@/components/layout/GeneralLayout";
@@ -81,6 +82,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import FacebookPixel from "@/components/analytics/FacebookPixel";
 import SiteTracker from "@/components/analytics/SiteTracker";
 import { PWARegistration } from "@/components/pwa/PWARegistration";
+import { ErudaDebugger } from "@/components/debug/ErudaDebugger";
 import { Suspense } from "react";
 
 export default function RootLayout({
@@ -90,7 +92,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${lato.variable} ${inter.variable}`} suppressHydrationWarning>
-      <body className="antialiased bg-pearl flex flex-col min-h-screen">
+      <body className="antialiased bg-pearl flex flex-col min-h-screen min-h-dvh">
+        <Suspense fallback={null}>
+          <ErudaDebugger />
+        </Suspense>
         <PWARegistration />
         <FacebookPixel />
         <Suspense fallback={null}>

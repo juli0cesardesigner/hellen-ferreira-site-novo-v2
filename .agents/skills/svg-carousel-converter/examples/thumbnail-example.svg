@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Thumbnail_Example" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <style>
+      .cls-bg { fill: #f8fafc; }
+      .cls-dark { fill: #1e293b; }
+      .cls-card { fill: #64748b; }
+    </style>
+    <clipPath id="clip-thumb-ex">
+      <rect width="1080" height="1350" rx="16"/>
+    </clipPath>
+    <filter id="filter-thumb-shadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="10" dy="10" stdDeviation="8" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <g clip-path="url(#clip-thumb-ex)">
+    <!-- Fundo da lâmina -->
+    <rect class="cls-bg" width="1080" height="1350"/>
+    <!-- Bloco de foto superior -->
+    <rect class="cls-dark" x="0" y="0" width="1080" height="675"/>
+    <!-- Card sobreposto com sombra -->
+    <rect class="cls-card" x="150" y="550" width="780" height="650" rx="20" filter="url(#filter-thumb-shadow)"/>
+  </g>
+</svg>
+

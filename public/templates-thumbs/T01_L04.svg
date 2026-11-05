@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_2" data-name="Camada 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <style>
+      .cls-bg { fill: #141414; }
+      .cls-frame { fill: #aea594; }
+    </style>
+  </defs>
+  <g id="Camada_1-2" data-name="Camada 1">
+    <rect class="cls-bg" width="1080" height="1350"/>
+    <rect class="cls-frame" x="80" y="80" width="920" height="1190" rx="8"/>
+  </g>
+</svg>

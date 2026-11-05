@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CATALOG_SLIDES, CatalogSlideItem } from '@/lib/carousel/templates/catalog';
 import { X, Plus } from 'lucide-react';
 
@@ -8,9 +8,24 @@ interface SlidePickerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPickSlide: (item: CatalogSlideItem) => void;
+  currentTemplateId?: string;
+  currentTemplateName?: string;
 }
 
-export function SlidePickerModal({ isOpen, onClose, onPickSlide }: SlidePickerModalProps) {
+export function SlidePickerModal({
+  isOpen,
+  onClose,
+  onPickSlide,
+  currentTemplateId,
+  currentTemplateName
+}: SlidePickerModalProps) {
+  const displayedSlides = useMemo(() => {
+    if (!currentTemplateId) return CATALOG_SLIDES;
+    const matches = CATALOG_SLIDES.filter((item) => item.templateId === currentTemplateId);
+    // Se o template atual tiver lâminas registradas no catálogo, exibe apenas elas
+    return matches.length > 0 ? matches : CATALOG_SLIDES;
+  }, [currentTemplateId]);
+
   if (!isOpen) return null;
 
   return (
@@ -20,19 +35,23 @@ export function SlidePickerModal({ isOpen, onClose, onPickSlide }: SlidePickerMo
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div>
             <h3 className="font-bold text-base text-slate-100">Adicionar Lâmina</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Selecione uma lâmina do estúdio para inserir no seu carrossel</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {currentTemplateName
+                ? `Lâminas disponíveis do template "${currentTemplateName}"`
+                : 'Selecione uma lâmina do estúdio para inserir no seu carrossel'}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700"
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg bg-slate-800/80 active:bg-slate-700 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Grade de Lâminas Disponíveis (Apenas as Thumbs) */}
+        {/* Grade de Lâminas Disponíveis (Apenas as lâminas do template ativo) */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {CATALOG_SLIDES.map((item) => (
+          {displayedSlides.map((item) => (
             <button
               key={item.id}
               onClick={() => onPickSlide(item)}
@@ -46,7 +65,12 @@ export function SlidePickerModal({ isOpen, onClose, onPickSlide }: SlidePickerMo
                     className="w-full h-full object-contain pointer-events-none"
                   />
                 ) : (
-                  <span className="text-xs text-slate-400">Lâmina</span>
+                  <span className="text-xs text-slate-400">Lâmina #{item.slideNumber}</span>
+                )}
+                {item.seamlessPairId && (
+                  <div className="absolute top-1.5 left-1.5 bg-black/75 backdrop-blur-xs text-amber-300 font-mono text-[9px] px-1.5 py-0.5 rounded border border-amber-500/30">
+                    Seamless
+                  </div>
                 )}
                 <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/15 flex items-center justify-center transition-colors">
                   <div className="w-9 h-9 rounded-full bg-amber-600 text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all">
@@ -54,6 +78,9 @@ export function SlidePickerModal({ isOpen, onClose, onPickSlide }: SlidePickerMo
                   </div>
                 </div>
               </div>
+              <span className="text-[11px] text-slate-400 mt-2 font-medium">
+                Lâmina #{item.slideNumber}
+              </span>
             </button>
           ))}
         </div>

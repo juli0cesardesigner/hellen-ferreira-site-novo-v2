@@ -7,7 +7,10 @@
     "build": "node scripts/generate-gallery-index.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest"
+    "test": "vitest",
+    "test:ios": "playwright open --device=\"iPhone 15\" http://localhost:3000",
+    "install:webkit": "playwright install webkit",
+    "test:mobile": "playwright open --browser=chromium --device=\"iPhone 15\" http://localhost:3000"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.6",
@@ -15,6 +18,7 @@
     "@supabase/supabase-js": "^2.99.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "eruda": "^3.4.3",
     "framer-motion": "^12.36.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.577.0",
@@ -38,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "jsdom": "^29.0.1",
+    "playwright": "^1.64.1",
     "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5",

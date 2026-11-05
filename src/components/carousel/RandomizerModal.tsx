@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Upload, Layers, ArrowRight, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Upload, Layers, ArrowRight, X, Image as ImageIcon, Loader2, Sparkles } from 'lucide-react';
+import { DEMO_PHOTOS } from '@/lib/carousel/demo-photos';
 import { generateRandomProjectByImages, generateRandomProjectBySlideCount } from '@/lib/carousel/randomizer';
 import { SlideDefinition, PhotoSlotData, CarouselTemplate } from '@/lib/carousel/types';
 
@@ -151,7 +152,9 @@ export const RandomizerModal: React.FC<RandomizerModalProps> = ({
                 onChange={handleMultipleFilesChange}
                 accept="image/*"
                 multiple
-                className="hidden"
+                className="fixed -top-96 -left-96 w-1 h-1 opacity-0 pointer-events-none"
+                tabIndex={-1}
+                aria-hidden="true"
               />
 
               <div className="flex items-center justify-between">
@@ -169,25 +172,42 @@ export const RandomizerModal: React.FC<RandomizerModalProps> = ({
               </div>
 
               {uploadedPhotos.length === 0 ? (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isProcessing}
-                  className="w-full py-6 border-2 border-dashed border-slate-700 hover:border-amber-500/60 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-slate-800/40 transition-all cursor-pointer group"
-                >
-                  {isProcessing ? (
-                    <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
-                  ) : (
-                    <>
-                      <ImageIcon className="w-6 h-6 text-slate-500 group-hover:text-amber-400 transition-colors" />
-                      <span className="text-xs font-semibold text-slate-300">
-                        Clique para selecionar várias fotos
-                      </span>
-                      <span className="text-[10px] text-slate-500">
-                        O sistema calculará as lâminas necessárias automaticamente
-                      </span>
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isProcessing}
+                    className="w-full py-6 border-2 border-dashed border-slate-700 hover:border-amber-500/60 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-slate-800/40 transition-all cursor-pointer group"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                    ) : (
+                      <>
+                        <ImageIcon className="w-6 h-6 text-slate-500 group-hover:text-amber-400 transition-colors" />
+                        <span className="text-xs font-semibold text-slate-300">
+                          Clique para selecionar várias fotos
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          O sistema calculará as lâminas necessárias automaticamente
+                        </span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedPhotos(
+                        DEMO_PHOTOS.map((p, idx) => ({
+                          dataUrl: p.url,
+                          name: `Foto Teste ${idx + 1}`
+                        }))
+                      );
+                    }}
+                    className="w-full py-2.5 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>Carregar Fotos de Demonstração (8 fotos)</span>
+                  </button>
+                </div>
               ) : (
                 <div className="flex flex-col gap-2">
                   <div className="max-h-32 overflow-y-auto grid grid-cols-5 gap-1.5 p-1 bg-slate-950/60 rounded-lg">

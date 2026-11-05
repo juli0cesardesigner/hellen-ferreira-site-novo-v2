@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { CarouselTemplate, CarouselProject, PhotoSlotData } from '@/lib/carousel/types';
-import { Plus, Trash2, Clock, Image as ImageIcon, Terminal } from 'lucide-react';
+import { Plus, Trash2, Clock, Image as ImageIcon, Terminal, Sparkles } from 'lucide-react';
 import { InternalDialogModal, InternalModalConfig } from './InternalDialogModal';
 import { RandomizerModal } from './RandomizerModal';
+import { AutoFillModal } from './AutoFillModal';
+import { getTemplateUniqueSlots } from '@/lib/carousel/auto-fill';
 
 interface HomeModalProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ interface HomeModalProps {
   projects: CarouselProject[];
   currentProjectId?: string;
   onSelectTemplate: (template: CarouselTemplate) => void;
+  onSelectTemplateWithPhotos?: (template: CarouselTemplate, slotsData: Record<string, PhotoSlotData>) => void;
   onCreateCustomTemplate: () => void;
   onOpenProject: (project: CarouselProject) => void;
   onDeleteProject: (projectId: string) => void;
@@ -27,6 +30,7 @@ export function HomeModal({
   projects,
   currentProjectId,
   onSelectTemplate,
+  onSelectTemplateWithPhotos,
   onCreateCustomTemplate,
   onOpenProject,
   onDeleteProject,
@@ -35,6 +39,8 @@ export function HomeModal({
 }: HomeModalProps) {
   const [activeTab, setActiveTab] = useState<'templates' | 'projects'>('templates');
   const [isRandomizerOpen, setIsRandomizerOpen] = useState<boolean>(false);
+  const [isAutoFillActive, setIsAutoFillActive] = useState<boolean>(false);
+  const [autoFillTargetTemplate, setAutoFillTargetTemplate] = useState<CarouselTemplate | null>(null);
   const [dialogConfig, setDialogConfig] = useState<InternalModalConfig>({
     isOpen: false,
     message: '',
@@ -90,56 +96,120 @@ export function HomeModal({
           {/* Conteúdo Central Rolável */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20">
             {activeTab === 'templates' ? (
-              <div className="flex flex-col gap-6">
-                {templates.map((tpl) => (
-                  <div
-                    key={tpl.id}
-                    className="bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all group hover:shadow-xl hover:shadow-amber-500/5"
+              <div className="flex flex-col gap-5">
+                {/* Banner Opção Auto-Preenchimento */}
+                <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200">Auto-Preenchimento</h4>
+                      <p className="text-[11px] text-slate-400">
+                        {isAutoFillActive
+                          ? 'Ativado: ao escolher um template, pede todas as fotos de uma vez'
+                          : 'Desativado: carrega o template vazio para escolher fotos uma a uma'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAutoFillActive(!isAutoFillActive)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                      isAutoFillActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                        : 'bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700/80'
+                    }`}
                   >
-                    <div className="flex flex-col gap-3 sm:gap-4">
-                      {/* Header do Card do Template */}
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            {tpl.slides.length} Lâminas
-                          </span>
+                    {isAutoFillActive ? 'Auto: Ativo' : 'Auto: Desligado'}
+                  </button>
+                </div>
+
+                {templates.map((tpl) => {
+                  const uniqueSlots = getTemplateUniqueSlots(tpl);
+                  const slotCount = uniqueSlots.length;
+
+                  return (
+                    <div
+                      key={tpl.id}
+                      className="bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all group hover:shadow-xl hover:shadow-amber-500/5"
+                    >
+                      <div className="flex flex-col gap-3 sm:gap-4">
+                        {/* Header do Card do Template */}
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              {tpl.slides.length} Lâminas
+                            </span>
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700/80">
+                              {slotCount} Fotos
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {/* Botão Auto (nome curto para não estourar o layout) */}
+                            <button
+                              type="button"
+                              onClick={() => setAutoFillTargetTemplate(tpl)}
+                              className="py-1.5 sm:py-2 px-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
+                              title="Auto-preenchimento: escolher todas as fotos deste template de uma vez"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                              <span>Auto</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isAutoFillActive) {
+                                  setAutoFillTargetTemplate(tpl);
+                                } else {
+                                  onSelectTemplate(tpl);
+                                }
+                              }}
+                              className="py-1.5 sm:py-2 px-3.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all border border-slate-700/80 shrink-0 cursor-pointer"
+                              title={
+                                isAutoFillActive
+                                  ? 'Auto-preencher fotos'
+                                  : 'Usar template vazio para escolher fotos uma a uma'
+                              }
+                            >
+                              <Plus className="w-4 h-4" />
+                              <span>Usar</span>
+                            </button>
+                          </div>
                         </div>
 
-                        <button
-                          onClick={() => onSelectTemplate(tpl)}
-                          className="py-1.5 sm:py-2 px-3.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md shrink-0 cursor-pointer"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Usar Template</span>
-                        </button>
-                      </div>
-
-                      {/* Prévia do Carrossel */}
-                      <div className="bg-[#05070B] border border-slate-800/80 rounded-xl p-3 sm:p-4 overflow-x-auto">
-                        <div className="flex items-center gap-2 min-w-max">
-                          {tpl.slides.map((slide, sIdx) => (
-                            <div key={slide.id} className="w-24 sm:w-36 aspect-[4/5] bg-white rounded-md overflow-hidden shadow-md border border-slate-700/60 relative">
-                              {slide.thumbnailSvg ? (
-                                <img
-                                  src={slide.thumbnailSvg}
-                                  alt={`Lâmina ${sIdx + 1}`}
-                                  className="w-full h-full object-contain"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400 font-mono">
-                                  Lâmina {sIdx + 1}
+                        {/* Prévia do Carrossel */}
+                        <div className="bg-[#05070B] border border-slate-800/80 rounded-xl p-3 sm:p-4 overflow-x-auto">
+                          <div className="flex items-center gap-2 min-w-max">
+                            {tpl.slides.map((slide, sIdx) => (
+                              <div
+                                key={slide.id}
+                                className="w-24 sm:w-36 aspect-[4/5] bg-white rounded-md overflow-hidden shadow-md border border-slate-700/60 relative"
+                              >
+                                {slide.thumbnailSvg ? (
+                                  <img
+                                    src={slide.thumbnailSvg}
+                                    alt={`Lâmina ${sIdx + 1}`}
+                                    className="w-full h-full object-contain"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                                    Lâmina {sIdx + 1}
+                                  </div>
+                                )}
+                                <div className="absolute bottom-1 right-1 bg-black/70 text-white font-mono text-[9px] px-1 rounded backdrop-blur-xs">
+                                  #{sIdx + 1}
                                 </div>
-                              )}
-                              <div className="absolute bottom-1 right-1 bg-black/70 text-white font-mono text-[9px] px-1 rounded backdrop-blur-xs">
-                                #{sIdx + 1}
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div>
@@ -274,6 +344,24 @@ export function HomeModal({
           onClose();
         }}
       />
+
+      {/* Modal de Auto-Preenchimento */}
+      {autoFillTargetTemplate && (
+        <AutoFillModal
+          isOpen={Boolean(autoFillTargetTemplate)}
+          template={autoFillTargetTemplate}
+          onClose={() => setAutoFillTargetTemplate(null)}
+          onApply={(filledSlotsData) => {
+            if (onSelectTemplateWithPhotos) {
+              onSelectTemplateWithPhotos(autoFillTargetTemplate, filledSlotsData);
+            } else {
+              onSelectTemplate(autoFillTargetTemplate);
+            }
+            setAutoFillTargetTemplate(null);
+            onClose();
+          }}
+        />
+      )}
     </>
   );
 }

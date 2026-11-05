@@ -2,7 +2,8 @@
 
 import React, { useRef } from 'react';
 import { PhotoSlotData, PhotoSlotAdjustment } from '@/lib/carousel/types';
-import { Upload, RotateCcw, ZoomIn, MoveHorizontal, MoveVertical } from 'lucide-react';
+import { Upload, RotateCcw, ZoomIn, MoveHorizontal, MoveVertical, Sparkles } from 'lucide-react';
+import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 
 interface PhotoSlotEditorProps {
   slot: { id: string; label: string };
@@ -91,15 +92,31 @@ export const PhotoSlotEditor: React.FC<PhotoSlotEditorProps> = ({ slot, data, on
             ref={fileInputRef}
             onChange={handleFileUpload}
             accept="image/*"
-            className="hidden"
+            className="fixed -top-96 -left-96 w-1 h-1 opacity-0 pointer-events-none"
+            tabIndex={-1}
+            aria-hidden="true"
           />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-medium flex items-center justify-center gap-2 transition-colors shadow-sm"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Trocar Imagem</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded text-xs font-medium flex items-center justify-center gap-2 transition-colors shadow-sm"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Trocar Imagem</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const demoUrl = getNextDemoPhoto();
+                onChange({ ...data, imageUrl: demoUrl });
+              }}
+              className="py-2 px-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+              title="Inserir foto de teste"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Foto Teste</span>
+            </button>
+          </div>
           <span className="text-[10px] text-slate-400 mt-1 block">
             JPG, PNG ou WebP em alta resolução
           </span>

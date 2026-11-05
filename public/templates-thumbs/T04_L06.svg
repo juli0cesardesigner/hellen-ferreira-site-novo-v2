@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_T04_L06" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <style>
+      .t4-dark { fill: #141414; }
+      .t4-sand { fill: #aea594; }
+    </style>
+    <clipPath id="clip-t4-l06">
+      <rect width="1080" height="1350"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip-t4-l06)">
+    <rect class="t4-dark" x="0" y="0" width="1080" height="500"/>
+    <rect class="t4-sand" x="0" y="500" width="1080" height="850"/>
+  </g>
+</svg>

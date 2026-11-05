@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_T04_L02" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350">
+  <defs>
+    <style>
+      .t4-dark { fill: #141414; }
+      .t4-blue { fill: #527bb1; }
+      .t4-sand { fill: #aea594; }
+      .t4-gray { fill: #545454; }
+      .t4-subtle { fill: #334155; }
+    </style>
+    <clipPath id="clip-t4-l02">
+      <rect width="1080" height="1350"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip-t4-l02)">
+    <!-- Coluna Esquerda: 4 fotos empilhadas -->
+    <rect class="t4-dark" x="0" y="0" width="440" height="337.5"/>
+    <rect class="t4-blue" x="0" y="337.5" width="440" height="337.5"/>
+    <rect class="t4-sand" x="0" y="675" width="440" height="337.5"/>
+    <rect class="t4-gray" x="0" y="1012.5" width="440" height="337.5"/>
+    <!-- Coluna Direita: Foto inteira -->
+    <rect class="t4-subtle" x="440" y="0" width="640" height="1350"/>
+  </g>
+</svg>

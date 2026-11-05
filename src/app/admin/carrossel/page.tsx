@@ -7,14 +7,18 @@ import { SlideView } from '@/components/carousel/SlideView';
 import { DesktopControlsPanel } from '@/components/carousel/DesktopControlsPanel';
 import { HomeModal } from '@/components/carousel/HomeModal';
 import { SlidePickerModal } from '@/components/carousel/SlidePickerModal';
+import { AutoFillModal } from '@/components/carousel/AutoFillModal';
 import { InternalDialogModal, InternalModalConfig } from '@/components/carousel/InternalDialogModal';
 import { SlideSlotsChecklist } from '@/components/carousel/SlideSlotsChecklist';
 import { CatalogSlideItem, CATALOG_SLIDES } from '@/lib/carousel/templates/catalog';
 import { exportSlidesSequentially } from '@/lib/carousel/exporter';
 import { loadAllSlotData, saveSlotData, clearAllSlotData, saveProject, loadAllProjects, deleteProject } from '@/lib/carousel/storage';
-import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2, Terminal } from 'lucide-react';
+import { Download, RefreshCw, ChevronLeft, ChevronRight, Plus, RotateCcw, ZoomIn, Home, Save, Check, Trash2, Terminal, Sparkles } from 'lucide-react';
+import { getNextDemoPhoto } from '@/lib/carousel/demo-photos';
 import { addCarouselLog, initCarouselLogger } from '@/lib/carousel/logger';
 import { CarouselLogsModal } from '@/components/carousel/CarouselLogsModal';
+import { ExportResultModal } from '@/components/carousel/ExportResultModal';
+import { RenderedSlideResult } from '@/lib/carousel/exporter';
 
 export default function CarouselStudioPage() {
   const [currentTemplate, setCurrentTemplate] = useState<CarouselTemplate>(AVAILABLE_TEMPLATES[0]);
@@ -25,10 +29,12 @@ export default function CarouselStudioPage() {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number; slide: number } | null>(null);
   const [isControlsVisible, setIsControlsVisible] = useState<boolean>(true);
+  const [exportResults, setExportResults] = useState<RenderedSlideResult[] | null>(null);
 
-  // Estados de Home, Projetos e Logs
+  // Estados de Home, Projetos, Auto-Preenchimento e Logs
   const [isHomeOpen, setIsHomeOpen] = useState<boolean>(true);
   const [isSlidePickerOpen, setIsSlidePickerOpen] = useState<boolean>(false);
+  const [isAutoFillEditorOpen, setIsAutoFillEditorOpen] = useState<boolean>(false);
   const [isLogsOpen, setIsLogsOpen] = useState<boolean>(false);
   const [dialogConfig, setDialogConfig] = useState<InternalModalConfig>({
     isOpen: false,
@@ -250,6 +256,35 @@ export default function CarouselStudioPage() {
     setIsHomeOpen(false);
   };
 
+  // Seleção de template acompanhado do carregamento em lote de fotos (Auto-Preenchimento)
+  const handleSelectTemplateWithPhotos = async (
+    template: CarouselTemplate,
+    newSlotsData: Record<string, PhotoSlotData>
+  ) => {
+    setCurrentTemplate(template);
+    setCurrentProjectId('');
+    setCurrentProjectName(`Novo ${template.name}`);
+    setCurrentSlideIndex(0);
+    await clearAllSlotData();
+
+    setSlotsData(newSlotsData);
+    for (const [slotId, data] of Object.entries(newSlotsData)) {
+      saveSlotData(slotId, data.imageUrl, data.adjustments);
+    }
+
+    if (template.slides[0]?.slots[0]) {
+      setActiveSlotId(template.slides[0].slots[0].id);
+    }
+
+    const filledCount = Object.values(newSlotsData).filter((s) => Boolean(s.imageUrl)).length;
+    addCarouselLog(
+      'info',
+      `Template "${template.name}" carregado com auto-preenchimento de ${filledCount} fotos.`
+    );
+    triggerAutoSaveProject(newSlotsData);
+    setIsHomeOpen(false);
+  };
+
   // Criação de Template / Projeto Personalizado em Branco
   // Aplicação de Carrossel Gerado pelo Modo Aleatório (Opção 1 ou 2)
   const handleApplyRandomProject = async (
@@ -368,34 +403,23 @@ export default function CarouselStudioPage() {
     setIsSlidePickerOpen(false);
   };
 
-  // Inserção de lâmina(s) da grade no template ativo com diálogo interno
+  // Inserção de lâmina(s) da grade no template ativo
   const handleAddSlideFromCatalog = (catalogItem: CatalogSlideItem) => {
-    // Se for lâmina com foto sobreposta contínua (seamless), pergunta de forma direta se quer incluir a lâmina par
+    // Se for lâmina com foto sobreposta contínua (seamless), insere o par completo na ordem correta
     if (catalogItem.seamlessPairId) {
-      const isL3 = catalogItem.slideDefinition.id === 't2-slide-3';
-      const promptMsg = isL3
-        ? 'Esta lâmina possui uma foto contínua (seamless). Deseja inserir também a próxima lâmina para completar a foto?'
-        : 'Esta lâmina é continuação de uma foto (seamless). Deseja inserir também a lâmina anterior para completar a foto?';
-
-      setDialogConfig({
-        isOpen: true,
-        type: 'confirm',
-        title: 'Foto Contínua (Seamless)',
-        message: promptMsg,
-        confirmLabel: 'Sim, inserir ambas',
-        cancelLabel: 'Apenas esta',
-        onConfirm: () => {
-          setDialogConfig((prev) => ({ ...prev, isOpen: false }));
-          const pairItem = CATALOG_SLIDES.find((c) => c.id === catalogItem.seamlessPairId);
-          const items = pairItem ? (isL3 ? [catalogItem, pairItem] : [pairItem, catalogItem]) : [catalogItem];
-          applyAddSlides(items);
-        },
-        onCancel: () => {
-          setDialogConfig((prev) => ({ ...prev, isOpen: false }));
-          applyAddSlides([catalogItem]);
-        }
-      });
-      return;
+      const pairItem = CATALOG_SLIDES.find((c) => c.id === catalogItem.seamlessPairId);
+      if (pairItem) {
+        const orderedPair =
+          catalogItem.slideNumber < pairItem.slideNumber
+            ? [catalogItem, pairItem]
+            : [pairItem, catalogItem];
+        addCarouselLog(
+          'info',
+          'Lâmina com foto sobreposta contínua (seamless) detectada. Inserindo o par completo.'
+        );
+        applyAddSlides(orderedPair);
+        return;
+      }
     }
 
     applyAddSlides([catalogItem]);
@@ -460,6 +484,70 @@ export default function CarouselStudioPage() {
     }
   };
 
+  // Navegação de Lâminas com Auto-Scroll e Suporte a Touch
+  const slideNavContainerRef = useRef<HTMLDivElement>(null);
+  const slideButtonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+
+  const goToSlide = (idx: number) => {
+    const clamped = Math.max(0, Math.min(currentTemplate.slides.length - 1, idx));
+    setCurrentSlideIndex(clamped);
+    if (currentTemplate.slides[clamped]?.slots[0]) {
+      setActiveSlotId(currentTemplate.slides[clamped].slots[0].id);
+    }
+    triggerActivity();
+  };
+
+  const goToPrevSlide = () => {
+    goToSlide(currentSlideIndex - 1);
+  };
+
+  const goToNextSlide = () => {
+    goToSlide(currentSlideIndex + 1);
+  };
+
+  // Garante que o botão da lâmina ativa sempre role para dentro do viewport visível
+  useEffect(() => {
+    const activeButton = slideButtonRefs.current[currentSlideIndex];
+    if (activeButton && slideNavContainerRef.current) {
+      activeButton.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+  }, [currentSlideIndex, currentTemplate.slides.length]);
+
+  // Suporte a gesto de deslizar (swipe) no mobile para navegar entre lâminas
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  const handleCanvasTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        time: Date.now()
+      };
+    }
+  };
+
+  const handleCanvasTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartRef.current.x;
+    const dy = touch.clientY - touchStartRef.current.y;
+    const dt = Date.now() - touchStartRef.current.time;
+
+    // Se foi swipe horizontal (dx > 45px e predominantemente horizontal)
+    if (dt < 400 && Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) {
+        goToNextSlide();
+      } else {
+        goToPrevSlide();
+      }
+    }
+    touchStartRef.current = null;
+  };
+
   // Atualiza ajustes
   const handleUpdateAdjustments = (slotId: string, adj: PhotoSlotAdjustment) => {
     triggerActivity();
@@ -486,6 +574,78 @@ export default function CarouselStudioPage() {
     });
   };
 
+  // Aplica imagem em um slot com persistência e log
+  const applyImageToSlot = (slotId: string, imageUrl: string, fileName?: string) => {
+    addCarouselLog('info', `Foto carregada para o slot "${slotId}"`, {
+      fileName: fileName || 'imagem',
+      isDemo: imageUrl.startsWith('/content/')
+    });
+
+    setSlotsData((prev) => {
+      const existing = prev[slotId] || {
+        id: slotId,
+        label: '',
+        adjustments: { zoom: 100, x: 50, y: 50 }
+      };
+      const updated = {
+        ...existing,
+        imageUrl,
+        adjustments: { zoom: 100, x: 50, y: 50 }
+      };
+      saveSlotData(slotId, imageUrl, updated.adjustments);
+      const newMap = { ...prev, [slotId]: updated };
+      triggerAutoSaveProject(newMap);
+      return newMap;
+    });
+  };
+
+  // Suporte a Colar Foto (Ctrl + V)
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const targetSlot = pendingSlotPickRef.current || activeSlotId || currentTemplate.slides[currentSlideIndex]?.slots[0]?.id;
+      if (!targetSlot) return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const res = ev.target?.result as string;
+              applyImageToSlot(targetSlot, res, 'clipboard-image.png');
+            };
+            reader.readAsDataURL(file);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [activeSlotId, currentTemplate, currentSlideIndex]);
+
+  // Suporte a Arrastar e Soltar Foto (Drag & Drop)
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const targetSlot = activeSlotId || currentTemplate.slides[currentSlideIndex]?.slots[0]?.id;
+    if (!targetSlot) return;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const res = ev.target?.result as string;
+        applyImageToSlot(targetSlot, res, file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Dispara a galeria de fotos (mobile ou desktop)
   const handleTriggerPickImage = (slotId: string) => {
     pendingSlotPickRef.current = slotId;
@@ -501,28 +661,7 @@ export default function CarouselStudioPage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
-      addCarouselLog('info', `Foto carregada para o slot "${targetSlotId}"`, {
-        fileName: file.name,
-        fileSizeBytes: file.size,
-        fileType: file.type
-      });
-
-      setSlotsData((prev) => {
-        const existing = prev[targetSlotId] || {
-          id: targetSlotId,
-          label: '',
-          adjustments: { zoom: 100, x: 50, y: 50 }
-        };
-        const updated = {
-          ...existing,
-          imageUrl: result,
-          adjustments: { zoom: 100, x: 50, y: 50 }
-        };
-        saveSlotData(targetSlotId, result, updated.adjustments);
-        const newMap = { ...prev, [targetSlotId]: updated };
-        triggerAutoSaveProject(newMap);
-        return newMap;
-      });
+      applyImageToSlot(targetSlotId, result, file.name);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
@@ -585,11 +724,17 @@ export default function CarouselStudioPage() {
 
       addCarouselLog('info', `Iniciando executeExport: ${itemsToExport.length} elementos encontrados para renderizar.`);
 
-      const rendered = await exportSlidesSequentially(itemsToExport, aspectRatio, (curr, tot, sNum) => {
-        setExportProgress({ current: curr, total: tot, slide: sNum });
-      });
+      const rendered = await exportSlidesSequentially(
+        itemsToExport,
+        aspectRatio,
+        (curr, tot, sNum) => {
+          setExportProgress({ current: curr, total: tot, slide: sNum });
+        },
+        { templateName: currentTemplate.name }
+      );
 
       addCarouselLog('info', `Download direto disparado para ${rendered.length} lâminas.`);
+      setExportResults(rendered);
     } catch (err) {
       console.error('Falha na exportação:', err);
       addCarouselLog('error', `Falha em executeExport: ${err instanceof Error ? err.message : String(err)}`, undefined, err);
@@ -654,7 +799,9 @@ export default function CarouselStudioPage() {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/*"
-        className="hidden"
+        className="fixed -top-96 -left-96 w-1 h-1 opacity-0 pointer-events-none"
+        tabIndex={-1}
+        aria-hidden="true"
       />
 
       {/* Header Limpo com Janela Home e Salvar Projeto */}
@@ -663,17 +810,27 @@ export default function CarouselStudioPage() {
           {/* Botão Janela Home */}
           <button
             onClick={() => setIsHomeOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-200 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Abrir Templates e Projetos"
           >
             <Home className="w-4 h-4 text-amber-500" />
             <span className="font-bold">Home</span>
           </button>
 
+          {/* Botão Auto (Preenchimento Rápido no Editor) */}
+          <button
+            onClick={() => setIsAutoFillEditorOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+            title="Auto-preenchimento: carregar todas as fotos deste template de uma vez"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-bold text-xs">Auto</span>
+          </button>
+
           {/* Botão Logs de Diagnóstico (iPhone / Debug) */}
           <button
             onClick={() => setIsLogsOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-slate-300 hover:text-white hover:border-amber-500/50 text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Ver logs silenciosos de erros e exportação no iPhone"
           >
             <Terminal className="w-3.5 h-3.5 text-amber-500" />
@@ -754,7 +911,16 @@ export default function CarouselStudioPage() {
       {/* Conteúdo Central: Viewport com Slide + Painel Desktop Lateral */}
       <div className="flex-1 flex overflow-hidden">
         {/* Viewport Central */}
-        <main className="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-5 bg-[#07090E]">
+        <main
+          onTouchStart={handleCanvasTouchStart}
+          onTouchEnd={handleCanvasTouchEnd}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={handleDrop}
+          className="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-5 bg-[#07090E]"
+        >
           <div
             className="w-full h-full flex items-center justify-center"
             style={{ containerType: 'size' }}
@@ -792,14 +958,14 @@ export default function CarouselStudioPage() {
           {/* Lâminas em background em resolução nativa 1080p para exportação limpa */}
           <div
             aria-hidden="true"
-            className="fixed pointer-events-none opacity-0"
+            className="fixed pointer-events-none"
             style={{
               position: 'fixed',
-              left: 0,
+              left: '-99999px',
               top: 0,
               width: `${ASPECT_RATIOS[aspectRatio].width}px`,
               height: `${ASPECT_RATIOS[aspectRatio].height}px`,
-              opacity: 0,
+              opacity: 1,
               pointerEvents: 'none',
               zIndex: -50
             }}
@@ -843,7 +1009,12 @@ export default function CarouselStudioPage() {
       </div>
 
       {/* Barra Inferior de Navegação */}
-      <footer className="bg-[#10141E] border-t border-slate-800/80 px-4 py-2 flex flex-col gap-2 shrink-0 z-20 pb-safe">
+      <footer
+        className="bg-[#10141E] border-t border-slate-800/80 px-3 sm:px-4 py-2 flex flex-col gap-1.5 shrink-0 z-20 pb-safe-bottom"
+        style={{
+          paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 14px))'
+        }}
+      >
         {/* Painel Contextual de Ajuste da Foto (Apenas Mobile - No Desktop já existe o painel lateral) */}
         {/* Altura pré-reservada fixa (h-12) para que a lâmina nunca mude de tamanho/posição quando os controles aparecem/somem */}
         <div className="md:hidden h-12 w-full flex items-center relative">
@@ -857,7 +1028,7 @@ export default function CarouselStudioPage() {
                 {/* Botão Adicionar ou Trocar Foto */}
                 <button
                   onClick={() => handleTriggerPickImage(activeSlotDefinition.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-lg text-xs font-semibold shrink-0 shadow-sm transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white rounded-lg text-xs font-semibold shrink-0 shadow-sm transition-colors cursor-pointer"
                   title={activeSlotData?.imageUrl ? 'Trocar Foto' : 'Adicionar Foto'}
                 >
                   {activeSlotData?.imageUrl ? (
@@ -911,7 +1082,7 @@ export default function CarouselStudioPage() {
                     });
                   }}
                   disabled={!activeSlotData?.imageUrl}
-                  className="p-1.5 text-slate-400 hover:text-white active:bg-slate-800 disabled:opacity-30 rounded-lg transition-colors shrink-0"
+                  className="p-1.5 text-slate-400 hover:text-white active:bg-slate-800 disabled:opacity-30 rounded-lg transition-colors shrink-0 cursor-pointer"
                   title="Resetar Zoom e Posição"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -921,35 +1092,39 @@ export default function CarouselStudioPage() {
           )}
         </div>
 
-        {/* Seletor de Lâminas */}
-        <div className="flex items-center justify-between gap-2">
+        {/* Indicador de Lâmina e Seletor */}
+        <div className="flex items-center justify-between gap-1.5 w-full">
           <button
-            onClick={() => {
-              const prev = Math.max(0, currentSlideIndex - 1);
-              setCurrentSlideIndex(prev);
-              if (currentTemplate.slides[prev]?.slots[0]) {
-                setActiveSlotId(currentTemplate.slides[prev].slots[0].id);
-              }
-            }}
+            onClick={goToPrevSlide}
             disabled={currentSlideIndex === 0}
-            className="p-2 rounded-lg bg-slate-800 text-slate-300 disabled:opacity-30 active:bg-slate-700"
+            className="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+            title="Lâmina anterior"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          <div className="flex items-center gap-2.5 overflow-x-auto px-2 py-2.5">
+          <div
+            ref={slideNavContainerRef}
+            className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto px-1 py-1.5 scroll-smooth no-scrollbar"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
             {currentTemplate.slides.map((s, idx) => (
-              <div key={s.id} className="relative group">
+              <div key={s.id} className="relative shrink-0">
                 <button
-                  onClick={() => {
-                    setCurrentSlideIndex(idx);
-                    if (s.slots[0]) setActiveSlotId(s.slots[0].id);
+                  ref={(el) => {
+                    slideButtonRefs.current[idx] = el;
                   }}
-                  className={`w-9 h-9 rounded-lg font-bold text-xs flex items-center justify-center transition-all ${
+                  onClick={() => goToSlide(idx)}
+                  className={`w-9 h-9 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                     currentSlideIndex === idx
                       ? 'bg-amber-600 text-white shadow-lg scale-105 ring-2 ring-amber-400/50'
-                      : 'bg-slate-800/80 text-slate-400 active:bg-slate-700'
+                      : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 active:bg-slate-700'
                   }`}
+                  title={`Ir para lâmina #${idx + 1}`}
                 >
                   {idx + 1}
                 </button>
@@ -961,7 +1136,7 @@ export default function CarouselStudioPage() {
                       e.stopPropagation();
                       handleDeleteCurrentSlide(idx);
                     }}
-                    className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-opacity shadow-sm z-30 ${
+                    className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-opacity shadow-sm z-30 cursor-pointer ${
                       currentSlideIndex === idx ? 'opacity-90 hover:opacity-100' : 'opacity-0 group-hover:opacity-100'
                     }`}
                     title={`Excluir Lâmina #${idx + 1}`}
@@ -974,8 +1149,11 @@ export default function CarouselStudioPage() {
 
             {/* Botão + no contador para chamar a grade de lâminas disponíveis */}
             <button
+              ref={(el) => {
+                slideButtonRefs.current[currentTemplate.slides.length] = el;
+              }}
               onClick={() => setIsSlidePickerOpen(true)}
-              className="w-9 h-9 rounded-lg border border-dashed border-amber-500/70 hover:border-amber-400 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 flex items-center justify-center transition-all active:scale-95 shadow-sm shrink-0"
+              className="w-9 h-9 rounded-xl border border-dashed border-amber-500/70 hover:border-amber-400 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 flex items-center justify-center transition-all active:scale-95 shadow-sm shrink-0 cursor-pointer"
               title="Adicionar Lâmina ao Carrossel"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -983,15 +1161,10 @@ export default function CarouselStudioPage() {
           </div>
 
           <button
-            onClick={() => {
-              const next = Math.min(currentTemplate.slides.length - 1, currentSlideIndex + 1);
-              setCurrentSlideIndex(next);
-              if (currentTemplate.slides[next]?.slots[0]) {
-                setActiveSlotId(currentTemplate.slides[next].slots[0].id);
-              }
-            }}
-            disabled={currentSlideIndex === currentTemplate.slides.length - 1}
-            className="p-2 rounded-lg bg-slate-800 text-slate-300 disabled:opacity-30 active:bg-slate-700"
+            onClick={goToNextSlide}
+            disabled={currentSlideIndex >= currentTemplate.slides.length - 1}
+            className="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white disabled:opacity-20 active:bg-slate-700 shrink-0 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+            title="Próxima lâmina"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -1006,6 +1179,7 @@ export default function CarouselStudioPage() {
         projects={savedProjects}
         currentProjectId={currentProjectId}
         onSelectTemplate={handleSelectTemplate}
+        onSelectTemplateWithPhotos={handleSelectTemplateWithPhotos}
         onCreateCustomTemplate={handleCreateCustomTemplate}
         onOpenProject={handleOpenProject}
         onDeleteProject={handleDeleteProject}
@@ -1018,12 +1192,39 @@ export default function CarouselStudioPage() {
         isOpen={isSlidePickerOpen}
         onClose={() => setIsSlidePickerOpen(false)}
         onPickSlide={handleAddSlideFromCatalog}
+        currentTemplateId={currentTemplate.id}
+        currentTemplateName={currentTemplate.name}
+      />
+
+      {/* Modal de Auto-Preenchimento Rápido dentro do Editor */}
+      <AutoFillModal
+        isOpen={isAutoFillEditorOpen}
+        template={currentTemplate}
+        onClose={() => setIsAutoFillEditorOpen(false)}
+        onApply={(updatedData) => {
+          setSlotsData(updatedData);
+          for (const [slotId, data] of Object.entries(updatedData)) {
+            saveSlotData(slotId, data.imageUrl, data.adjustments);
+          }
+          triggerAutoSaveProject(updatedData);
+          addCarouselLog(
+            'info',
+            `Auto-preenchimento aplicado com sucesso no template "${currentTemplate.name}".`
+          );
+          setIsAutoFillEditorOpen(false);
+        }}
       />
 
       {/* Diálogo Interno do Sistema (Substitui confirm/alert do navegador) */}
       <InternalDialogModal config={dialogConfig} />
 
       {/* Modal de Logs Silenciosos (iPhone / Depuração) */}
+      <ExportResultModal
+        isOpen={Boolean(exportResults && exportResults.length > 0)}
+        onClose={() => setExportResults(null)}
+        results={exportResults || []}
+      />
+
       <CarouselLogsModal
         isOpen={isLogsOpen}
         onClose={() => setIsLogsOpen(false)}

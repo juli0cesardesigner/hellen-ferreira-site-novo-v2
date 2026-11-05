@@ -26,12 +26,14 @@ export default function PushNotificationManager() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Verificar se Service Worker e Push são suportados no navegador atual
-    if (
+    // Verificar se Service Worker, Push e Notification são suportados no navegador atual
+    const supported =
       typeof window !== "undefined" &&
       "serviceWorker" in navigator &&
-      "PushManager" in window
-    ) {
+      "PushManager" in window &&
+      "Notification" in window;
+
+    if (supported) {
       setIsSupported(true);
       // Registrar o Service Worker de fato para que esteja ativo no app
       navigator.serviceWorker
@@ -54,7 +56,9 @@ export default function PushNotificationManager() {
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.getSubscription();
       setSubscription(sub);
-      setPermission(Notification.permission);
+      if (typeof window !== "undefined" && "Notification" in window) {
+        setPermission(Notification.permission);
+      }
     } catch (err) {
       console.error("Erro ao verificar assinatura push:", err);
     } finally {
@@ -66,6 +70,12 @@ export default function PushNotificationManager() {
     setIsLoading(true);
     setMessage(null);
     try {
+      if (typeof window === "undefined" || !("Notification" in window)) {
+        throw new Error(
+          "Notificações não são suportadas nesta aba. No iPhone/iPad, toque em 'Compartilhar' e 'Adicionar à Tela de Início' para ativar suporte a Push."
+        );
+      }
+
       // 1. Solicitar permissão se necessário
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);

@@ -54,22 +54,54 @@ export function triggerDownload(dataUrl: string, filename: string): string {
  * Renderiza o elemento em 1080x1350 ou 1080x1920 nativo
  * Com configurações específicas para compatibilidade com iOS WebKit (Safari)
  */
+/**
+ * Aguarda todas as tags <img> do elemento terminarem de carregar antes do snapshot
+ */
+async function waitForSlideImages(element: HTMLElement): Promise<void> {
+  const imgs = Array.from(element.querySelectorAll('img'));
+  if (imgs.length === 0) return;
+
+  await Promise.all(
+    imgs.map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise<void>((resolve) => {
+        const onFinish = () => {
+          img.removeEventListener('load', onFinish);
+          img.removeEventListener('error', onFinish);
+          resolve();
+        };
+        img.addEventListener('load', onFinish);
+        img.addEventListener('error', onFinish);
+        setTimeout(onFinish, 2500); // Timeout limite preventivo
+      });
+    })
+  );
+}
+
 export async function renderSlideToImage(
   element: HTMLElement,
   aspectRatio: AspectRatio
 ): Promise<string> {
   const config = ASPECT_RATIOS[aspectRatio];
 
+  // Garante que todas as fotos estejam descompactadas e prontas no DOM
+  await waitForSlideImages(element);
+
   return await toPng(element, {
     quality: 0.98,
-    pixelRatio: 1, // Elemento já está renderizado em 1080p exato
+    pixelRatio: 1,
     cacheBust: true,
-    skipFonts: true, // Evita travamento/timeout no WebKit ao tentar converter fontes remotas
+    skipFonts: true,
     imagePlaceholder: DEFAULT_FALLBACK_PLACEHOLDER,
     width: config.width,
     height: config.height,
     canvasWidth: config.width,
     canvasHeight: config.height,
+    style: {
+      opacity: '1',
+      visibility: 'visible',
+      transform: 'none'
+    },
     filter: (node) => {
       if (node instanceof HTMLElement && node.getAttribute('data-export-hide') === 'true') {
         return false;
@@ -86,16 +118,61 @@ export interface RenderedSlideResult {
   blob: Blob;
 }
 
+export interface ExportSlidesOptions {
+  templateName?: string;
+}
+
+/**
+ * Gera carimbo de data e hora no formato AAAAMMDD_HHMMSS
+ */
+export function getExportTimestamp(date = new Date()): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${yyyy}${mm}${dd}_${hh}${min}${ss}`;
+}
+
+/**
+ * Cria nome de arquivo único para a lâmina no formato:
+ * [template]_[AAAAMMDD]_[HHMMSS]_lamina_[XX].png
+ * Evita sobrescrever arquivos em múltiplos downloads.
+ */
+export function formatExportFilename(
+  templateName: string,
+  slideNumber: number,
+  timestamp: string
+): string {
+  const cleanName =
+    templateName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'carrossel';
+
+  const num = String(slideNumber).padStart(2, '0');
+  return `${cleanName}_${timestamp}_lamina_${num}.png`;
+}
+
 /**
  * Exporta todas as lâminas via download direto sequencial (sem abrir folha de compartilhamento nativa).
  */
 export async function exportSlidesSequentially(
   slideElements: { id: string; number: number; element: HTMLElement }[],
   aspectRatio: AspectRatio,
-  onProgress?: ExportProgressCallback
+  onProgress?: ExportProgressCallback,
+  options?: ExportSlidesOptions
 ): Promise<RenderedSlideResult[]> {
+  const batchTimestamp = getExportTimestamp();
+  const templateName = options?.templateName || 'carrossel';
+
   addCarouselLog('info', `Iniciando renderização de ${slideElements.length} lâminas para download direto`, {
     aspectRatio,
+    templateName,
+    batchTimestamp,
     slides: slideElements.map((s) => ({ id: s.id, number: s.number }))
   });
 
@@ -114,7 +191,7 @@ export async function exportSlidesSequentially(
       const dataUrl = await renderSlideToImage(item.element, aspectRatio);
       const renderDuration = Math.round(performance.now() - startTime);
 
-      const filename = `hellen-ferreira-lamina-${String(item.number).padStart(2, '0')}-${aspectRatio.replace(':', 'x')}.png`;
+      const filename = formatExportFilename(templateName, item.number, batchTimestamp);
       const blob = dataUrlToBlob(dataUrl);
 
       renderedSlides.push({

@@ -2,9 +2,11 @@ import { SlideDefinition } from '../types';
 import { GALLERY_01_TEMPLATE } from './gallery01';
 import { GALLERY_02_TEMPLATE } from './gallery02';
 import { GALLERY_03_TEMPLATE } from './gallery03';
+import { GALLERY_04_TEMPLATE } from './gallery04';
 
 export interface CatalogSlideItem {
   id: string;
+  templateId: string;
   templateName: string;
   slideNumber: number;
   thumbnailSvg?: string;
@@ -16,6 +18,7 @@ export const CATALOG_SLIDES: CatalogSlideItem[] = [
   // Lâminas do Template 1
   ...GALLERY_01_TEMPLATE.slides.map((s) => ({
     id: `cat_t1_${s.id}`,
+    templateId: GALLERY_01_TEMPLATE.id,
     templateName: 'Galeria 01',
     slideNumber: s.slideNumber,
     thumbnailSvg: s.thumbnailSvg,
@@ -24,6 +27,7 @@ export const CATALOG_SLIDES: CatalogSlideItem[] = [
   // Lâminas do Template 2
   ...GALLERY_02_TEMPLATE.slides.map((s) => ({
     id: `cat_t2_${s.id}`,
+    templateId: GALLERY_02_TEMPLATE.id,
     templateName: 'Galeria 02',
     slideNumber: s.slideNumber,
     thumbnailSvg: s.thumbnailSvg,
@@ -34,6 +38,7 @@ export const CATALOG_SLIDES: CatalogSlideItem[] = [
   // Lâminas do Template 3 Oficial
   ...GALLERY_03_TEMPLATE.slides.map((s) => ({
     id: `cat_t3_${s.id}`,
+    templateId: GALLERY_03_TEMPLATE.id,
     templateName: 'Galeria 03',
     slideNumber: s.slideNumber,
     thumbnailSvg: s.thumbnailSvg,
@@ -48,5 +53,14 @@ export const CATALOG_SLIDES: CatalogSlideItem[] = [
         : s.id === 't3-slide-4'
         ? 'cat_t3_t3-slide-3'
         : undefined
+  })),
+  // Lâminas do Template 4 Oficial
+  ...GALLERY_04_TEMPLATE.slides.map((s) => ({
+    id: `cat_t4_${s.id}`,
+    templateId: GALLERY_04_TEMPLATE.id,
+    templateName: 'Galeria 04',
+    slideNumber: s.slideNumber,
+    thumbnailSvg: s.thumbnailSvg,
+    slideDefinition: s
   }))
 ];
