@@ -45,6 +45,8 @@ export const NATAL_CHILD_LOOKS: NatalChildLook[] = [
   { id: "as-6800", gender: "menina", size: "GG", image: "/natal/looks/as/IMG_6800.webp" },
   { id: "as-6801", gender: "menina", size: "1 ano", image: "/natal/looks/as/IMG_6801.webp" },
   { id: "as-6802", gender: "menina", size: "1 ano", image: "/natal/looks/as/IMG_6802.webp" },
+  { id: "as-6946", gender: "menina", size: "1 ano", image: "/natal/looks/as/IMG_6946.webp" },
+  { id: "as-6948", gender: "menina", size: "1 ano", image: "/natal/looks/as/IMG_6948.webp" },
 
   // ==========================================================================
   // MENINOS (Pasta Os -> /natal/looks/os/)
