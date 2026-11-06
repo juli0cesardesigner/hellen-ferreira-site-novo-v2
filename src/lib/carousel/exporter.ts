@@ -44,6 +44,9 @@ export function triggerDownload(dataUrl: string, filename: string, existingBlob?
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  addCarouselLog('info', `Download manual acionado pelo usuário: ${filename}`, {
+    blobSizeKb: Math.round(blob.size / 1024)
+  });
   // Mantém a URL ativa por 60 segundos para garantir tempo suficiente para confirmação de download no Safari/iOS
   setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
   return blobUrl;
@@ -547,7 +550,8 @@ export function formatExportFilename(
 }
 
 /**
- * Exporta todas as lâminas via download direto sequencial (sem abrir folha de compartilhamento nativa).
+ * Renderiza todas as lâminas sequencialmente para exibição imediata na janela oficial de exportação,
+ * sem disparar downloads automáticos que abrem pré-visualizações intermediárias no navegador.
  */
 export async function exportSlidesSequentially(
   slideElements: { id: string; number: number; element: HTMLElement }[],
@@ -559,7 +563,7 @@ export async function exportSlidesSequentially(
   const templateName = options?.templateName || 'carrossel';
   const sharedImageCache = new Map<string, HTMLImageElement>();
 
-  addCarouselLog('info', `Iniciando renderização de ${slideElements.length} lâminas para download direto`, {
+  addCarouselLog('info', `Iniciando renderização de ${slideElements.length} lâmina(s) para a janela oficial de exportação`, {
     aspectRatio,
     templateName,
     batchTimestamp,
@@ -568,7 +572,7 @@ export async function exportSlidesSequentially(
 
   const renderedSlides: RenderedSlideResult[] = [];
 
-  // 1. Renderiza sequencialmente todas as lâminas via Canvas 2D nativo
+  // Renderiza sequencialmente todas as lâminas via Canvas 2D nativo
   for (let i = 0; i < slideElements.length; i++) {
     const item = slideElements[i];
     if (onProgress) {
@@ -606,24 +610,12 @@ export async function exportSlidesSequentially(
       throw renderError;
     }
 
-    // Pausa preventiva entre renderizações para desafogar o rasterizer do Safari
-    await new Promise((resolve) => setTimeout(resolve, 200));
-  }
-
-  // 2. Download direto via Blob URL (sem folha de compartilhamento/share sheet)
-  addCarouselLog('info', `Disparando download direto de ${renderedSlides.length} arquivos...`);
-  for (let i = 0; i < renderedSlides.length; i++) {
-    const item = renderedSlides[i];
-    try {
-      addCarouselLog('debug', `Baixando arquivo ${i + 1}/${renderedSlides.length}: ${item.filename}`);
-      triggerDownload(item.dataUrl, item.filename, item.blob);
-      // Intervalo de 600ms para permitir que o navegador processe o download de cada arquivo
-      await new Promise((resolve) => setTimeout(resolve, 600));
-    } catch (downloadError) {
-      addCarouselLog('error', `Falha ao acionar download de ${item.filename}`, undefined, downloadError);
+    // Pausa preventiva entre renderizações quando houver múltiplas lâminas para desafogar o rasterizer do Safari
+    if (i < slideElements.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
   }
 
-  addCarouselLog('info', `Exportação e download direto concluídos com sucesso para ${renderedSlides.length} lâminas.`);
+  addCarouselLog('info', `Exportação concluída com sucesso para ${renderedSlides.length} lâmina(s). Abrindo janela oficial de exportação.`);
   return renderedSlides;
 }

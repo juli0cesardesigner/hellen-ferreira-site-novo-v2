@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RenderedSlideResult, triggerDownload } from '@/lib/carousel/exporter';
-import { X, Download, Check, Image as ImageIcon, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
+import { X, Download, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ExportResultModalProps {
   isOpen: boolean;
@@ -103,7 +103,12 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
             <img
               src={currentItem.dataUrl}
               alt={`Lâmina #${currentItem.number}`}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain select-auto"
+              style={{
+                WebkitTouchCallout: 'default',
+                WebkitUserSelect: 'auto',
+                userSelect: 'auto'
+              }}
             />
 
             {/* Navegação entre lâminas com touch targets confortáveis */}
@@ -128,7 +133,7 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
               </>
             )}
 
-            <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-sm py-1 px-2.5 rounded-lg text-[10px] text-slate-300 flex items-center justify-between font-mono">
+            <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-sm py-1 px-2.5 rounded-lg text-[10px] text-slate-300 flex items-center justify-between font-mono pointer-events-none">
               <span>Lâmina {selectedIndex + 1} de {results.length}</span>
               <span className={currentSizeKb > 50 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
                 {currentSizeKb} KB

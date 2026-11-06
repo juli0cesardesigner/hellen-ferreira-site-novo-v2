@@ -756,7 +756,7 @@ export default function CarouselStudioPage() {
         { templateName: currentTemplate.name }
       );
 
-      addCarouselLog('info', `Download direto disparado para ${rendered.length} lâmina(s).`);
+      addCarouselLog('info', `Abrindo janela oficial de exportação com ${rendered.length} lâmina(s).`);
       setExportResults(rendered);
     } catch (err) {
       console.error('Falha na exportação:', err);
@@ -967,7 +967,7 @@ export default function CarouselStudioPage() {
       {isExporting && exportProgress && (
         <div className="bg-amber-950/95 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs flex items-center justify-between z-30 shrink-0 animate-pulse motion-reduce:animate-none">
           <span>
-            Baixando foto <strong>{exportProgress.slide}</strong> de {exportProgress.total}...
+            Gerando lâmina <strong>#{exportProgress.slide}</strong> ({exportProgress.current} de {exportProgress.total})...
           </span>
           <span className="font-mono font-bold">
             {Math.round((exportProgress.current / exportProgress.total) * 100)}%
