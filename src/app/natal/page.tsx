@@ -3,6 +3,7 @@ import {
   NatalHero,
   NatalCalendarSection,
   NatalDobra3,
+  NatalLooksSection,
   NatalDobra4,
   NatalDobra5,
   NatalFooter,
@@ -57,6 +58,9 @@ export default function NatalPage() {
 
       {/* Dobra 3: Guia de Cores, Paletas e Estampas com Fundo Temático */}
       <NatalDobra3 />
+
+      {/* Nova Dobra: Figurinos Infantis (Meninas e Meninos) & Inspirações */}
+      <NatalLooksSection />
 
       {/* Dobra 4: Pacotes e Preços (Digital / Impressa) */}
       <NatalDobra4 />

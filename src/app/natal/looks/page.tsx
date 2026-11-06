@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Sparkles,
   RotateCcw,
   X,
   ChevronLeft,
@@ -25,6 +24,15 @@ export default function NatalChildLooksPage() {
   const [selectedGender, setSelectedGender] = useState<"todos" | LookGender>("todos");
   const [selectedSize, setSelectedSize] = useState<"todas" | LookSize>("todas");
   const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
+
+  // Permite pré-filtrar via URL (?genero=menina ou ?genero=menino)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const g = params.get("genero") || params.get("gender");
+    if (g === "menina" || g === "menino") {
+      setSelectedGender(g);
+    }
+  }, []);
 
   // Filtra os figurinos combinando Gênero + Tamanho
   const filteredLooks = useMemo(() => {
@@ -90,8 +98,13 @@ export default function NatalChildLooksPage() {
             Hellen Ferreira
           </div>
 
-          {/* Espaçador para manter a marca centralizada */}
-          <div className="w-[120px] hidden sm:block" aria-hidden="true" />
+          {/* Link rápido para Inspirações */}
+          <Link
+            href="/natal/inspiracoes"
+            className="hidden sm:inline-flex items-center min-h-[44px] px-3.5 rounded-full text-xs tracking-[0.16em] uppercase text-[#540b1c] hover:bg-[#540b1c]/10 transition-colors font-semibold"
+          >
+            <span>Inspirações</span>
+          </Link>
         </div>
       </header>
 
@@ -101,9 +114,8 @@ export default function NatalChildLooksPage() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-[#540b1c]/10 border border-[#540b1c]/20 text-[#540b1c] text-xs tracking-[0.25em] uppercase font-semibold"
+            className="inline-flex items-center px-4 py-1.5 mb-5 rounded-full bg-[#540b1c]/10 border border-[#540b1c]/20 text-[#540b1c] text-xs tracking-[0.25em] uppercase font-semibold"
           >
-            <Sparkles className="w-3.5 h-3.5" />
             Acervo Infantil Exclusivo
           </motion.div>
 

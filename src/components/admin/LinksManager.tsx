@@ -13,6 +13,7 @@ interface EnsaioLink {
 const ENSAIO_LINKS: EnsaioLink[] = [
   { id: "natal", name: "Especial de Natal", path: "/natal" },
   { id: "natal-looks", name: "Looks Infantis (Natal)", path: "/natal/looks" },
+  { id: "natal-inspiracoes", name: "Inspirações de Looks (Natal)", path: "/natal/inspiracoes" },
   { id: "looks", name: "Acervo de Looks (Gestante)", path: "/looks" },
   { id: "casal", name: "Casal", path: "/casal" },
   { id: "ensaios", name: "Catálogo Completo (Ensaios)", path: "/ensaios" },

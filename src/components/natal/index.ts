@@ -5,6 +5,7 @@ export * from "./hero/Layer3Titles";
 export * from "./hero/types";
 export * from "./dobra2/NatalCalendarSection";
 export * from "./dobra3/NatalDobra3";
+export * from "./looks-section/NatalLooksSection";
 export * from "./dobra4/NatalDobra4";
 export * from "./dobra5/NatalDobra5";
 export * from "./NatalFooter";
