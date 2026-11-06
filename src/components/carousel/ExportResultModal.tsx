@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RenderedSlideResult, triggerDownload } from '@/lib/carousel/exporter';
-import { X, Download, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Download, Check, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 
 interface ExportResultModalProps {
   isOpen: boolean;
@@ -18,6 +18,22 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [downloadedMap, setDownloadedMap] = useState<Record<number, boolean>>({});
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [canShareFiles, setCanShareFiles] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+
+  // Detecta se o navegador suporta Web Share API com arquivos de imagem (iOS Safari / iPadOS / Android)
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        const dummyFile = new File([''], 'test.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [dummyFile] })) {
+          setCanShareFiles(true);
+        }
+      } catch {
+        setCanShareFiles(false);
+      }
+    }
+  }, []);
 
   // Reseta o índice selecionado ao receber novos resultados
   useEffect(() => {
@@ -41,12 +57,44 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
 
   const currentItem = results[selectedIndex] || results[0];
 
-  const handleDownloadSingle = (item: RenderedSlideResult) => {
+  const handleShareFiles = async (items: RenderedSlideResult[]) => {
+    if (!canShareFiles || items.length === 0) return;
+    setIsSharing(true);
+    try {
+      const files = items.map(
+        (item) => new File([item.blob], item.filename, { type: 'image/png' })
+      );
+      // Omitir title/text no iOS Safari para que o menu nativo priorize "Salvar Imagem / Fotos"
+      await navigator.share({ files });
+      items.forEach((item) => {
+        setDownloadedMap((prev) => ({ ...prev, [item.number]: true }));
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Usuário apenas cancelou a folha nativa, comportamento normal
+        return;
+      }
+      console.warn('Compartilhamento nativo cancelado ou não suportado:', err);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleDownloadSingle = async (item: RenderedSlideResult) => {
+    if (canShareFiles) {
+      await handleShareFiles([item]);
+      return;
+    }
     triggerDownload(item.dataUrl, item.filename, item.blob);
     setDownloadedMap((prev) => ({ ...prev, [item.number]: true }));
   };
 
   const handleDownloadAll = async () => {
+    if (canShareFiles) {
+      await handleShareFiles(results);
+      return;
+    }
+
     setIsDownloadingAll(true);
     for (let i = 0; i < results.length; i++) {
       const item = results[i];
@@ -141,10 +189,10 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
             </div>
           </div>
 
-          {/* Dica para iPhone */}
+          {/* Dica para iPhone / Celular */}
           <div className="w-full bg-slate-900/80 border border-slate-800 rounded-xl p-3 text-center">
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              📱 <strong>Dica para Celular / iPhone:</strong> Toque e segure na imagem acima e escolha <strong>&quot;Salvar em Fotos&quot;</strong> para guardar direto na sua galeria, ou clique nos botões de download abaixo.
+              📱 <strong>Dica para Celular / iPhone:</strong> Toque e segure na imagem acima e escolha <strong>&quot;Salvar em Fotos&quot;</strong>, ou use os botões abaixo para salvar na sua galeria ou arquivos.
             </p>
           </div>
 
@@ -183,20 +231,35 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
         <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button
             onClick={() => handleDownloadSingle(currentItem)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer"
+            disabled={isSharing}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer disabled:opacity-50"
           >
-            <Download className="w-4 h-4 text-slate-400" />
-            <span>Baixar Lâmina #{currentItem.number} (.png)</span>
+            {canShareFiles ? (
+              <>
+                <Share2 className="w-4 h-4 text-slate-400" />
+                <span>Salvar / Compartilhar Lâmina #{currentItem.number}</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4 text-slate-400" />
+                <span>Baixar Lâmina #{currentItem.number} (.png)</span>
+              </>
+            )}
           </button>
 
           {results.length > 1 && (
             <button
               onClick={handleDownloadAll}
-              disabled={isDownloadingAll}
+              disabled={isDownloadingAll || isSharing}
               className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {isDownloadingAll ? (
-                <span>Baixando arquivos...</span>
+              {isDownloadingAll || isSharing ? (
+                <span>Processando arquivos...</span>
+              ) : canShareFiles ? (
+                <>
+                  <Share2 className="w-4 h-4" />
+                  <span>Salvar Todas ({results.length} Lâminas)</span>
+                </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />

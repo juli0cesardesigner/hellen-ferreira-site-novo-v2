@@ -40,7 +40,6 @@ export function triggerDownload(dataUrl: string, filename: string, existingBlob?
   const link = document.createElement('a');
   link.download = filename;
   link.href = blobUrl;
-  link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
