@@ -705,33 +705,47 @@ export default function CarouselStudioPage() {
     });
   };
 
+  // Verifica se uma lâmina possui pelo menos uma foto preenchida pelo usuário
+  const slideHasPhoto = (slide: CarouselTemplate['slides'][number]) =>
+    slide.slots.some((slot) => Boolean(slotsData[slot.id]?.imageUrl));
+
   const executeExport = async () => {
+    // Filtra apenas as lâminas que possuem ao menos uma foto carregada
+    const filledSlides = currentTemplate.slides.filter(slideHasPhoto);
+
+    const itemsToExport = filledSlides
+      .map((s) => ({
+        id: s.id,
+        number: s.slideNumber,
+        element: slideRefs.current[s.id]
+      }))
+      .filter((item) => item.element);
+
+    if (itemsToExport.length === 0) {
+      addCarouselLog('warn', 'Nenhuma lâmina com foto disponível para exportar.');
+      setDialogConfig({
+        isOpen: true,
+        type: 'alert',
+        title: 'Nenhuma Lâmina com Foto',
+        message: 'Adicione pelo menos uma foto em alguma lâmina antes de exportar o carrossel.',
+        confirmLabel: 'OK',
+        onConfirm: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
+      });
+      return;
+    }
+
     setIsExporting(true);
-    setExportProgress({ current: 0, total: currentTemplate.slides.length, slide: 1 });
+    setExportProgress({
+      current: 0,
+      total: itemsToExport.length,
+      slide: itemsToExport[0].number
+    });
 
     try {
-      const itemsToExport = currentTemplate.slides
-        .map((s) => ({
-          id: s.id,
-          number: s.slideNumber,
-          element: slideRefs.current[s.id]
-        }))
-        .filter((item) => item.element);
-
-      if (itemsToExport.length === 0) {
-        addCarouselLog('warn', 'Nenhuma lâmina disponível para exportar (elementos DOM não encontrados).');
-        setDialogConfig({
-          isOpen: true,
-          type: 'alert',
-          title: 'Aviso',
-          message: 'Nenhuma lâmina encontrada para exportação. Adicione pelo menos uma lâmina ao carrossel.',
-          confirmLabel: 'OK',
-          onConfirm: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
-        });
-        return;
-      }
-
-      addCarouselLog('info', `Iniciando executeExport: ${itemsToExport.length} elementos encontrados para renderizar.`);
+      addCarouselLog(
+        'info',
+        `Iniciando executeExport: ${itemsToExport.length} lâmina(s) com foto(s) para renderizar (de ${currentTemplate.slides.length} no template).`
+      );
 
       const rendered = await exportSlidesSequentially(
         itemsToExport,
@@ -742,7 +756,7 @@ export default function CarouselStudioPage() {
         { templateName: currentTemplate.name }
       );
 
-      addCarouselLog('info', `Download direto disparado para ${rendered.length} lâminas.`);
+      addCarouselLog('info', `Download direto disparado para ${rendered.length} lâmina(s).`);
       setExportResults(rendered);
     } catch (err) {
       console.error('Falha na exportação:', err);
@@ -762,27 +776,56 @@ export default function CarouselStudioPage() {
   };
 
   const handleExport = async () => {
-    // Coleta todos os slots únicos de todas as lâminas
-    const uniqueSlotIds = new Set<string>();
-    currentTemplate.slides.forEach((slide) => {
-      slide.slots.forEach((s) => uniqueSlotIds.add(s.id));
+    const filledSlides = currentTemplate.slides.filter(slideHasPhoto);
+
+    if (filledSlides.length === 0) {
+      addCarouselLog('warn', 'Tentativa de exportação sem nenhuma lâmina preenchida.');
+      setDialogConfig({
+        isOpen: true,
+        type: 'alert',
+        title: 'Nenhuma Foto Adicionada',
+        message: 'Preencha pelo menos uma lâmina com foto antes de exportar.',
+        confirmLabel: 'Entendido',
+        onConfirm: () => setDialogConfig((prev) => ({ ...prev, isOpen: false }))
+      });
+      return;
+    }
+
+    // Verifica slots pendentes apenas nas lâminas que possuem foto (lâminas 100% vazias serão omitidas)
+    const uniqueSlotIdsInFilledSlides = new Set<string>();
+    filledSlides.forEach((slide) => {
+      slide.slots.forEach((s) => uniqueSlotIdsInFilledSlides.add(s.id));
     });
 
-    const emptySlots = Array.from(uniqueSlotIds).filter(
+    const emptySlots = Array.from(uniqueSlotIdsInFilledSlides).filter(
       (slotId) => !slotsData[slotId]?.imageUrl
     );
     const emptySlotsCount = emptySlots.length;
+    const skippedSlidesCount = currentTemplate.slides.length - filledSlides.length;
 
-    addCarouselLog('info', `Tentativa de exportação: ${uniqueSlotIds.size} slots no carrossel, ${emptySlotsCount} pendentes`, {
-      emptySlotIds: emptySlots
-    });
+    addCarouselLog(
+      'info',
+      `Tentativa de exportação: ${filledSlides.length} lâmina(s) preenchida(s), ${skippedSlidesCount} lâmina(s) vazia(s) ignorada(s), ${emptySlotsCount} slot(s) pendente(s) nas lâminas ativas`,
+      {
+        filledSlideNumbers: filledSlides.map((s) => s.slideNumber),
+        emptySlotIds: emptySlots
+      }
+    );
 
     if (emptySlotsCount > 0) {
       setDialogConfig({
         isOpen: true,
         type: 'confirm',
-        title: 'Fotos Pendentes',
-        message: `Atenção: Existem ${emptySlotsCount} ${emptySlotsCount === 1 ? 'foto não carregada' : 'fotos não carregadas'} no carrossel. Deseja exportar assim mesmo?`,
+        title: 'Fotos Pendentes na Lâmina',
+        message: `Atenção: ${
+          emptySlotsCount === 1
+            ? 'Existe 1 espaço sem foto'
+            : `Existem ${emptySlotsCount} espaços sem foto`
+        } ${
+          filledSlides.length === 1
+            ? `na lâmina #${filledSlides[0].slideNumber}`
+            : `nas ${filledSlides.length} lâminas preenchidas`
+        }. Deseja exportar assim mesmo?`,
         confirmLabel: 'Exportar Mesmo Assim',
         cancelLabel: 'Voltar e Preencher',
         onConfirm: () => {
@@ -817,7 +860,8 @@ export default function CarouselStudioPage() {
       <header
         className="w-full max-w-full overflow-hidden border-b border-slate-800 bg-[#10141E] px-2 sm:px-4 flex items-center justify-between z-20 shrink-0"
         style={{
-          paddingTop: 'max(0.5rem, env(safe-area-inset-top, 0px))',
+          paddingTop: 'max(0.5rem, calc(env(safe-area-inset-top, 0px) + 0.375rem))',
+          paddingBottom: '0.5rem',
           minHeight: 'calc(3.5rem + env(safe-area-inset-top, 0px))'
         }}
       >
@@ -984,11 +1028,12 @@ export default function CarouselStudioPage() {
             className="fixed pointer-events-none"
             style={{
               position: 'fixed',
-              left: '-99999px',
+              left: 0,
               top: 0,
-              width: `${ASPECT_RATIOS[aspectRatio].width}px`,
-              height: `${ASPECT_RATIOS[aspectRatio].height}px`,
-              opacity: 1,
+              width: 0,
+              height: 0,
+              overflow: 'hidden',
+              opacity: 0,
               pointerEvents: 'none',
               zIndex: -50
             }}

@@ -91,10 +91,14 @@ export const CarouselLogsModal: React.FC<CarouselLogsModalProps> = ({ isOpen, on
       role="dialog"
       aria-modal="true"
       aria-labelledby="logs-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 motion-reduce:animate-none select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 motion-reduce:animate-none select-none"
+      style={{
+        paddingTop: 'max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))',
+        paddingBottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))'
+      }}
     >
       <div
-        className="relative w-full max-w-2xl bg-[#0F1420] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col max-h-[88vh] overflow-hidden text-slate-100"
+        className="relative w-full max-w-2xl bg-[#0F1420] border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col max-h-full overflow-hidden text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

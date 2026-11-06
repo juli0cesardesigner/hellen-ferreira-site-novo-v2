@@ -95,9 +95,13 @@ export const AutoFillModal: React.FC<AutoFillModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="autofill-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+      style={{
+        paddingTop: 'max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))',
+        paddingBottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))'
+      }}
     >
-      <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col text-slate-100">
+      <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-lg max-h-full shadow-2xl overflow-hidden flex flex-col text-slate-100">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">

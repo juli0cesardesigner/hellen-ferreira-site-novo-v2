@@ -152,6 +152,10 @@ export const InteractivePhotoSlot: React.FC<InteractivePhotoSlotProps> = ({
             src={imageUrl || defaultPlaceholder}
             alt={`Foto posicionada no slot ${slotId}`}
             draggable={false}
+            data-slot-id={slotId}
+            data-slot-zoom={adjustments.zoom}
+            data-slot-x={adjustments.x}
+            data-slot-y={adjustments.y}
             className="w-full h-full object-cover pointer-events-none transition-transform duration-75"
             style={{
               transform: `scale(${adjustments.zoom / 100})`,

@@ -19,6 +19,12 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
   const [downloadedMap, setDownloadedMap] = useState<Record<number, boolean>>({});
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
+  // Reseta o índice selecionado ao receber novos resultados
+  useEffect(() => {
+    setSelectedIndex(0);
+    setDownloadedMap({});
+  }, [results]);
+
   // Fecha com a tecla Escape
   useEffect(() => {
     if (!isOpen) return;
@@ -36,7 +42,7 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
   const currentItem = results[selectedIndex] || results[0];
 
   const handleDownloadSingle = (item: RenderedSlideResult) => {
-    triggerDownload(item.dataUrl, item.filename);
+    triggerDownload(item.dataUrl, item.filename, item.blob);
     setDownloadedMap((prev) => ({ ...prev, [item.number]: true }));
   };
 
@@ -44,7 +50,7 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
     setIsDownloadingAll(true);
     for (let i = 0; i < results.length; i++) {
       const item = results[i];
-      triggerDownload(item.dataUrl, item.filename);
+      triggerDownload(item.dataUrl, item.filename, item.blob);
       setDownloadedMap((prev) => ({ ...prev, [item.number]: true }));
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
@@ -58,9 +64,13 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="export-result-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 motion-reduce:animate-none"
+      style={{
+        paddingTop: 'max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem))',
+        paddingBottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))'
+      }}
     >
-      <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[92vh] shadow-2xl flex flex-col text-slate-100 overflow-hidden">
+      <div className="bg-[#10141E] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-full shadow-2xl flex flex-col text-slate-100 overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
@@ -72,7 +82,7 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
                 Carrossel Pronto!
               </h3>
               <p className="text-[11px] text-slate-400">
-                {results.length} lâminas renderizadas em alta resolução (1080p)
+                {results.length} {results.length === 1 ? 'lâmina renderizada' : 'lâminas renderizadas'} em alta resolução (1080p)
               </p>
             </div>
           </div>
@@ -136,7 +146,7 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
           {/* Miniaturas das Lâminas */}
           <div className="w-full">
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
-              Todas as lâminas geradas:
+              {results.length === 1 ? 'Lâmina gerada:' : 'Todas as lâminas geradas:'}
             </span>
             <div className="grid grid-cols-5 gap-2">
               {results.map((r, idx) => (
@@ -168,26 +178,28 @@ export const ExportResultModal: React.FC<ExportResultModalProps> = ({
         <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button
             onClick={() => handleDownloadSingle(currentItem)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer"
           >
             <Download className="w-4 h-4 text-slate-400" />
             <span>Baixar Lâmina #{currentItem.number} (.png)</span>
           </button>
 
-          <button
-            onClick={handleDownloadAll}
-            disabled={isDownloadingAll}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50"
-          >
-            {isDownloadingAll ? (
-              <span>Baixando arquivos...</span>
-            ) : (
-              <>
-                <Download className="w-4 h-4" />
-                <span>Baixar Todas as {results.length} Lâminas</span>
-              </>
-            )}
-          </button>
+          {results.length > 1 && (
+            <button
+              onClick={handleDownloadAll}
+              disabled={isDownloadingAll}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {isDownloadingAll ? (
+                <span>Baixando arquivos...</span>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Baixar Todas as {results.length} Lâminas</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -71,7 +71,12 @@ export function HomeModal({
       >
         <div className="w-full h-full flex flex-col overflow-hidden max-w-4xl mx-auto">
           {/* Header Superior: Personalizado | Aleatório | Editor | Logs */}
-          <div className="p-3.5 sm:p-5 border-b border-slate-800/90 bg-[#0F1420]/80 backdrop-blur-md flex items-center justify-center shrink-0">
+          <div
+            className="px-3.5 pb-3.5 sm:px-5 sm:pb-5 border-b border-slate-800/90 bg-[#0F1420]/80 backdrop-blur-md flex items-center justify-center shrink-0"
+            style={{
+              paddingTop: 'max(0.875rem, calc(env(safe-area-inset-top, 0px) + 0.625rem))'
+            }}
+          >
             <div className="w-full max-w-sm flex items-center justify-between gap-2">
               <button
                 onClick={onCreateCustomTemplate}
@@ -333,7 +338,12 @@ export function HomeModal({
           </div>
 
           {/* Menu Fixo no Bottom (Tabs: Templates & Projetos) */}
-          <div className="border-t border-slate-800/90 bg-[#0F1420]/95 backdrop-blur-md px-6 py-3 flex items-center justify-around shrink-0 z-20">
+          <div
+            className="border-t border-slate-800/90 bg-[#0F1420]/95 backdrop-blur-md px-6 pt-3 flex items-center justify-around shrink-0 z-20"
+            style={{
+              paddingBottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))'
+            }}
+          >
             <button
               onClick={() => setActiveTab('templates')}
               className={`flex-1 py-2 px-3 rounded-xl transition-all text-center cursor-pointer ${

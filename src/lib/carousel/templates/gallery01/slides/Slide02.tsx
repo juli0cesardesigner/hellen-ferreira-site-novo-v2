@@ -111,6 +111,9 @@ export const Slide02: React.FC<SlideProps> = ({
               src={polaroidSlot.imageUrl}
               alt=""
               draggable={false}
+              data-slot-zoom={polaroidSlot.adjustments.zoom}
+              data-slot-x={polaroidSlot.adjustments.x}
+              data-slot-y={polaroidSlot.adjustments.y}
               className="w-full h-full object-cover"
               style={{
                 transform: `scale(${polaroidSlot.adjustments.zoom / 100})`,
