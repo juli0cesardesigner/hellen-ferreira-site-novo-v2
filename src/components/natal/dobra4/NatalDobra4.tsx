@@ -75,7 +75,7 @@ const PACKS: Pack[] = [
     nome: "Família — pais e irmãos",
     cor: "#194230",
     fotos: "25 fotos",
-    precos: { digital: "R$ 600", impressa: "Preço impressa" },
+    precos: { digital: "R$ 600", impressa: "R$ 750" },
     titulo: { src: `${BASE}/pack2/pack2_titulo.webp`, w: 180, h: 41.14 },
     fotosImg: { src: `${BASE}/pack2/pack2_fotos.webp`, w: 143.28, h: 23.76 },
     precoImg: {

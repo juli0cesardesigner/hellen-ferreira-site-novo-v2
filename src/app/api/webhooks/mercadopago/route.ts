@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { mpClient } from '@/lib/utils/mercadopago';
 import { Payment } from 'mercadopago';
 import crypto from 'crypto';
+import { sendMetaPurchaseEvent } from '@/lib/tracking/meta-capi';
 
 // Configuração do Supabase (Usando Service Role para poder dar update no banco)
 const getSupabaseAdmin = () => {
@@ -162,6 +163,9 @@ async function handleWebhook(req: NextRequest) {
             status,
             notified_at,
             customer_name, 
+            customer_email,
+            customer_phone,
+            total_amount,
             booking_date, 
             start_time, 
             location_type,
@@ -227,6 +231,37 @@ async function handleWebhook(req: NextRequest) {
           }
         } else {
           console.log(`ℹ️ Agendamento ${bookingId} já foi notificado anteriormente (${existingBooking.notified_at}). Notificação push duplicada evitada.`);
+        }
+
+        // Disparar evento de conversão Meta CAPI Purchase (deduplicação estrita via event_id = bookingId)
+        try {
+          const sessionName = (existingBooking.sessions as any)?.name || 'Ensaio Fotográfico';
+          const customerEmail = (existingBooking as any).customer_email || paymentData.payer?.email || null;
+          const payerPhone = paymentData.payer?.phone
+            ? `${paymentData.payer.phone.area_code || ''}${paymentData.payer.phone.number || ''}`.trim()
+            : null;
+          const customerPhone = (existingBooking as any).customer_phone || payerPhone || null;
+          const payerName = [paymentData.payer?.first_name, paymentData.payer?.last_name].filter(Boolean).join(' ').trim();
+          const customerName = (existingBooking as any).customer_name || (payerName || null);
+          const purchaseValue = transactionAmount || Number((existingBooking as any).total_amount) || 0;
+
+          await sendMetaPurchaseEvent({
+            event_id: String(bookingId),
+            eventId: String(bookingId),
+            bookingId: String(bookingId),
+            value: purchaseValue,
+            amount: purchaseValue,
+            currency: (paymentData.currency_id as string) || 'BRL',
+            customerEmail,
+            customerPhone,
+            customerName,
+            contentName: sessionName,
+            orderId: String(bookingId),
+            paymentId: String(paymentId),
+          });
+          console.log(`📊 Meta CAPI Purchase processado para reserva ${bookingId}`);
+        } catch (capiErr) {
+          console.error(`⚠️ Erro ao disparar Meta CAPI Purchase para reserva ${bookingId}:`, capiErr);
         }
 
         console.log(`✅ Agendamento ${bookingId} confirmado com sucesso via Webhook!`);

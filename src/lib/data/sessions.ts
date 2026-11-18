@@ -393,7 +393,7 @@ export const SESSIONS_DATA: Record<string, Session> = {
         description: "25 fotos em alta resolução",
         tier_order: 2,
         price_digital: 600,
-        price_print: 700,
+        price_print: 750,
         upgrade_label: "Digital + Impressa",
         features: [
           "25 Fotos digitais em alta resolução",

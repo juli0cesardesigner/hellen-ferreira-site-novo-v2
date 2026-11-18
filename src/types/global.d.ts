@@ -1,7 +1,8 @@
 // Global type declarations for third-party scripts
 
 interface FacebookPixel {
-  (action: 'track', event: string, params?: Record<string, unknown>): void;
+  (action: 'track', event: string, params?: Record<string, unknown>, options?: Record<string, unknown>): void;
+  (action: 'trackCustom', event: string, params?: Record<string, unknown>, options?: Record<string, unknown>): void;
   (action: 'init', pixelId: string, params?: Record<string, unknown>): void;
   callMethod?: (...args: unknown[]) => void;
   queue: unknown[];

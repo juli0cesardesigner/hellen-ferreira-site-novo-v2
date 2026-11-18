@@ -8,8 +8,13 @@ export const FB_PIXEL_ID = '653557265355207'
 
 /**
  * Utilitário para disparar eventos do Facebook Pixel
+ * Suporta payload de dados e options adicionais (ex: { eventID: bookingId } para deduplicação com Meta Conversions API)
  */
-export const fbEvent = (name: string, options: Record<string, any> = {}) => {
+export const fbEvent = (
+  name: string, 
+  options: Record<string, any> = {},
+  extraParams?: { eventID?: string } | Record<string, any>
+) => {
   if (typeof window !== 'undefined' && window.fbq) {
     const urlParams = new URLSearchParams(window.location.search);
     let testCode = urlParams.get('test_event_code');
@@ -26,8 +31,16 @@ export const fbEvent = (name: string, options: Record<string, any> = {}) => {
       eventOptions.test_event_code = testCode;
     }
 
-    console.log(`[FB Pixel] Event: ${name}`, eventOptions);
-    window.fbq('track', name, eventOptions)
+    // Suporta eventID tanto no parâmetro extraParams quanto em eventOptions
+    const eventId = extraParams?.eventID || eventOptions.eventID;
+    const finalExtra = eventId ? { eventID: eventId, ...extraParams } : extraParams;
+
+    console.log(`[FB Pixel] Event: ${name}`, eventOptions, finalExtra);
+    if (finalExtra) {
+      window.fbq('track', name, eventOptions, finalExtra);
+    } else {
+      window.fbq('track', name, eventOptions);
+    }
   } else {
     console.warn(`[FB Pixel] FAILED: ${name} (fbq not found)`);
   }

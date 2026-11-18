@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard, CheckCircle, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight, Home, Trees, MapPin, X, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -48,6 +48,12 @@ interface BookingWizardProps {
   initialModality?: 'digital' | 'print';
 }
 
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 export default function BookingWizard({ 
   initialSessionId = "be68f0ac-d486-4cad-8ea4-3eed090ffada", 
   initialTier = 1,
@@ -82,6 +88,7 @@ export default function BookingWizard({
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [mpLoaded, setMpLoaded] = useState(false);
+  const hasTrackedPurchaseRef = useRef<string | null>(null);
 
   // Carregar dados salvos do cliente para agendamentos recorrentes
   useEffect(() => {
@@ -117,6 +124,15 @@ export default function BookingWizard({
       cpf: formData.cpf,
       rememberMe,
     });
+    // Consistência de Advanced Matching: vincula os dados assim que o usuário preenche o contato
+    if (formData.email) {
+      fbInit({
+        em: formData.email.toLowerCase().trim(),
+        ph: formData.whatsapp.replace(/\D/g, ''),
+        fn: formData.name.split(' ')[0].toLowerCase().trim(),
+        external_id: formData.cpf.replace(/\D/g, '')
+      });
+    }
     setStep('payment');
   };
 
@@ -207,16 +223,87 @@ export default function BookingWizard({
       trackSiteEvent('step_booking_checkout', session?.name);
     }
     if (step === 'success') {
-      fbEvent('Purchase', {
-        content_name: session?.name,
-        content_ids: [sessionId],
-        content_type: 'product',
-        value: (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0,
-        currency: 'BRL'
-      });
-      trackSiteEvent('booking_success', session?.name);
+      // Obter bookingId atual (estado local ou persistência em sessionStorage)
+      const resolvedBookingId = bookingId || (typeof window !== 'undefined' ? sessionStorage.getItem('current_booking_id') : null) || undefined;
+      const deduplicationKey = resolvedBookingId || 'success_tracked';
+
+      // Evita disparar Purchase repetidas vezes se o componente re-renderizar
+      if (hasTrackedPurchaseRef.current !== deduplicationKey) {
+        hasTrackedPurchaseRef.current = deduplicationKey;
+
+        // Diagnóstico e extração de cookies Meta (fbp e fbc) para consistência entre browser e CAPI
+        const fbp = getCookie('_fbp') || getCookie('fbp');
+        let fbc = getCookie('_fbc') || getCookie('fbc');
+
+        if (!fbc && typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const fbclid = urlParams.get('fbclid');
+          if (fbclid) {
+            fbc = `fb.1.${Date.now()}.${fbclid}`;
+          }
+        }
+
+        console.log("📊 [Meta Tracking] Status no disparo de Purchase:", {
+          bookingId: resolvedBookingId,
+          fbp: fbp ? "presente" : "ausente",
+          fbc: fbc ? "presente" : "ausente",
+          email: !!formData.email
+        });
+
+        // Garantir Advanced Matching consistente com os dados do cliente
+        if (formData.email) {
+          fbInit({
+            em: formData.email.toLowerCase().trim(),
+            ph: formData.whatsapp.replace(/\D/g, ''),
+            fn: formData.name.split(' ')[0].toLowerCase().trim(),
+            external_id: formData.cpf.replace(/\D/g, '')
+          });
+        }
+
+        const purchaseValue = (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0;
+
+        const purchasePayload: Record<string, any> = {
+          content_name: session?.name,
+          content_ids: [sessionId],
+          content_type: 'product',
+          value: purchaseValue,
+          currency: 'BRL',
+          num_items: 1,
+        };
+
+        if (resolvedBookingId) {
+          purchasePayload.eventID = resolvedBookingId;
+        }
+        if (fbp) {
+          purchasePayload.fbp = fbp;
+        }
+        if (fbc) {
+          purchasePayload.fbc = fbc;
+        }
+
+        // Dispara Purchase passando { eventID: resolvedBookingId } como options para deduplicação 100% com o Meta CAPI
+        fbEvent(
+          'Purchase',
+          purchasePayload,
+          resolvedBookingId ? { eventID: resolvedBookingId } : undefined
+        );
+        trackSiteEvent('booking_success', session?.name);
+      }
     }
-  }, [step, session?.name, sessionId, paymentType, packageType, activePackage, session?.deposit_price]);
+  }, [
+    step, 
+    session?.name, 
+    sessionId, 
+    paymentType, 
+    packageType, 
+    activePackage, 
+    session?.deposit_price, 
+    bookingId, 
+    formData.email, 
+    formData.whatsapp, 
+    formData.name, 
+    formData.cpf
+  ]);
 
   // Carregar SDK do Mercado Pago
   useEffect(() => {
@@ -558,6 +645,9 @@ export default function BookingWizard({
     
     if (res.success && res.preferenceId) {
       setBookingId(res.bookingId);
+      if (typeof window !== 'undefined' && res.bookingId) {
+        sessionStorage.setItem('current_booking_id', res.bookingId);
+      }
       setPreferenceId(res.preferenceId);
       setStep('checkout');
     } else {
