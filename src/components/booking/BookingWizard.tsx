@@ -30,8 +30,13 @@ interface MercadoPagoBrickSettings {
   customization: {
     paymentMethods: Record<string, string>;
     visual: {
-      style: {
-        theme: string;
+      style?: {
+        theme?: string;
+      };
+      hideFormTitle?: boolean;
+      defaultPaymentOption?: {
+        bankTransferForm?: boolean;
+        creditCardForm?: boolean;
       };
     };
   };
@@ -382,8 +387,12 @@ export default function BookingWizard({
               creditCard: "all",   // Cartão de Crédito
             },
             visual: {
+              hideFormTitle: true,
               style: {
                 theme: "default",
+              },
+              defaultPaymentOption: {
+                bankTransferForm: true, // Já abre selecionado no Pix diretamente
               },
             },
           },
@@ -1303,13 +1312,8 @@ export default function BookingWizard({
               <motion.div 
                 key="checkout"
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="max-w-2xl mx-auto space-y-8 py-8 scroll-mt-6"
+                className="max-w-xl mx-auto space-y-4 py-4 md:py-8 scroll-mt-6"
               >
-                <div className="text-center mb-6">
-                  <h3 className="text-3xl font-serif italic text-[#2C2A29]">Pagamento Seguro</h3>
-                  <p className="text-sm text-[#8C8681] font-light">Escolha a melhor forma para você.</p>
-                </div>
-
                 <div id="paymentBrick_container" className="scroll-mt-4">
                   {/* O Mercado Pago vai injetar o checkout aqui */}
                   <div className="flex flex-col items-center justify-center py-20">
@@ -1318,12 +1322,14 @@ export default function BookingWizard({
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => setStep('payment')}
-                  className="w-full py-4 text-[10px] uppercase tracking-widest text-[#8C8681] hover:text-blush transition-colors"
-                >
-                  Alterar Opções de Pacote
-                </button>
+                <div className="pt-2 text-center">
+                  <button 
+                    onClick={() => setStep('payment')}
+                    className="text-[10px] uppercase tracking-widest text-[#8C8681] hover:text-blush transition-colors"
+                  >
+                    Alterar Opções de Pacote
+                  </button>
+                </div>
               </motion.div>
             )}
 
