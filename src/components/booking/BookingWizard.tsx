@@ -1236,11 +1236,11 @@ export default function BookingWizard({
 
                 {/* Card de Resumo da Sessão */}
                 <div className="bg-white p-3.5 rounded-xl border border-[#E6DFD3]/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] space-y-0.5">
-                  <p className="font-bold text-[#2C2A29] text-[13px]">
-                    {session?.name} • {activePackage?.name}
+                  <p className="font-bold text-[#2C2A29] text-[14px]">
+                    {selectedDate ? new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) : ''} às {selectedTime.substring(0, 5)}h
                   </p>
                   <p className="text-[#8C8681] text-[12px] font-light">
-                    {selectedDate ? new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) : ''} às {selectedTime.substring(0, 5)}h
+                    {session?.name} • {activePackage?.name}
                   </p>
                 </div>
 
