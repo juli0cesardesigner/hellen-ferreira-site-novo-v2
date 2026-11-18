@@ -1336,7 +1336,6 @@ export default function BookingWizard({
                           }`}
                         >
                           <span className="text-xs font-bold uppercase tracking-wider">Cartão de Crédito</span>
-                          <span className="text-[10px] text-[#8C8681] font-light">Em até 12x</span>
                         </button>
                       </div>
                     </div>
