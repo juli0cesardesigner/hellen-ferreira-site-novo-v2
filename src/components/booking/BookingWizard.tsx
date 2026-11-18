@@ -1211,176 +1211,235 @@ export default function BookingWizard({
               </motion.div>
             )}
 
-            {step === 'payment' && (
+            {step === 'payment' && (() => {
+              const packagePrice = (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print) ?? 0;
+              const depositPrice = session?.deposit_price ?? 0;
+              const isDeposit = paymentType === 'deposit';
+              const payingNow = isDeposit ? depositPrice : packagePrice;
+              const remainingAmount = isDeposit ? Math.max(0, packagePrice - depositPrice) : 0;
+
+              return (
               <motion.div 
                 key="payment"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                className="max-w-2xl mx-auto space-y-12 py-8"
+                className="max-w-md mx-auto space-y-6 py-4 md:py-6 text-left"
               >
-                <button onClick={() => setStep('details')} className="text-[10px] uppercase tracking-widest text-[#8C8681] flex items-center gap-2 hover:text-blush transition-colors">
-                  <ArrowLeft size={12} /> Voltar para Meus Dados
+                {/* Botão Voltar */}
+                <button 
+                  onClick={() => setStep('details')} 
+                  className="text-[11px] uppercase tracking-widest text-[#8C8681] flex items-center gap-1.5 hover:text-blush transition-colors font-bold"
+                >
+                  <ChevronLeft size={14} /> VOLTAR
                 </button>
 
-                <div className="text-center">
-                   <h3 className="text-3xl font-serif italic text-[#2C2A29] mb-4">Pagamento Seguro</h3>
-                   <p className="text-sm text-[#8C8681] font-light max-w-md mx-auto leading-relaxed">Seu horário só será reservado definitivamente após a confirmação do pagamento.</p>
+                {/* Título & Subtítulo */}
+                <div className="space-y-1">
+                  <h2 className="text-3xl md:text-4xl font-serif italic text-[#2C2A29]">Pagamento seguro</h2>
+                  <p className="text-[13px] text-[#8C8681] font-light">Seu horário só é reservado após a confirmação do pagamento.</p>
                 </div>
 
-                <div className="space-y-8">
-                  {/* Resumo da Reserva */}
-                  <div className="bg-[#FAF7F2] p-5 rounded-sm border border-[#E6DFD3] flex flex-wrap items-center justify-between gap-4 text-xs">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">📸</span>
-                      <div>
-                        <p className="font-bold text-[#2C2A29] uppercase tracking-wider text-[11px]">{session?.name} • {activePackage?.name}</p>
-                        <p className="text-[#8C8681] text-[11px]">
-                          {selectedDate ? new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) : ''} às {selectedTime.substring(0, 5)}h
-                        </p>
-                      </div>
-                    </div>
-                    {supportsLocationChoice && (
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-[#E6DFD3] text-[11px] font-medium text-[#2C2A29]">
-                        {locationType === 'externo' ? (
-                          <>
-                            <Trees size={13} className="text-blush" />
-                            <span>Locação Externa{locationDetails ? `: ${locationDetails}` : ''}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Home size={13} className="text-blush" />
-                            <span>No Estúdio</span>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                {/* Card de Resumo da Sessão */}
+                <div className="bg-white p-4 rounded-xl border border-[#E6DFD3]/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] space-y-0.5">
+                  <p className="font-bold text-[#2C2A29] text-[13px]">
+                    {session?.name} • {activePackage?.name}
+                  </p>
+                  <p className="text-[#8C8681] text-[12px] font-light">
+                    {selectedDate ? new Date(selectedDate + "T12:00:00").toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) : ''} às {selectedTime.substring(0, 5)}h
+                  </p>
+                </div>
 
-                  {/* Escolha do Pacote */}
-                  <div className="bg-linen/20 p-6 rounded-sm border border-sand/30">
-                     <p className="text-[10px] uppercase tracking-widest text-text-light font-bold mb-4">Escolha seu pacote</p>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button 
-                          onClick={() => setPackageType('digital')}
-                          className={`p-6 border rounded-sm text-left transition-all ${packageType === 'digital' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
-                        >
-                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1">Apenas Digital</p>
-                          <p className="text-3xl font-serif text-[#2C2A29] mt-2">R$ {activePackage?.price_digital}</p>
-                        </button>
-                        <button 
-                          onClick={() => setPackageType('print')}
-                          className={`p-6 border rounded-sm text-left transition-all ${packageType === 'print' ? 'border-blush bg-white ring-2 ring-blush/20' : 'border-sand bg-transparent hover:border-blush/30'}`}
-                        >
-                          <p className="text-[10px] font-bold uppercase tracking-widest mb-1">{activePackage?.upgrade_label || "Digital + Impressões"}</p>
-                          <p className="text-3xl font-serif text-[#2C2A29] mt-2">R$ {activePackage?.price_print}</p>
-                        </button>
-                     </div>
-                  </div>
-
-                  {/* Forma de Pagamento */}
-                  <div className="space-y-4">
-                    <p className="text-[10px] uppercase tracking-widest text-text-light font-bold">Quanto deseja pagar agora?</p>
-                    
-                    <button 
-                      onClick={() => setPaymentType('deposit')}
-                      className={`w-full p-8 border rounded-sm text-left transition-all flex justify-between items-center group ${paymentType === 'deposit' ? 'border-blush bg-white shadow-xl' : 'border-sand hover:border-blush bg-white/50'}`}
+                {/* 1 · PACOTE */}
+                <div className="space-y-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-[#8C8681] font-bold">1 · PACOTE</p>
+                  <div className="space-y-2">
+                    {/* Apenas Digital */}
+                    <button
+                      type="button"
+                      onClick={() => setPackageType('digital')}
+                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                        packageType === 'digital'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
                     >
-                      <div>
-                        <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Apenas a Reserva</h4>
-                        <p className="text-sm text-[#2C2A29] font-medium mt-2">Pague o sinal de R$ {(session?.deposit_price || 0).toFixed(2).replace('.', ',')} para garantir a data.</p>
-                      </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentType === 'deposit' ? 'border-blush bg-blush' : 'border-sand'}`}>
-                          {paymentType === 'deposit' && <div className="w-2 h-2 bg-white rounded-full" />}
-                      </div>
-                    </button>
-
-                    <button 
-                      onClick={() => setPaymentType('full')}
-                      className={`w-full p-8 border rounded-sm text-left transition-all flex justify-between items-center group ${paymentType === 'full' ? 'border-blush bg-white shadow-xl' : 'border-sand hover:border-blush bg-white/50'}`}
-                    >
-                      <div>
-                        <h4 className="text-sm font-bold text-text-dark uppercase tracking-widest">Valor Total</h4>
-                        <p className="text-sm text-[#2C2A29] font-medium mt-2">Pague o valor integral e aproveite a tranquilidade.</p>
-                        <p className="text-sm font-bold text-blush uppercase mt-2">
-                          Total: R$ {packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print}
-                        </p>
-                      </div>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentType === 'full' ? 'border-blush bg-blush' : 'border-sand'}`}>
-                          {paymentType === 'full' && <div className="w-2 h-2 bg-white rounded-full" />}
-                      </div>
-                    </button>
-
-                    {/* Meio de Pagamento: Pix vs Cartão */}
-                    <div className="pt-3 space-y-2">
-                      <p className="text-[10px] uppercase tracking-widest text-text-light font-bold">Meio de pagamento</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethodChoice('pix')}
-                          className={`p-4 rounded-sm border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
-                            paymentMethodChoice === 'pix'
-                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md text-[#2C2A29]'
-                              : 'border-[#E6DFD3] bg-white/60 hover:border-blush/40 text-[#8C8681]'
-                          }`}
-                        >
-                          <span className="text-xs font-bold uppercase tracking-wider">Pix (Imediato)</span>
-                          <span className="text-[10px] text-emerald-600 font-medium">Aprovação instantânea</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethodChoice('card')}
-                          className={`p-4 rounded-sm border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
-                            paymentMethodChoice === 'card'
-                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md text-[#2C2A29]'
-                              : 'border-[#E6DFD3] bg-white/60 hover:border-blush/40 text-[#8C8681]'
-                          }`}
-                        >
-                          <span className="text-xs font-bold uppercase tracking-wider">Cartão de Crédito</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {paymentType === 'deposit' && (
-                      <motion.div 
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="overflow-hidden"
-                      >
-                        <div className="mt-2 p-5 bg-[#FAF9F7] border border-[#E6DFD3] rounded-sm">
-                          <label className="flex items-start gap-4 cursor-pointer group">
-                            <div className="relative flex items-center justify-center mt-0.5 shrink-0">
-                              <input 
-                                type="checkbox" 
-                                className="peer sr-only"
-                                checked={acceptedTerms}
-                                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                              />
-                              <div className="w-5 h-5 border-2 border-[#D1CCC5] rounded-sm peer-checked:bg-[#2C2A29] peer-checked:border-[#2C2A29] transition-all flex items-center justify-center">
-                                {acceptedTerms && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                              </div>
-                            </div>
-                            <div className="text-xs text-[#595553] font-normal leading-relaxed">
-                              Estou ciente de que o meu horário ficará reservado <strong className="text-[#2C2A29]">exclusivamente</strong> para mim. Entendo que, em caso de não comparecimento no dia e horário agendados, o valor da reserva não será reembolsado.
-                            </div>
-                          </label>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          packageType === 'digital' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
+                        }`}>
+                          {packageType === 'digital' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
                         </div>
-                      </motion.div>
-                    )}
+                        <span className="text-[13px] text-[#2C2A29] font-medium">Apenas digital</span>
+                      </div>
+                      <span className="text-xl font-serif text-[#2C2A29]">
+                        R$ {activePackage?.price_digital}
+                      </span>
+                    </button>
+
+                    {/* Digital + Impressa */}
+                    <button
+                      type="button"
+                      onClick={() => setPackageType('print')}
+                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                        packageType === 'print'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          packageType === 'print' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
+                        }`}>
+                          {packageType === 'print' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
+                        </div>
+                        <span className="text-[13px] text-[#2C2A29] font-medium">{activePackage?.upgrade_label || "Digital + impressa"}</span>
+                      </div>
+                      <span className="text-xl font-serif text-[#2C2A29]">
+                        R$ {activePackage?.price_print}
+                      </span>
+                    </button>
                   </div>
                 </div>
 
+                {/* 2 · QUANTO PAGAR AGORA */}
+                <div className="space-y-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-[#8C8681] font-bold">2 · QUANTO PAGAR AGORA</p>
+                  <div className="space-y-2">
+                    {/* Só a Reserva */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentType('deposit')}
+                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                        paymentType === 'deposit'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          paymentType === 'deposit' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
+                        }`}>
+                          {paymentType === 'deposit' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-bold text-[#2C2A29]">Só a reserva</p>
+                          <p className="text-[11px] text-[#8C8681] font-light">Sinal para garantir a data</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-[#2C2A29]">
+                        R$ {depositPrice}
+                      </span>
+                    </button>
+
+                    {/* Valor Total */}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentType('full')}
+                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                        paymentType === 'full'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          paymentType === 'full' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
+                        }`}>
+                          {paymentType === 'full' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-bold text-[#2C2A29]">Valor total</p>
+                          <p className="text-[11px] text-[#8C8681] font-light">Pague tudo e fique tranquila</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-[#2C2A29]">
+                        R$ {packagePrice}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3 · FORMA DE PAGAMENTO */}
+                <div className="space-y-2.5">
+                  <p className="text-[10px] uppercase tracking-wider text-[#8C8681] font-bold">3 · FORMA DE PAGAMENTO</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodChoice('pix')}
+                      className={`py-3.5 px-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                        paymentMethodChoice === 'pix'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
+                    >
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#2C2A29]">PIX</span>
+                      <span className="text-[10px] text-emerald-600 font-medium mt-0.5">Aprovação imediata</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodChoice('card')}
+                      className={`py-3.5 px-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                        paymentMethodChoice === 'card'
+                          ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
+                          : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
+                      }`}
+                    >
+                      <span className="text-xs font-medium text-[#595552]">Cartão de crédito</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Termo de Reserva (Checkbox) */}
+                <div className="pt-1">
+                  <label className="flex items-start gap-3 cursor-pointer select-none">
+                    <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                      <input 
+                        type="checkbox" 
+                        className="peer sr-only"
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      />
+                      <div className="w-5 h-5 border border-[#C2BAAF] rounded-sm bg-white peer-checked:bg-[#9E6053] peer-checked:border-[#9E6053] transition-all flex items-center justify-center">
+                        {acceptedTerms && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                      </div>
+                    </div>
+                    <span className="text-[11px] text-[#595552] font-normal leading-relaxed">
+                      Meu horário ficará reservado só para mim. Em caso de não comparecimento, o valor da reserva <strong className="text-[#2C2A29]">não é reembolsado</strong>.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Linha Divisória */}
+                <div className="border-t border-[#E6DFD3]/80 pt-4 space-y-1.5">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[13px] text-[#595552] font-light">Pagando agora</span>
+                    <span className="text-2xl md:text-3xl font-serif text-[#2C2A29]">
+                      R$ {payingNow.toFixed(2).replace('.', ',')}
+                    </span>
+                  </div>
+
+                  {isDeposit && (
+                    <div className="flex items-center justify-between text-[11px] text-[#8C8681]">
+                      <span>Restante do pacote (R$ {packagePrice})</span>
+                      <span>R$ {remainingAmount.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Botão de Ação */}
                 <button 
-                  disabled={isLoading || (paymentType === 'deposit' && !acceptedTerms)}
+                  disabled={isLoading || !acceptedTerms}
                   onClick={handleFinalize}
-                  className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4 mt-8"
+                  className="w-full py-4.5 bg-[#9E6053] text-white rounded-xl text-[12px] uppercase tracking-[0.2em] font-bold hover:bg-[#854E43] active:scale-[0.99] transition-all disabled:opacity-40 shadow-md flex items-center justify-center"
                 >
                   {isLoading 
                     ? "Processando..." 
-                    : (paymentMethodChoice === 'pix' ? "Gerar Código Pix" : "Pagar com Cartão")
-                  } {paymentMethodChoice === 'pix' ? null : <CreditCard size={18} />}
+                    : (paymentMethodChoice === 'pix' ? "GERAR CÓDIGO PIX" : "PAGAR COM CARTÃO")
+                  }
                 </button>
               </motion.div>
-            )}
+              );
+            })()}
 
             {step === 'checkout' && (
               <motion.div 
