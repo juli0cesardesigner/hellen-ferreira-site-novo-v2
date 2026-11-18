@@ -1234,14 +1234,8 @@ export default function BookingWizard({
                   <ChevronLeft size={14} /> VOLTAR
                 </button>
 
-                {/* Título & Subtítulo */}
-                <div className="space-y-1">
-                  <h2 className="text-3xl md:text-4xl font-serif italic text-[#2C2A29]">Pagamento seguro</h2>
-                  <p className="text-[13px] text-[#8C8681] font-light">Seu horário só é reservado após a confirmação do pagamento.</p>
-                </div>
-
                 {/* Card de Resumo da Sessão */}
-                <div className="bg-white p-4 rounded-xl border border-[#E6DFD3]/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] space-y-0.5">
+                <div className="bg-white p-3.5 rounded-xl border border-[#E6DFD3]/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)] space-y-0.5">
                   <p className="font-bold text-[#2C2A29] text-[13px]">
                     {session?.name} • {activePackage?.name}
                   </p>
@@ -1251,28 +1245,23 @@ export default function BookingWizard({
                 </div>
 
                 {/* 1 · PACOTE */}
-                <div className="space-y-2.5">
+                <div className="space-y-1.5">
                   <p className="text-[10px] uppercase tracking-wider text-[#8C8681] font-bold">1 · PACOTE</p>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {/* Apenas Digital */}
                     <button
                       type="button"
                       onClick={() => setPackageType('digital')}
-                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
                         packageType === 'digital'
                           ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
                           : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          packageType === 'digital' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
-                        }`}>
-                          {packageType === 'digital' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
-                        </div>
-                        <span className="text-[13px] text-[#2C2A29] font-medium">Apenas digital</span>
-                      </div>
-                      <span className="text-xl font-serif text-[#2C2A29]">
+                      <span className={`text-[12px] ${packageType === 'digital' ? 'font-bold text-[#9E6053]' : 'font-medium text-[#2C2A29]'}`}>
+                        Apenas digital
+                      </span>
+                      <span className="text-base font-serif text-[#2C2A29]">
                         R$ {activePackage?.price_digital}
                       </span>
                     </button>
@@ -1281,21 +1270,16 @@ export default function BookingWizard({
                     <button
                       type="button"
                       onClick={() => setPackageType('print')}
-                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
                         packageType === 'print'
                           ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
                           : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          packageType === 'print' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
-                        }`}>
-                          {packageType === 'print' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
-                        </div>
-                        <span className="text-[13px] text-[#2C2A29] font-medium">{activePackage?.upgrade_label || "Digital + impressa"}</span>
-                      </div>
-                      <span className="text-xl font-serif text-[#2C2A29]">
+                      <span className={`text-[12px] ${packageType === 'print' ? 'font-bold text-[#9E6053]' : 'font-medium text-[#2C2A29]'}`}>
+                        {activePackage?.upgrade_label || "Digital + impressa"}
+                      </span>
+                      <span className="text-base font-serif text-[#2C2A29]">
                         R$ {activePackage?.price_print}
                       </span>
                     </button>
@@ -1303,31 +1287,23 @@ export default function BookingWizard({
                 </div>
 
                 {/* 2 · QUANTO PAGAR AGORA */}
-                <div className="space-y-2.5">
+                <div className="space-y-1.5">
                   <p className="text-[10px] uppercase tracking-wider text-[#8C8681] font-bold">2 · QUANTO PAGAR AGORA</p>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {/* Só a Reserva */}
                     <button
                       type="button"
                       onClick={() => setPaymentType('deposit')}
-                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
                         paymentType === 'deposit'
                           ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
                           : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          paymentType === 'deposit' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
-                        }`}>
-                          {paymentType === 'deposit' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-bold text-[#2C2A29]">Só a reserva</p>
-                          <p className="text-[11px] text-[#8C8681] font-light">Sinal para garantir a data</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-[#2C2A29]">
+                      <span className={`text-[12px] ${paymentType === 'deposit' ? 'font-bold text-[#9E6053]' : 'font-medium text-[#2C2A29]'}`}>
+                        Só a reserva
+                      </span>
+                      <span className="text-base font-serif text-[#2C2A29]">
                         R$ {depositPrice}
                       </span>
                     </button>
@@ -1336,24 +1312,16 @@ export default function BookingWizard({
                     <button
                       type="button"
                       onClick={() => setPaymentType('full')}
-                      className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
+                      className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
                         paymentType === 'full'
                           ? 'border-[#9E6053] bg-white ring-1 ring-[#9E6053]/40 shadow-sm'
                           : 'border-[#E6DFD3] bg-white hover:border-[#9E6053]/30'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          paymentType === 'full' ? 'border-[#9E6053]' : 'border-[#C2BAAF]'
-                        }`}>
-                          {paymentType === 'full' && <div className="w-2.5 h-2.5 rounded-full bg-[#9E6053]" />}
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-bold text-[#2C2A29]">Valor total</p>
-                          <p className="text-[11px] text-[#8C8681] font-light">Pague tudo e fique tranquila</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-[#2C2A29]">
+                      <span className={`text-[12px] ${paymentType === 'full' ? 'font-bold text-[#9E6053]' : 'font-medium text-[#2C2A29]'}`}>
+                        Valor total
+                      </span>
+                      <span className="text-base font-serif text-[#2C2A29]">
                         R$ {packagePrice}
                       </span>
                     </button>
