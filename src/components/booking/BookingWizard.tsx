@@ -110,6 +110,7 @@ export default function BookingWizard({
   const [isDataAutoFilled, setIsDataAutoFilled] = useState(false);
   const [packageType, setPackageType] = useState<'digital' | 'print'>(initialModality);
   const [paymentType, setPaymentType] = useState<'deposit' | 'full'>('deposit');
+  const [paymentMethodChoice, setPaymentMethodChoice] = useState<'pix' | 'card'>('pix');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSlotsLoading, setIsSlotsLoading] = useState(false);
@@ -383,16 +384,12 @@ export default function BookingWizard({
           },
           customization: {
             paymentMethods: {
-              bankTransfer: "all", // Pix
-              creditCard: "all",   // Cartão de Crédito
+              creditCard: "all",   // Apenas Cartão de Crédito no Brick
             },
             visual: {
               hideFormTitle: true,
               style: {
                 theme: "default",
-              },
-              defaultPaymentOption: {
-                bankTransferForm: true, // Já abre selecionado no Pix diretamente
               },
             },
           },
@@ -660,6 +657,8 @@ export default function BookingWizard({
   const handleFinalize = async () => {
     setIsLoading(true);
 
+    const amountToPayNow = (paymentType === 'deposit' ? session?.deposit_price : (packageType === 'digital' ? activePackage?.price_digital : activePackage?.price_print)) ?? 0;
+
     // Advanced Matching: Inicializa o Pixel com os dados do cliente para melhorar a otimização
     fbInit({
       em: formData.email.toLowerCase().trim(),
@@ -696,8 +695,49 @@ export default function BookingWizard({
         sessionStorage.setItem('current_booking_id', res.bookingId);
       }
       setPreferenceId(res.preferenceId);
+
+      // Se o usuário optou por Pix, gerar o QR Code diretamente via Server Action!
+      if (paymentMethodChoice === 'pix') {
+        try {
+          const rawCpf = formData.cpf.replace(/\D/g, '');
+          const pixRes = await processPayment({
+            transaction_amount: amountToPayNow,
+            payment_method_id: 'pix',
+            description: `Agendamento - ${session?.name}`,
+            payer: {
+              email: formData.email,
+              identification: {
+                type: 'CPF',
+                number: rawCpf
+              }
+            }
+          }, res.bookingId);
+
+          if (pixRes.success && pixRes.pixData) {
+            setPixData(pixRes.pixData);
+            setPixTimeLeft(30 * 60);
+            setIsLoading(false);
+            setStep('pix');
+            if (typeof window !== 'undefined') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            return;
+          } else {
+            setIsLoading(false);
+            showToast(pixRes.error || "Não foi possível gerar o código Pix. Tente novamente.", "error");
+            return;
+          }
+        } catch (pixErr: unknown) {
+          setIsLoading(false);
+          console.error("Erro ao gerar Pix direto:", pixErr);
+          showToast("Erro ao gerar Pix. Verifique os dados e tente novamente.", "error");
+          return;
+        }
+      }
+
+      // Se escolheu Cartão de Crédito, ir para a tela do Checkout seguro de cartão
+      setIsLoading(false);
       setStep('checkout');
-      // No mobile e desktop, rolar suavemente para o topo do checkout
       if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -1269,6 +1309,38 @@ export default function BookingWizard({
                       </div>
                     </button>
 
+                    {/* Meio de Pagamento: Pix vs Cartão */}
+                    <div className="pt-3 space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest text-text-light font-bold">Meio de pagamento</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethodChoice('pix')}
+                          className={`p-4 rounded-sm border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                            paymentMethodChoice === 'pix'
+                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md text-[#2C2A29]'
+                              : 'border-[#E6DFD3] bg-white/60 hover:border-blush/40 text-[#8C8681]'
+                          }`}
+                        >
+                          <span className="text-xs font-bold uppercase tracking-wider">Pix (Imediato)</span>
+                          <span className="text-[10px] text-emerald-600 font-medium">Aprovação instantânea</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethodChoice('card')}
+                          className={`p-4 rounded-sm border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                            paymentMethodChoice === 'card'
+                              ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md text-[#2C2A29]'
+                              : 'border-[#E6DFD3] bg-white/60 hover:border-blush/40 text-[#8C8681]'
+                          }`}
+                        >
+                          <span className="text-xs font-bold uppercase tracking-wider">Cartão de Crédito</span>
+                          <span className="text-[10px] text-[#8C8681] font-light">Em até 12x</span>
+                        </button>
+                      </div>
+                    </div>
+
                     {paymentType === 'deposit' && (
                       <motion.div 
                         initial={{ opacity: 0, height: 0 }} 
@@ -1303,7 +1375,10 @@ export default function BookingWizard({
                   onClick={handleFinalize}
                   className="w-full py-6 bg-blush text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-[#C29088] transition-all disabled:opacity-30 shadow-xl flex items-center justify-center gap-4 mt-8"
                 >
-                  {isLoading ? "Processando..." : "Finalizar Agendamento"} <CreditCard size={18} />
+                  {isLoading 
+                    ? "Processando..." 
+                    : (paymentMethodChoice === 'pix' ? "Gerar Código Pix" : "Pagar com Cartão")
+                  } {paymentMethodChoice === 'pix' ? null : <CreditCard size={18} />}
                 </button>
               </motion.div>
             )}
