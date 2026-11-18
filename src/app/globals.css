@@ -136,4 +136,13 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Mercado Pago Brick Mobile Usability Fix */
+  #paymentBrick_container {
+    width: 100%;
+  }
+
+  #paymentBrick_container iframe {
+    max-width: 100% !important;
+  }
 }

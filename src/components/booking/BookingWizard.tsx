@@ -48,6 +48,31 @@ interface BookingWizardProps {
   initialModality?: 'digital' | 'print';
 }
 
+function isValidCPF(cpf: string): boolean {
+  const clean = cpf.replace(/\D/g, '');
+  if (clean.length !== 11) return false;
+  // Rejeita sequências repetidas (ex: 111.111.111-11)
+  if (/^(\d)\1{10}$/.test(clean)) return false;
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(clean.charAt(i), 10) * (10 - i);
+  }
+  let rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(clean.charAt(9), 10)) return false;
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(clean.charAt(i), 10) * (11 - i);
+  }
+  rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(clean.charAt(10), 10)) return false;
+
+  return true;
+}
+
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
@@ -117,6 +142,12 @@ export default function BookingWizard({
   };
 
   const handleGoToPayment = () => {
+    const rawCpf = formData.cpf.replace(/\D/g, '');
+    if (!isValidCPF(rawCpf)) {
+      showToast("Por favor, informe um CPF válido para prosseguir com o agendamento.", "error");
+      return;
+    }
+
     saveClientData({
       name: formData.name,
       email: formData.email,
@@ -359,6 +390,13 @@ export default function BookingWizard({
           callbacks: {
             onReady: () => {
               setIsLoading(false);
+              // Garante que o scroll no mobile fique alinhado na visualização dos meios de pagamento
+              if (typeof window !== 'undefined') {
+                const el = document.getElementById("paymentBrick_container");
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }
             },
             onSubmit: async (paymentFormData: { formData: Record<string, unknown> }) => {
               try {
@@ -650,6 +688,10 @@ export default function BookingWizard({
       }
       setPreferenceId(res.preferenceId);
       setStep('checkout');
+      // No mobile e desktop, rolar suavemente para o topo do checkout
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } else {
       setIsLoading(false);
       showToast(res.error || "Erro ao criar agendamento. Tente novamente.", "error");
@@ -992,10 +1034,19 @@ export default function BookingWizard({
                     </div>
                   </div>
                   <div className="space-y-2">
-                     <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF</label>
+                     <div className="flex items-center justify-between">
+                       <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF</label>
+                       {formData.cpf.replace(/\D/g, '').length === 11 && !isValidCPF(formData.cpf.replace(/\D/g, '')) && (
+                         <span className="text-[11px] text-red-500 font-medium">CPF inválido</span>
+                       )}
+                     </div>
                      <input 
                       type="text" placeholder="000.000.000-00"
-                      className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
+                      className={`w-full p-5 bg-white border rounded-sm text-sm outline-none transition-colors ${
+                        formData.cpf.replace(/\D/g, '').length === 11 && !isValidCPF(formData.cpf.replace(/\D/g, ''))
+                          ? 'border-red-400 focus:border-red-500'
+                          : 'border-[#E6DFD3] focus:border-blush'
+                      }`}
                       value={formData.cpf} onChange={handleCpfChange}
                     />
                   </div>
@@ -1102,7 +1153,7 @@ export default function BookingWizard({
                 </div>
 
                 <button 
-                  disabled={!formData.name || !formData.email || !formData.whatsapp || formData.cpf.replace(/\D/g, '').length !== 11}
+                  disabled={!formData.name || !formData.email || !formData.whatsapp || !isValidCPF(formData.cpf.replace(/\D/g, ''))}
                   onClick={handleGoToPayment}
                   className="w-full py-6 bg-[#2C2A29] text-white rounded-sm text-[11px] uppercase tracking-[0.3em] font-bold hover:bg-black transition-all disabled:opacity-30 shadow-lg"
                 >
@@ -1252,14 +1303,14 @@ export default function BookingWizard({
               <motion.div 
                 key="checkout"
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="max-w-2xl mx-auto space-y-8 py-8"
+                className="max-w-2xl mx-auto space-y-8 py-8 scroll-mt-6"
               >
-                <div className="text-center mb-8">
+                <div className="text-center mb-6">
                   <h3 className="text-3xl font-serif italic text-[#2C2A29]">Pagamento Seguro</h3>
                   <p className="text-sm text-[#8C8681] font-light">Escolha a melhor forma para você.</p>
                 </div>
 
-                <div id="paymentBrick_container">
+                <div id="paymentBrick_container" className="scroll-mt-4">
                   {/* O Mercado Pago vai injetar o checkout aqui */}
                   <div className="flex flex-col items-center justify-center py-20">
                      <div className="w-10 h-10 border-4 border-blush/20 border-t-blush rounded-full animate-spin" />
@@ -1341,8 +1392,7 @@ export default function BookingWizard({
                 <div className="space-y-4">
                   <h3 className="text-4xl font-serif text-text-dark italic">Tudo pronto, {formData.name.split(' ')[0]}!</h3>
                   <p className="text-sm text-text-light font-light max-w-sm mx-auto leading-loose uppercase tracking-[0.1em]">
-                    Seu agendamento foi pré-confirmado com sucesso. <br/>
-                    Confira seu WhatsApp em instantes! ✨🎞️
+                    Seu agendamento foi pré-confirmado com sucesso.
                   </p>
                 </div>
                 <Link href="/" className="text-[10px] uppercase tracking-[0.4em] text-text-light border-b border-sand/50 pb-2 hover:text-blush transition-colors font-bold">
