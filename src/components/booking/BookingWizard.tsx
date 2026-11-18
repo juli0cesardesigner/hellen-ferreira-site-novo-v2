@@ -774,15 +774,17 @@ export default function BookingWizard({
   const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
   return (
-    <div className="min-h-screen bg-[#FCFBF9] pt-10 md:pt-28 pb-10 px-3 sm:px-6">
+    <div className={`min-h-screen bg-[#FCFBF9] ${step === 'schedule' ? 'pt-6 md:pt-28 pb-10' : 'pt-2 md:pt-14 pb-8'} px-3 sm:px-6`}>
       <div className="max-w-4xl mx-auto">
         
-        <div className="text-center mb-4 md:mb-8 space-y-1">
-          <h1 className="text-3xl md:text-5xl font-serif text-[#2C2A29] italic underline decoration-blush/20 decoration-6 md:decoration-8 underline-offset-[-2px]">
-            Agenda
-          </h1>
-          <p className="text-[10px] md:text-xs uppercase tracking-[0.35em] text-[#8C8681] font-light">Selecione seu momento</p>
-        </div>
+        {step === 'schedule' && (
+          <div className="text-center mb-4 md:mb-8 space-y-1">
+            <h1 className="text-3xl md:text-5xl font-serif text-[#2C2A29] italic underline decoration-blush/20 decoration-6 md:decoration-8 underline-offset-[-2px]">
+              Agenda
+            </h1>
+            <p className="text-[10px] md:text-xs uppercase tracking-[0.35em] text-[#8C8681] font-light">Selecione seu momento</p>
+          </div>
+        )}
 
         {/* Container sem box/borda no mobile, preservando o card elegante em desktop */}
         <div className="bg-transparent md:bg-white rounded-none md:rounded-3xl p-0 md:p-10 shadow-none md:shadow-[0_10px_40px_rgba(0,0,0,0.03)] border-0 md:border md:border-[#E6DFD3]/50">
@@ -1026,19 +1028,19 @@ export default function BookingWizard({
               <motion.div 
                 key="details"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-                className="max-w-2xl mx-auto space-y-12 py-8"
+                className="max-w-2xl mx-auto space-y-6 md:space-y-10 py-2 md:py-6"
               >
                 <button onClick={() => setStep('schedule')} className="text-[10px] uppercase tracking-widest text-[#8C8681] flex items-center gap-2 hover:text-blush transition-colors">
                   <ArrowLeft size={12} /> Voltar para a Agenda
                 </button>
 
                 <div className="text-center">
-                   <h3 className="text-3xl font-serif italic text-[#2C2A29] mb-4">Quase lá!</h3>
-                   <p className="text-sm text-[#8C8681] font-light">Informe seus dados para reservarmos seu espaço.</p>
+                   <h3 className="text-2xl md:text-3xl font-serif italic text-[#2C2A29] mb-1.5 md:mb-4">Quase lá!</h3>
+                   <p className="text-xs md:text-sm text-[#8C8681] font-light">Informe seus dados para reservarmos seu espaço.</p>
                 </div>
 
                 {isDataAutoFilled && (
-                  <div className="p-4 bg-blush/10 border border-blush/30 rounded-sm flex items-center justify-between text-xs text-[#2C2A29]">
+                  <div className="p-3.5 bg-blush/10 border border-blush/30 rounded-xl flex items-center justify-between text-xs text-[#2C2A29]">
                     <div className="flex items-center gap-2">
                       <span className="text-base">✨</span>
                       <span>
@@ -1055,34 +1057,34 @@ export default function BookingWizard({
                   </div>
                 )}
 
-                <div className="space-y-6">
-                  <div className="space-y-2">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="space-y-1.5">
                      <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">Nome Completo</label>
                      <input 
                       type="text" placeholder="Como podemos te chamar?"
-                      className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush transition-all"
+                      className="w-full p-3.5 md:p-5 bg-white border border-[#E6DFD3] rounded-xl text-sm outline-none focus:border-blush transition-all"
                       value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 md:gap-6">
+                    <div className="space-y-1.5">
                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">E-mail</label>
                        <input 
                         type="email" placeholder="Para confirmação"
-                        className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
+                        className="w-full p-3.5 md:p-5 bg-white border border-[#E6DFD3] rounded-xl text-sm outline-none focus:border-blush"
                         value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">WhatsApp</label>
                        <input 
                         type="tel" placeholder="(00) 00000-0000"
-                        className="w-full p-5 bg-white border border-[#E6DFD3] rounded-sm text-sm outline-none focus:border-blush"
+                        className="w-full p-3.5 md:p-5 bg-white border border-[#E6DFD3] rounded-xl text-sm outline-none focus:border-blush"
                         value={formData.whatsapp} onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                      <div className="flex items-center justify-between">
                        <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">CPF</label>
                        {formData.cpf.replace(/\D/g, '').length === 11 && !isValidCPF(formData.cpf.replace(/\D/g, '')) && (
@@ -1091,7 +1093,7 @@ export default function BookingWizard({
                      </div>
                      <input 
                       type="text" placeholder="000.000.000-00"
-                      className={`w-full p-5 bg-white border rounded-sm text-sm outline-none transition-colors ${
+                      className={`w-full p-3.5 md:p-5 bg-white border rounded-xl text-sm outline-none transition-colors ${
                         formData.cpf.replace(/\D/g, '').length === 11 && !isValidCPF(formData.cpf.replace(/\D/g, ''))
                           ? 'border-red-400 focus:border-red-500'
                           : 'border-[#E6DFD3] focus:border-blush'
@@ -1102,8 +1104,8 @@ export default function BookingWizard({
 
                   {/* Seletor de Modalidade (Estúdio vs Externo) */}
                   {supportsLocationChoice && (
-                    <div className="space-y-4 pt-2">
-                      <div className="flex flex-col gap-1">
+                    <div className="space-y-3 pt-1">
+                      <div className="flex flex-col gap-0.5">
                         <label className="text-[10px] uppercase tracking-widest font-bold text-[#8C8681]">
                           Local do Ensaio
                         </label>
@@ -1112,19 +1114,19 @@ export default function BookingWizard({
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <button
                           type="button"
                           onClick={() => setLocationType('estudio')}
-                          className={`p-5 rounded-sm border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                          className={`p-3.5 md:p-5 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
                             locationType === 'estudio'
                               ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md'
                               : 'border-[#E6DFD3] bg-white hover:border-blush/40'
                           }`}
                         >
-                          <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-2">
-                              <Home size={16} className={locationType === 'estudio' ? 'text-blush' : 'text-[#8C8681]'} />
+                              <Home size={15} className={locationType === 'estudio' ? 'text-blush' : 'text-[#8C8681]'} />
                               <span className="text-xs font-bold uppercase tracking-wider text-[#2C2A29]">No Estúdio</span>
                             </div>
                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
@@ -1141,7 +1143,7 @@ export default function BookingWizard({
                         <button
                           type="button"
                           onClick={() => setLocationType('externo')}
-                          className={`p-5 rounded-sm border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                          className={`p-3.5 md:p-5 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
                             locationType === 'externo'
                               ? 'border-blush bg-white ring-2 ring-blush/20 shadow-md'
                               : 'border-[#E6DFD3] bg-white hover:border-blush/40'
